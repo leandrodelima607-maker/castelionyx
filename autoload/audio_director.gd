@@ -7,16 +7,28 @@ const MAX_UI_VOICES := 2
 # Optional resource paths. Empty means intentionally silent; add project audio
 # here or call register_cue() after importing an AudioStream resource.
 const CUES := {
-	"music.title": {"path": "", "kind": "music"},
-	"music.gameplay": {"path": "", "kind": "music"},
-	"ui.confirm": {"path": "", "bus": "UI"},
-	"ui.cancel": {"path": "", "bus": "UI"},
-	"player.action": {"path": "", "bus": "SFX"},
-	"enemy.impact": {"path": "", "bus": "SFX"},
-	"score.reward": {"path": "", "bus": "SFX"},
-	"game.pause": {"path": "", "bus": "UI"},
-	"game.victory": {"path": "", "bus": "SFX"},
-	"game.defeat": {"path": "", "bus": "SFX"},
+	"music.title": {"path": "res://assets/songs/opening.ogg", "kind": "music"},
+	"music.gameplay": {"path": "res://assets/songs/battle.ogg", "kind": "music"},
+	"music.defeat": {"path": "res://assets/songs/defeat.ogg", "kind": "music"},
+	"ui.confirm": {"path": "res://assets/cues/click.wav", "bus": "UI"},
+	"ui.cancel": {"path": "res://assets/cues/click.wav", "bus": "UI"},
+	"player.action": {"path": "res://assets/cues/arrow.wav", "bus": "SFX"},
+	"enemy.impact": {"path": "res://assets/cues/breach.wav", "bus": "SFX"},
+	"score.reward": {"path": "res://assets/cues/coin.wav", "bus": "SFX"},
+	"game.pause": {"path": "res://assets/cues/click.wav", "bus": "UI"},
+	"game.victory": {"path": "res://assets/cues/victory.wav", "bus": "SFX"},
+	"game.defeat": {"path": "res://assets/cues/breach.wav", "bus": "SFX"},
+	"build": {"path": "res://assets/cues/build.mp3", "bus": "SFX"},
+	"upgrade": {"path": "res://assets/cues/upgrade.wav", "bus": "SFX"},
+	"arrow": {"path": "res://assets/cues/arrow.wav", "bus": "SFX"},
+	"cannon": {"path": "res://assets/cues/cannon.mp3", "bus": "SFX"},
+	"explosion": {"path": "res://assets/cues/explosion.mp3", "bus": "SFX"},
+	"ice": {"path": "res://assets/cues/ice.mp3", "bus": "SFX"},
+	"lightning": {"path": "res://assets/cues/lightning.mp3", "bus": "SFX"},
+	"summon": {"path": "res://assets/cues/summon.mp3", "bus": "SFX"},
+	"boss": {"path": "res://assets/cues/boss.mp3", "bus": "SFX"},
+	"boss_down": {"path": "res://assets/cues/victory.wav", "bus": "SFX"},
+	"wave": {"path": "res://assets/cues/coin.wav", "bus": "SFX"},
 }
 
 var _streams: Dictionary = {}
@@ -125,8 +137,10 @@ func play_music(cue_id: String, crossfade_seconds: float = 0.35) -> bool:
 	var next_player: BrowserBgmPlayer = _music_players[_music_index]
 	next_player.stop()
 	next_player.stream = stream
+	next_player.force_loop = cue_id != "music.defeat"
 	next_player.volume_db = -40.0 if old_player.playing else 0.0
 	_music_cue = cue_id
+	_boss_active = false
 	if _headless:
 		old_player.stop()
 		old_player.stream = null
@@ -198,6 +212,8 @@ func set_game_paused(paused: bool) -> void:
 	if _paused == paused:
 		return
 	_paused = paused
+	for music_player: BrowserBgmPlayer in _music_players:
+		music_player.stream_paused = paused
 	_apply_bus_settings()
 	if paused:
 		play_cue("game.pause")
@@ -266,5 +282,22 @@ func _on_tuning_changed(id: String, _requested: Variant, _active: Variant) -> vo
 
 
 func _on_music_finished(player: BrowserBgmPlayer) -> void:
-	if player == _music_players[_music_index] and not _music_cue.is_empty() and player.stream != null:
-		player.play()
+		if player == _music_players[_music_index] and not _music_cue.is_empty() and _music_cue != "music.defeat" and player.stream != null:
+			player.play()
+
+
+var _boss_active := false
+var _boss_return_position := 0.0
+
+func boss_intensity(active: bool) -> void:
+	if _boss_active == active or _music_cue != "music.gameplay":
+		return
+	_boss_active = active
+	var current: BrowserBgmPlayer = _music_players[_music_index]
+	if current.stream == null:
+		return
+	if active:
+		_boss_return_position = current.get_playback_position()
+		current.seek(minf(70.0, current.stream.get_length() * 0.42))
+	else:
+		current.seek(_boss_return_position)

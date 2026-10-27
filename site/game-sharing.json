@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "publicationOrigin": "https://castelionyx-mrgftfuz.manus.game",
+  "title": "CASTELIONYX — Defesa do Reino",
+  "description": "Defenda seu castelo com heróis, torres e feitiços em quatro mapas de pixel art. Defesa infinita e aventura de cinco ondas, sem anúncios e com progresso local.",
+  "defaultCaptions": {},
+  "assets": {
+    "og": {
+      "digest": "sha256:4bf7003a24c87e4f9559d5261f23a8e4f77c5c692b48715ab38c3af5518af418",
+      "path": "share/4bf7003a24c87e4f9559d5261f23a8e4f77c5c692b48715ab38c3af5518af418.png",
+      "mime": "image/png",
+      "width": 2560,
+      "height": 1440,
+      "sizeBytes": 5685501,
+      "sourcePath": "assets/share/og.png"
+    },
+    "favicon": {
+      "digest": "sha256:2f3a8f77adbc7f1942bac967c69740f0747a4ddce1423dd0666ce917e83f3ca7",
+      "path": "share/2f3a8f77adbc7f1942bac967c69740f0747a4ddce1423dd0666ce917e83f3ca7.png",
+      "mime": "image/png",
+      "width": 64,
+      "height": 64,
+      "sizeBytes": 8213,
+      "sourcePath": "assets/share/favicon.png"
+    }
+  }
+}

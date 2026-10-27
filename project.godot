@@ -11,20 +11,20 @@ config_version=5
 [application]
 
 boot_splash/image="res://assets/template/ui/loading-background.png"
-boot_splash/show_image=true
+boot_splash/show_image=false
 boot_splash/fullsize=true
 boot_splash/use_filter=true
-boot_splash/bg_color=Color(0.07843, 0.10196, 0.11765, 1)
+boot_splash/bg_color=Color(0.0627, 0.1059, 0.1294, 1)
 
 
 
 
-config/name="Generic Game Template"
-config/description="A reusable two-stage maze-chase foundation for browser games."
-config/version="2.0.0"
+config/name="CASTELIONYX — Defesa do Reino"
+config/description="Defenda seu castelo com heróis, estruturas e feitiços em quatro mapas de pixel art."
+config/version="1.0.0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://assets/template/characters/runner.png"
+config/icon="res://assets/share/favicon.png"
 
 [autoload]
 
@@ -39,8 +39,8 @@ AudioDirector="*res://autoload/audio_director.gd"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=480
+window/size/viewport_height=480
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
@@ -85,3 +85,6 @@ pause={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[editor]
+import/use_multiple_threads=false

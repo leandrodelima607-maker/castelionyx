@@ -1,6 +1,26 @@
 {
   "version": 2,
   "groups": {
+    "combat": {
+      "name": "Personagens e Defesas",
+      "order": 10
+    },
+    "cues": {
+      "name": "Efeitos de Combate",
+      "order": 50
+    },
+    "kingdom": {
+      "name": "Reino e Cenários",
+      "order": 20
+    },
+    "share": {
+      "name": "Identidade de Castelionyx",
+      "order": 30
+    },
+    "songs": {
+      "name": "Canções do Reino",
+      "order": 40
+    },
     "template": {
       "name": "Template",
       "order": 0
@@ -8,6 +28,214 @@
   },
   "bundles": {},
   "assets": {
+    "assets/combat/enemies.png": {
+      "path": "/manus-storage/game/sha256/7e3d51dbca2ca4d883736131dc0975395b7aa77058bbf9cf80983030270bde2c.png",
+      "sha256": "sha256:7e3d51dbca2ca4d883736131dc0975395b7aa77058bbf9cf80983030270bde2c",
+      "size": 4130894,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": false
+    },
+    "assets/combat/enemies_runtime.png": {
+      "path": "/manus-storage/game/sha256/0dd7172ed2d771c13e769ac3c48c0041c385be3650ffd6cc3d76dbcfba1e9453.png",
+      "sha256": "sha256:0dd7172ed2d771c13e769ac3c48c0041c385be3650ffd6cc3d76dbcfba1e9453",
+      "size": 1100973,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/heroes.png": {
+      "path": "/manus-storage/game/sha256/f805291c6540f3f601df23786d63366c0558611a9e294623a478626315d5d06e.png",
+      "sha256": "sha256:f805291c6540f3f601df23786d63366c0558611a9e294623a478626315d5d06e",
+      "size": 4003358,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": false
+    },
+    "assets/combat/heroes_runtime.png": {
+      "path": "/manus-storage/game/sha256/8211e93b48473c22d8ec23dadc73bc963884fffa12c4b4e74fcf601876116b7c.png",
+      "sha256": "sha256:8211e93b48473c22d8ec23dadc73bc963884fffa12c4b4e74fcf601876116b7c",
+      "size": 814436,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/structures.png": {
+      "path": "/manus-storage/game/sha256/e3c6487617645e9f077b235f897f44e3cc6692b6f94789b5a4fb93312e3962bd.png",
+      "sha256": "sha256:e3c6487617645e9f077b235f897f44e3cc6692b6f94789b5a4fb93312e3962bd",
+      "size": 4474569,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": false
+    },
+    "assets/combat/structures_runtime.png": {
+      "path": "/manus-storage/game/sha256/31734260a8cb0769d89b3fa190d9b04acfa952a8d2705b4fcde7d2a2069eb00e.png",
+      "sha256": "sha256:31734260a8cb0769d89b3fa190d9b04acfa952a8d2705b4fcde7d2a2069eb00e",
+      "size": 910995,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/cues/arrow.wav": {
+      "path": "/manus-storage/game/sha256/0ff2511d2abfbdd1d972b1d554eb5083fa293709d751bd6c6d4553dcd00d7822.wav",
+      "sha256": "sha256:0ff2511d2abfbdd1d972b1d554eb5083fa293709d751bd6c6d4553dcd00d7822",
+      "size": 8422,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/boss.mp3": {
+      "path": "/manus-storage/game/sha256/25bd5ce320677dac6f378fc30bc228aa457440199b052279a10ec596de10f0ce.mp3",
+      "sha256": "sha256:25bd5ce320677dac6f378fc30bc228aa457440199b052279a10ec596de10f0ce",
+      "size": 29300,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/breach.wav": {
+      "path": "/manus-storage/game/sha256/2d133880943ccad55daff797f93afc9a13e4e21a34dddd92e6d545d676d1bdbb.wav",
+      "sha256": "sha256:2d133880943ccad55daff797f93afc9a13e4e21a34dddd92e6d545d676d1bdbb",
+      "size": 22094,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/build.mp3": {
+      "path": "/manus-storage/game/sha256/0c85db5347c01a0444ba090f7b0059990ed8bb9fa5a9ffb88f1401b95ba92ac2.mp3",
+      "sha256": "sha256:0c85db5347c01a0444ba090f7b0059990ed8bb9fa5a9ffb88f1401b95ba92ac2",
+      "size": 23030,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/cannon.mp3": {
+      "path": "/manus-storage/game/sha256/e50e4b4bf145dfa655218da1dc201a7e5f52719338cafe3f05a59b8837414dee.mp3",
+      "sha256": "sha256:e50e4b4bf145dfa655218da1dc201a7e5f52719338cafe3f05a59b8837414dee",
+      "size": 17179,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/click.wav": {
+      "path": "/manus-storage/game/sha256/01dd9a881a19e43176a32c0c62ecbb7b734bac3d6aca7711640022ce99d71099.wav",
+      "sha256": "sha256:01dd9a881a19e43176a32c0c62ecbb7b734bac3d6aca7711640022ce99d71099",
+      "size": 3350,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/coin.wav": {
+      "path": "/manus-storage/game/sha256/b11797d941b61c32624bbabbc4fe30ce361280e2eb3e09c35dc513160164fed9.wav",
+      "sha256": "sha256:b11797d941b61c32624bbabbc4fe30ce361280e2eb3e09c35dc513160164fed9",
+      "size": 12392,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/explosion.mp3": {
+      "path": "/manus-storage/game/sha256/3cb95c84cb0699a0b85a7853d02f53bc8910634e7b24dbaa281a135704885370.mp3",
+      "sha256": "sha256:3cb95c84cb0699a0b85a7853d02f53bc8910634e7b24dbaa281a135704885370",
+      "size": 17179,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/ice.mp3": {
+      "path": "/manus-storage/game/sha256/cb40245b3fb1f90e125cabbd1342628ef7a58b0d6014473fa0b1769d238e1583.mp3",
+      "sha256": "sha256:cb40245b3fb1f90e125cabbd1342628ef7a58b0d6014473fa0b1769d238e1583",
+      "size": 17179,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/lightning.mp3": {
+      "path": "/manus-storage/game/sha256/de96166d28f59f9ad8e3cfaffa4f5c8de8a51d86bcb933bb75792ff266de1cc9.mp3",
+      "sha256": "sha256:de96166d28f59f9ad8e3cfaffa4f5c8de8a51d86bcb933bb75792ff266de1cc9",
+      "size": 13835,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/summon.mp3": {
+      "path": "/manus-storage/game/sha256/4e6e2ba6746f256244323dbeb85b129ff71be95f11bf1821e1ed83b086cfd524.mp3",
+      "sha256": "sha256:4e6e2ba6746f256244323dbeb85b129ff71be95f11bf1821e1ed83b086cfd524",
+      "size": 21358,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/upgrade.wav": {
+      "path": "/manus-storage/game/sha256/3d6bda389b36a7c74a932f8d96ddc32b1c24145d7f5b08fd2957aa271257e786.wav",
+      "sha256": "sha256:3d6bda389b36a7c74a932f8d96ddc32b1c24145d7f5b08fd2957aa271257e786",
+      "size": 17684,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/cues/victory.wav": {
+      "path": "/manus-storage/game/sha256/f1146955896fae23c2322a0c1ee9f4a18f3797aab103af707b2535507091e436.wav",
+      "sha256": "sha256:f1146955896fae23c2322a0c1ee9f4a18f3797aab103af707b2535507091e436",
+      "size": 30912,
+      "assetType": "audio",
+      "groupId": "cues",
+      "used": true
+    },
+    "assets/kingdom/realm.png": {
+      "path": "/manus-storage/game/sha256/85c27110eb1dfd11e62e57073dfcb8a51f76aa1866ab8b8e0ca964b53ce00efe.png",
+      "sha256": "sha256:85c27110eb1dfd11e62e57073dfcb8a51f76aa1866ab8b8e0ca964b53ce00efe",
+      "size": 6023923,
+      "assetType": "image",
+      "groupId": "kingdom",
+      "used": false
+    },
+    "assets/kingdom/realm_runtime.png": {
+      "path": "/manus-storage/game/sha256/c1cc8002b542e4a17f1e48181619fb221319c60cef63b34218fd2a43e730202b.png",
+      "sha256": "sha256:c1cc8002b542e4a17f1e48181619fb221319c60cef63b34218fd2a43e730202b",
+      "size": 1769026,
+      "assetType": "image",
+      "groupId": "kingdom",
+      "used": true
+    },
+    "assets/share/favicon.png": {
+      "path": "/manus-storage/game/sha256/2f3a8f77adbc7f1942bac967c69740f0747a4ddce1423dd0666ce917e83f3ca7.png",
+      "sha256": "sha256:2f3a8f77adbc7f1942bac967c69740f0747a4ddce1423dd0666ce917e83f3ca7",
+      "size": 8213,
+      "assetType": "image",
+      "groupId": "share",
+      "used": true
+    },
+    "assets/share/og.png": {
+      "path": "/manus-storage/game/sha256/4bf7003a24c87e4f9559d5261f23a8e4f77c5c692b48715ab38c3af5518af418.png",
+      "sha256": "sha256:4bf7003a24c87e4f9559d5261f23a8e4f77c5c692b48715ab38c3af5518af418",
+      "size": 5685501,
+      "assetType": "image",
+      "groupId": "share",
+      "used": true
+    },
+    "assets/songs/battle.ogg": {
+      "path": "/manus-storage/game/sha256/36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572.ogg",
+      "sha256": "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572",
+      "size": 3166417,
+      "assetType": "audio",
+      "groupId": "songs",
+      "used": true
+    },
+    "assets/songs/defeat.ogg": {
+      "path": "/manus-storage/game/sha256/f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9.ogg",
+      "sha256": "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9",
+      "size": 797781,
+      "assetType": "audio",
+      "groupId": "songs",
+      "used": true
+    },
+    "assets/songs/opening.ogg": {
+      "path": "/manus-storage/game/sha256/15ac63769c42cfa964fae0ceb8ebd01ecaabbf1ec9b8674522732fa862845a64.ogg",
+      "sha256": "sha256:15ac63769c42cfa964fae0ceb8ebd01ecaabbf1ec9b8674522732fa862845a64",
+      "size": 1182058,
+      "assetType": "audio",
+      "groupId": "songs",
+      "used": true
+    },
     "assets/template/characters/runner.png": {
       "path": "https://d1oupeiobkpcny.cloudfront.net/assets/dashboard/materials/2026/09/06/game-template/game-generic/2026.09.07-minimalist-v1/c88485773d6ff9361e036f37d8ac76fb77b8c3f7c041c3f52c8dd222adc8cc21/assets/characters/runner.png",
       "sha256": "sha256:c88485773d6ff9361e036f37d8ac76fb77b8c3f7c041c3f52c8dd222adc8cc21",

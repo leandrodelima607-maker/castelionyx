@@ -2,16 +2,10 @@
   "version": 1,
   "checks": [
     {
-      "kind": "scene",
-      "path": "res://test/test_suite.tscn",
-      "expect": "[game-generic-tests] PASS:",
-      "profile": "source"
-    },
-    {
       "kind": "script",
-      "path": "res://tools/verify_exported_pack.gd",
-      "expect": "[exported-pack] PASS:",
-      "profile": "pack"
+      "path": "res://tools/castelionyx/check.gd",
+      "expect": "[castelionyx-check] PASS:",
+      "profile": "source"
     }
   ]
 }

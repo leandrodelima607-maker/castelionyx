@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "title": "CASTELIONYX — Defesa do Reino",
+  "description": "Defenda seu castelo com heróis, torres e feitiços em quatro mapas de pixel art. Defesa infinita e aventura de cinco ondas, sem anúncios e com progresso local.",
+  "defaultCaptions": {},
+  "assets": {
+    "og": "assets/share/og.png",
+    "favicon": "assets/share/favicon.png"
+  }
+}
