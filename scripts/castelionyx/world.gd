@@ -84,6 +84,8 @@ func _draw() -> void:
   draw_rect(Rect2(p-Vector2(17,10),Vector2(34,18)),Color("81866d"))
   if selected_slot==i:
    draw_rect(Rect2(p-Vector2(25,17),Vector2(50,32)),Color("e3ba75"),false,3)
+   for ring in range(3):
+    draw_arc(p,32+ring*5,clock*1.5+ring,clock*1.5+ring+1.7,10,Color(0.95,0.78,0.39,0.7-0.18*ring),2)
    if t!=null:
     var d=CxCatalog.tower(t.kind,t.level)
     draw_arc(p,d.range,0,TAU,48,Color(0.83,0.7,0.35,0.3),2)
@@ -136,7 +138,11 @@ func _draw() -> void:
   if p.kind=="arrow":
    draw_line(p.pos-dir*14,p.pos,color,2)
    draw_colored_polygon(PackedVector2Array([p.pos+dir*3,p.pos-dir*4+dir.orthogonal()*3,p.pos-dir*4-dir.orthogonal()*3]),color)
-  else: draw_rect(Rect2(p.pos-Vector2(4,4),Vector2(8,8)),color)
+  else:
+   var radius=5.0 if p.kind=="cannon" else 4.0
+   draw_circle(p.pos,radius+2,Color(color,0.18))
+   draw_rect(Rect2(p.pos-Vector2(radius,radius),Vector2(radius*2,radius*2)),color)
+   draw_rect(Rect2(p.pos-Vector2(1,1),Vector2(2,2)),Color("fff2c2"))
  for fx in battle.effects: draw_effect(fx)
  if aiming>=0:
   var pointer=screen_to_world(get_global_mouse_position())
@@ -208,13 +214,18 @@ func draw_effect(fx:Dictionary) -> void:
  var p=fx.pos
  if fx.type=="bolt":
   var points=PackedVector2Array([fx.from,fx.from.lerp(p,0.25)+Vector2(0,-9),fx.from.lerp(p,0.5)+Vector2(0,9),fx.from.lerp(p,0.75)+Vector2(0,-5),p])
+  draw_polyline(points,Color(0.35,0.8,1.0,0.2),10,false)
   draw_polyline(points,Color("d2edfa"),3,false)
+  for point in points:
+   draw_rect(Rect2(point-Vector2(3,3),Vector2(6,6)),Color("88eaff"))
   return
  if fx.type=="death":
   draw_rect(Rect2(p+Vector2(-13,0),Vector2(26,5)),Color(0.08,0.14,0.16,1-progress))
   return
  if fx.type=="meteor":
+  draw_circle(p,fx.radius*0.72,Color(1,0.45,0.14,0.08))
   draw_arc(p,fx.radius,0,TAU,32,Color("efb767"),2)
+  draw_arc(p,fx.radius*0.78,0,TAU,24,Color(1,0.82,0.38,0.45),2)
   for i in range(3):
    var at=p+Vector2((i-1)*32,-200*(1-progress))
    draw_line(at-Vector2(24,45),at,Color("eea357"),8)
@@ -227,6 +238,9 @@ func draw_effect(fx:Dictionary) -> void:
  if fx.type=="warning": color=Color("f88660")
  color.a=1.0-progress
  if fx.type in ["summon","warning","shock","barrier","rage"]: draw_arc(p,fx.radius*maxf(0.3,progress),0,TAU,24,color,3)
+ if fx.type=="barrier":
+  draw_arc(p,fx.radius*0.72,clock*2,clock*2+4.6,28,Color(0.62,0.9,1,0.8),3)
+  draw_arc(p,fx.radius*0.55,-clock*2,-clock*2+4.1,24,Color(0.95,0.82,0.38,0.7),2)
  for i in range(12 if not reduced else 4):
   var angle=float(i)*TAU/12
   var distance=fx.radius*progress*(0.8+float(i%3)*0.1)

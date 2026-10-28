@@ -1,17 +1,27 @@
-# Resultados de CASTELIONYX
+# CASTELIONYX — Polimento Visual e Áudio
 
-- [ ] Perfil local: nome, país, avatar interno ou galeria segura, editar, confirmação, persistência validada e recuperação de dados corrompidos/legados. Introdução dourada inicial, rever nas configurações e pular em perfis existentes.
-- [ ] Menu: Jogar, Heróis, Estruturas, Feitiços, Mapas, Aventura, Perfil, Estatísticas, Configurações; gemas, estados de bloqueio/seleção, voltar e ações reais.
-- [ ] Defesa infinita: delta time; 1x/2x em todos os sistemas; ondas com fila, pendentes, vivos e estados; chefe a cada dez; não avançar prematuramente, pular chefe ou duplicar conclusão. Resultado separa concluídas e derrota.
-- [ ] Heróis: Guardião com bloqueio/investida, Arqueiro antiaéreo/perfuração, dois Gêmeos com vidas distintas/combo, Ferro resistente/empurrão, Glacial com controle temporário, Invocador com aliados temporários. Atributos, requisitos e melhorias progressivas.
-- [ ] Estruturas: Arqueiros 100, Canhão 150, Glacial 125, Elétrica, Quartel, Suporte; construir só em espaço livre, pagar, inspecionar, evoluir com alteração real/visual e limite; vida, alcance, cadência, projéteis, antiaéreo, área, freeze resistente, cadeia, guardas limitados e suporte não acumulável.
-- [ ] Feitiços manuais: Meteoros, Prisão Glacial, Barreira Real, Corrente Elétrica, Invocação Emergencial; área/efeitos, duração e recargas reais; três guardas com escudo quebrável, vida e duração independentes.
-- [ ] Inimigos: comum, corredor, bruto, voador de rota própria, artilheiro com interferência, regenerador com cura real, mutante com propriedade especial. Chefes Rei Bárbaro, Dragão, Titã, Necromante com padrões, aviso, barra, áudio e recompensas.
-- [ ] Mapas: Serpente curva, Ponte estreita, Ilhas com plataformas/rotas aéreas, Floresta com rotas múltiplas; waypoints, construção e regras distintas. Modificadores Exército Reduzido, Sem Heróis, Cerco Aéreo, Economia Limitada, Última Muralha, Mutantes aplicados e informados.
-- [ ] Aventura: exatamente cinco ondas Enxame, Velocidade, Céu e Terra, Resistência, Chefe Final multifases/reforços; restrições informadas; vitória só com todos removidos, 1.000 gemas somente após conclusão integral e uma única vez; melhor, tentativas e ondas.
-- [ ] Economia/persistência: ouro de partida por inimigos/recompensas; gemas `floor(completas/10)`, não repetidas; lojas com preços/requisitos, bloqueio por saldo e compras válidas salvas; níveis de heróis/estruturas/feitiços e seleção salvos.
-- [ ] Resultados/estatísticas: melhor, pior, última, total de partidas, completas, chefes, tempo, aventura; onda de derrota, completas, ouro, gemas, comparação, replay/menu, castelo destruído.
-- [ ] Arte original: sprites, castelo/construções, personagens/inimigos, cenários e efeitos em pixel art, sem emojis/provisórios; animações ligadas aos estados reais, efeito de dano/freeze/invocação/vitória e nitidez.
-- [ ] Áudio: três faixas cantadas funcionais, abertura no perfil, batalha de pelo menos cinco minutos não simulada por repetição, derrota 30–45s uma vez, seção real intensa no chefe, transições e desbloqueio por gesto; volumes música/SFX/interface separados, sem caminhos inexistentes. Letras não exatas e falhas/durações serão explicitadas se permanecerem.
-- [ ] Controles: desktop e Android, campo adaptável, botões amplos, toque/mouse, herói movimentado por toque e WASD, habilidades/feitiços, pause/2x; modais fecháveis, fullscreen suportado, qualidade e velocidade padrão, reset com confirmação.
-- [ ] Entrega: execução de verificações reais para perfil/save, economia, ondas, boss10, antiaéreo, gêmeos, todos os feitiços, 2x, resultado/gemas, aventura e mapas; console/boot; revisão nativa renderizada; exportação portable com assets e checkpoint gerenciado. Não declarar audibilidade/browser/Android não observados como aprovados.
+## Entregue nesta etapa
+
+- [x] Gerar cinco ícones originais de feitiço em pixel art transparente e integrá-los aos controles de batalha, mantendo rótulos legíveis e estados de recarga.
+- [x] Reforçar o renderer com leitura visual de seleção, alcance, dano, congelamento, escudo, telemetria de chefe, projéteis e partículas sem trocar as regras autoritativas da simulação.
+- [x] Preservar suporte a mouse, toque, retrato, landscape, WASD, pausa, 1x/2x, save local e os efeitos sonoros existentes.
+
+## Em andamento
+
+- [x] Gerar e validar uma continuação musical original de batalha com voz em português brasileiro, unir as partes por crossfade de 4 segundos e medir 334,8s na faixa final. Não foi repetido artificialmente um trecho curto para cumprir duração.
+- [x] Integrar a seção musical intensa da continuação ao estado de chefe sem reiniciar a faixa a cada onda e sem sobrepor derrota/vitória.
+- [x] Renderizar capturas nativas de menu, HUD, feitiços e estados de combate após a integração, corrigindo apenas problemas comprovados; a captura final 1280×720 não registrou erros de runtime e o retrato 390×844 passou.
+- [x] Reexecutar boot, 92 verificações finitas, verificação de pacote, Preview e exportação portátil; o PCK final foi gerado e a Preview respondeu HTTP 200.
+
+## Mantido da versão funcional
+
+- [x] Perfil local, menu, quatro mapas, seis heróis, seis estruturas, cinco feitiços, inimigos, chefes, aventura de cinco ondas, economia e persistência local.
+- [x] Capturas nativas em 1280×720 e 390×844; Preview e pacote portátil gerados.
+- [x] Checkpoint anterior registrado no projeto; nova etapa ainda não deve ser descrita como publicada até novo salvamento.
+
+## Limitações que continuam explícitas
+
+- [x] A faixa de batalha anterior tinha 171s; a nova versão tem 334,8s após geração, crossfade e medição reais.
+- [ ] As letras geradas são originais e podem não coincidir com as letras integrais dos anexos.
+- [ ] As animações de personagens ainda são efeitos de estado e transformações, não spritesheets completas quadro a quadro.
+- [ ] Teste auditivo em navegador real e teste físico em Android continuam pendentes até serem observados.

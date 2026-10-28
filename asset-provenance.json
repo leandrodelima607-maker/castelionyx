@@ -80,6 +80,116 @@
       "used": true,
       "usedBy": []
     },
+    "assets/combat/spell_barrier.png": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:cd18ccc73013f74be3161680946e20b0b32fac3bd7f8bc3b5f6c27ea44329aab",
+      "shipped": true,
+      "size": 22127,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "used": true,
+      "usedBy": []
+    },
+    "assets/combat/spell_guards.png": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:b86c7dc6ddebcbc5fc3f6ad95173464c800a6ad54da2a8d84ebf18fdc95d991f",
+      "shipped": true,
+      "size": 25747,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "used": true,
+      "usedBy": []
+    },
+    "assets/combat/spell_ice.png": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:239efbee621d26952731dec5fd8950b1f51bff7d9586d8dc58e86cad6e5a6f6d",
+      "shipped": true,
+      "size": 19641,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "used": true,
+      "usedBy": []
+    },
+    "assets/combat/spell_lightning.png": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:2b739b9a7b79b853e20971702dc9e434f02d63c59904a385344aefb22b19596a",
+      "shipped": true,
+      "size": 19210,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "used": true,
+      "usedBy": []
+    },
+    "assets/combat/spell_meteor.png": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:a317f8f961a13b551fb2b5ddd0a90a62f9d9a9de09b3cafd91bb1572b4d2ce6a",
+      "shipped": true,
+      "size": 18012,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "scripts/castelionyx/main.gd"
+      ],
+      "used": true,
+      "usedBy": []
+    },
     "assets/combat/structures.png": {
       "declaredUseEvidence": [],
       "generator": {},
@@ -502,9 +612,9 @@
         "autoload/audio_director.gd"
       ],
       "regions": [],
-      "sha256": "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572",
+      "sha256": "sha256:f246ffe1da902f5422e847beca31d445a5a1038646b17cd7fbbacc318d38c289",
       "shipped": true,
-      "size": 3166417,
+      "size": 6109743,
       "source": {},
       "status": "present",
       "transformations": [],
@@ -512,7 +622,21 @@
         "autoload/audio_director.gd"
       ],
       "used": true,
-      "usedBy": []
+      "usedBy": [],
+      "versions": {
+        "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572": {
+          "generator": {},
+          "inputs": [],
+          "license": {},
+          "origin": "unknown",
+          "regions": [],
+          "sha256": "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572",
+          "size": 3166417,
+          "source": {},
+          "transformations": [],
+          "usedBy": []
+        }
+      }
     },
     "assets/songs/defeat.ogg": {
       "declaredUseEvidence": [],
@@ -928,9 +1052,9 @@
         ]
       }
     ],
-    "pckSha256": "sha256:8f2b66f7282c2d989eb36164cf7039727cf58f07e50ae4722bd1fc13163578f8",
+    "pckSha256": "sha256:0d4eaae31d7df4765fdb1441a3435d84c95606d252b571eccca065b2f4fc6bfc",
     "profile": "release",
-    "sourceFingerprint": "sha256:fbc4a5939b6d5107b6e7318ac578e9c906c8bb06813d7d9ad0fd2f9e9dd011d3"
+    "sourceFingerprint": "sha256:cac543a41acf6070693e651af0fcf5f0f49cdc5bdad9550912d2fa90ba80f3f5"
   },
   "procedures": {},
   "summary": {
@@ -963,9 +1087,9 @@
     },
     "files": {
       "downloaded": 0,
-      "retained": 41,
-      "shipped": 37,
-      "used": 25
+      "retained": 46,
+      "shipped": 42,
+      "used": 30
     },
     "origins": {
       "ai": {
@@ -999,9 +1123,9 @@
         "used": 3
       },
       "unknown": {
-        "retained": 26,
-        "shipped": 22,
-        "used": 22
+        "retained": 31,
+        "shipped": 27,
+        "used": 27
       }
     },
     "packs": {

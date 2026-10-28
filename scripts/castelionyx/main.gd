@@ -39,6 +39,7 @@ var photo_callback:Variant=null
 var pointer_touch=false
 var returning_from_settings="menu"
 var font=preload("res://assets/template/fonts/ui_regular.tres")
+const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png")]
 
 func _ready() -> void:
  name="Castelionyx"
@@ -178,6 +179,17 @@ func art(parent:Node,kind:String,index:int,height:float=90.0) -> TextureRect:
  parent.add_child(image)
  return image
 
+func spell_art(parent:Node,index:int,height:float=64.0) -> TextureRect:
+ var image=TextureRect.new()
+ image.texture=SPELL_ICONS[clampi(index,0,SPELL_ICONS.size()-1)]
+ image.custom_minimum_size=Vector2(height,height)
+ image.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+ image.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+ image.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
+ image.mouse_filter=Control.MOUSE_FILTER_IGNORE
+ parent.add_child(image)
+ return image
+
 func show_intro() -> void:
  AudioDirector.set_game_paused(false)
  var col=begin_page("intro","","")
@@ -251,6 +263,7 @@ func show_collection(kind:String) -> void:
   var row=HBoxContainer.new()
   c.add_child(row)
   if kind!="spells": art(row,"hero" if kind=="heroes" else "building",d.sprite,78)
+  else: spell_art(row,i,68)
   var info=VBoxContainer.new()
   info.size_flags_horizontal=Control.SIZE_EXPAND_FILL
   row.add_child(info)
@@ -367,6 +380,8 @@ func show_battle_ui() -> void:
  spell_buttons=[]
  for i in range(5):
   var b=button(spells_row,CxCatalog.SPELLS[i].short,func(): choose_spell(i))
+  b.icon=SPELL_ICONS[i]
+  b.expand_icon=true
   b.add_theme_font_size_override("font_size",14)
   b.custom_minimum_size.y=54
   spell_buttons.append(b)

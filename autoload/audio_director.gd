@@ -298,6 +298,6 @@ func boss_intensity(active: bool) -> void:
 		return
 	if active:
 		_boss_return_position = current.get_playback_position()
-		current.seek(minf(70.0, current.stream.get_length() * 0.42))
+		current.seek(minf(maxf(220.0, current.stream.get_length() * 0.68), maxf(0.0, current.stream.get_length() - 8.0)))
 	else:
 		current.seek(_boss_return_position)

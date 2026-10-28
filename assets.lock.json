@@ -60,6 +60,46 @@
       "groupId": "combat",
       "used": true
     },
+    "assets/combat/spell_barrier.png": {
+      "path": "/manus-storage/game/sha256/cd18ccc73013f74be3161680946e20b0b32fac3bd7f8bc3b5f6c27ea44329aab.png",
+      "sha256": "sha256:cd18ccc73013f74be3161680946e20b0b32fac3bd7f8bc3b5f6c27ea44329aab",
+      "size": 22127,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/spell_guards.png": {
+      "path": "/manus-storage/game/sha256/b86c7dc6ddebcbc5fc3f6ad95173464c800a6ad54da2a8d84ebf18fdc95d991f.png",
+      "sha256": "sha256:b86c7dc6ddebcbc5fc3f6ad95173464c800a6ad54da2a8d84ebf18fdc95d991f",
+      "size": 25747,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/spell_ice.png": {
+      "path": "/manus-storage/game/sha256/239efbee621d26952731dec5fd8950b1f51bff7d9586d8dc58e86cad6e5a6f6d.png",
+      "sha256": "sha256:239efbee621d26952731dec5fd8950b1f51bff7d9586d8dc58e86cad6e5a6f6d",
+      "size": 19641,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/spell_lightning.png": {
+      "path": "/manus-storage/game/sha256/2b739b9a7b79b853e20971702dc9e434f02d63c59904a385344aefb22b19596a.png",
+      "sha256": "sha256:2b739b9a7b79b853e20971702dc9e434f02d63c59904a385344aefb22b19596a",
+      "size": 19210,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
+    "assets/combat/spell_meteor.png": {
+      "path": "/manus-storage/game/sha256/a317f8f961a13b551fb2b5ddd0a90a62f9d9a9de09b3cafd91bb1572b4d2ce6a.png",
+      "sha256": "sha256:a317f8f961a13b551fb2b5ddd0a90a62f9d9a9de09b3cafd91bb1572b4d2ce6a",
+      "size": 18012,
+      "assetType": "image",
+      "groupId": "combat",
+      "used": true
+    },
     "assets/combat/structures.png": {
       "path": "/manus-storage/game/sha256/e3c6487617645e9f077b235f897f44e3cc6692b6f94789b5a4fb93312e3962bd.png",
       "sha256": "sha256:e3c6487617645e9f077b235f897f44e3cc6692b6f94789b5a4fb93312e3962bd",
@@ -213,9 +253,9 @@
       "used": true
     },
     "assets/songs/battle.ogg": {
-      "path": "/manus-storage/game/sha256/36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572.ogg",
-      "sha256": "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572",
-      "size": 3166417,
+      "path": "/manus-storage/game/sha256/f246ffe1da902f5422e847beca31d445a5a1038646b17cd7fbbacc318d38c289.ogg",
+      "sha256": "sha256:f246ffe1da902f5422e847beca31d445a5a1038646b17cd7fbbacc318d38c289",
+      "size": 6109743,
       "assetType": "audio",
       "groupId": "songs",
       "used": true

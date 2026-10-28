@@ -3,7 +3,7 @@
   "engineVersion": "4.7.2.stable.official.ed1daf0bf",
   "inputs": {
     "objectFormat": "sha1",
-    "tree": "d6bd92ea16db47d99e4a020997f38831608a58e0",
+    "tree": "a0630645233dc5bcbcfaf5bdf5bd115b301d0deb",
     "entries": [
       {
         "path": ".gitignore",
@@ -27,7 +27,7 @@
         "path": "LEIA-ME.md",
         "type": "file",
         "mode": "100644",
-        "object": "433fc8879ea16aee98c20cc9b8b0734a3a2aeae4"
+        "object": "684f6a0be453c6a70ff95cee06b819879cebcd2e"
       },
       {
         "path": "README.md",
@@ -39,7 +39,7 @@
         "path": "TODO.md",
         "type": "file",
         "mode": "100644",
-        "object": "08140b4ac0d29923227d1cf73c154fd15222ce2c"
+        "object": "f4e7d75d0a96b3f42ccadda34a1cff41ffc2ed8c"
       },
       {
         "path": "app.config.ts",
@@ -51,7 +51,7 @@
         "path": "assets.lock.json",
         "type": "file",
         "mode": "100644",
-        "object": "3407465ce5ff15f11bd5d142e7f92a08f13ec7c8"
+        "object": "9282d73a2c433cb761af61612853bbe8289b189a"
       },
       {
         "path": "assets/combat/enemies.png",
@@ -96,6 +96,61 @@
         "type": "file",
         "mode": "100644",
         "object": "9e297c8b85294c3b68e242ed5924651008173b23"
+      },
+      {
+        "path": "assets/combat/spell_barrier.png",
+        "type": "managed",
+        "sha256": "sha256:cd18ccc73013f74be3161680946e20b0b32fac3bd7f8bc3b5f6c27ea44329aab"
+      },
+      {
+        "path": "assets/combat/spell_barrier.png.import",
+        "type": "file",
+        "mode": "100644",
+        "object": "57fdba744129e9c769cd9421eef1de4797849641"
+      },
+      {
+        "path": "assets/combat/spell_guards.png",
+        "type": "managed",
+        "sha256": "sha256:b86c7dc6ddebcbc5fc3f6ad95173464c800a6ad54da2a8d84ebf18fdc95d991f"
+      },
+      {
+        "path": "assets/combat/spell_guards.png.import",
+        "type": "file",
+        "mode": "100644",
+        "object": "74520493f97ad036dc23be8b3adb1ea0089fb0d7"
+      },
+      {
+        "path": "assets/combat/spell_ice.png",
+        "type": "managed",
+        "sha256": "sha256:239efbee621d26952731dec5fd8950b1f51bff7d9586d8dc58e86cad6e5a6f6d"
+      },
+      {
+        "path": "assets/combat/spell_ice.png.import",
+        "type": "file",
+        "mode": "100644",
+        "object": "57ce554025b2295845bb25ea46ed3c8fedada315"
+      },
+      {
+        "path": "assets/combat/spell_lightning.png",
+        "type": "managed",
+        "sha256": "sha256:2b739b9a7b79b853e20971702dc9e434f02d63c59904a385344aefb22b19596a"
+      },
+      {
+        "path": "assets/combat/spell_lightning.png.import",
+        "type": "file",
+        "mode": "100644",
+        "object": "4f5818304d7d181bff34164258b3e56ad0041fc8"
+      },
+      {
+        "path": "assets/combat/spell_meteor.png",
+        "type": "managed",
+        "sha256": "sha256:a317f8f961a13b551fb2b5ddd0a90a62f9d9a9de09b3cafd91bb1572b4d2ce6a"
+      },
+      {
+        "path": "assets/combat/spell_meteor.png.import",
+        "type": "file",
+        "mode": "100644",
+        "object": "42f9175d6e2e42b1264d50445e3e53c9bbe16156"
       },
       {
         "path": "assets/combat/structures.png",
@@ -309,7 +364,7 @@
       {
         "path": "assets/songs/battle.ogg",
         "type": "managed",
-        "sha256": "sha256:36e0d58c96f3d5fba7b119221af37ecf1c8a18a78ddfe1b9da9914bc9c61c572"
+        "sha256": "sha256:f246ffe1da902f5422e847beca31d445a5a1038646b17cd7fbbacc318d38c289"
       },
       {
         "path": "assets/songs/battle.ogg.import",
@@ -616,7 +671,7 @@
         "path": "autoload/audio_director.gd",
         "type": "file",
         "mode": "100644",
-        "object": "851c1dc21207ae46474459fb25b0a6d56e745b86"
+        "object": "d670bbfb1305e8f4378660a90eaad1e4c6f8c33f"
       },
       {
         "path": "autoload/audio_director.gd.uid",
@@ -778,7 +833,7 @@
         "path": "scripts/castelionyx/main.gd",
         "type": "file",
         "mode": "100644",
-        "object": "57263c6377c3b3c1c3dc27bdc9b9ed018d469dbb"
+        "object": "ad486221e23ebec8c6dd8e7fff1694a26982dae8"
       },
       {
         "path": "scripts/castelionyx/main.gd.uid",
@@ -802,7 +857,7 @@
         "path": "scripts/castelionyx/world.gd",
         "type": "file",
         "mode": "100644",
-        "object": "142fa2486ff772cf76958e815668158d29046dbb"
+        "object": "6b5e9f68e8691de09732329cc7d0baf33f023934"
       },
       {
         "path": "scripts/castelionyx/world.gd.uid",
@@ -1269,7 +1324,7 @@
     ]
   },
   "build": {
-    "snapshotId": "sha256:dff86bb16b8fda2a8623ddeb62e672f4c0cdd756594510c71a9e896c5e4c0672",
+    "snapshotId": "sha256:e552fed6d9354d6ce205c8feeabbdcd567228735ef0aaa65438605efb166678e",
     "toolchain": {
       "engineVersion": "4.7.2.stable.official.ed1daf0bf",
       "engineDigest": "sha256:3fcb80f4fe794e3859360eb641d8c41d8ffe2c2e54ba1981e55a76851d5ed1f4",
@@ -1282,21 +1337,21 @@
     "profile": "release",
     "export": {
       "profile": "release",
-      "snapshotId": "sha256:dff86bb16b8fda2a8623ddeb62e672f4c0cdd756594510c71a9e896c5e4c0672",
+      "snapshotId": "sha256:e552fed6d9354d6ce205c8feeabbdcd567228735ef0aaa65438605efb166678e",
       "files": {
         "THIRD_PARTY_NOTICES.txt": "sha256:c729a77bf07eb9745b2d89c3ce4ead3357438366f41743d2755ae35f98509cf9",
         "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
         "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
         "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-        "index.html": "sha256:52d4729310c6e5dc9b33aa2059a4ffa9d37d2e52d891257df02b586fdf5e61a0",
+        "index.html": "sha256:823afaf2264f456fef66db49ec02653319773c5872664178cdb441914af24fba",
         "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
         "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
-        "index.pck": "sha256:8f2b66f7282c2d989eb36164cf7039727cf58f07e50ae4722bd1fc13163578f8",
+        "index.pck": "sha256:0d4eaae31d7df4765fdb1441a3435d84c95606d252b571eccca065b2f4fc6bfc",
         "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",
         "index.wasm": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0",
         "open-source-licenses.html": "sha256:9215f5fdd50039a9b6f3d8f0271cbc21bbdf64b917fb118dd29c8a16b9974e00"
       },
-      "digest": "sha256:b827a259150e50bd4a90438eb8751de61815ee4d0132509a870033f7fbde395c"
+      "digest": "sha256:3a41b7b58b4ebae13b856740e7891dd76f02b88f476f95e4b2f69342b7ca0281"
     }
   },
   "artifacts": {
@@ -1305,8 +1360,8 @@
       "sha256": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
     },
     "pck": {
-      "path": "/manus-storage/game/sha256/8f2b66f7282c2d989eb36164cf7039727cf58f07e50ae4722bd1fc13163578f8.pck",
-      "sha256": "sha256:8f2b66f7282c2d989eb36164cf7039727cf58f07e50ae4722bd1fc13163578f8"
+      "path": "/manus-storage/game/sha256/0d4eaae31d7df4765fdb1441a3435d84c95606d252b571eccca065b2f4fc6bfc.pck",
+      "sha256": "sha256:0d4eaae31d7df4765fdb1441a3435d84c95606d252b571eccca065b2f4fc6bfc"
     }
   },
   "files": {
@@ -1315,7 +1370,7 @@
     "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
     "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
     "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-    "index.html": "sha256:0b61bcd505603b31a8098d76bbd887775c913719aab5cfdec1e3912da71a4d94",
+    "index.html": "sha256:1f3e8f34369eecb81c19751efb385b914ed72efe30b78e8715a5e3092851ecdb",
     "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
     "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
     "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",
