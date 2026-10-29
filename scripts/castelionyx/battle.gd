@@ -96,7 +96,7 @@ func wave_schedule(number:int) -> Array:
  if map_index==1: count=int(ceil(count*1.25))
  if modifiers.has("reduced"): count=int(ceil(count*1.25))
  count=mini(count,100)
- if mode=="adventure": count=[24,25,24,16,14][clampi(number-1,0,4)]+adventure_extra
+ if mode=="adventure": count=([24,25,24,16,14][clampi(number-1,0,4)]+adventure_extra) if adventure_wins<9 else (18+adventure_extra)
  for i in range(count):
   var kind=0
   if number>=2 and i%4==1: kind=1
@@ -116,7 +116,11 @@ func wave_schedule(number:int) -> Array:
    if number==5: kind=[2,3,5,6][i%4]
   result.append({"kind":kind,"boss":false,"route":i%CxCatalog.MAPS[map_index].ground.size()})
  if number%10==0 and mode=="infinite": result.insert(int(count/2.0),{"kind":int(number/10.0-1)%4,"boss":true,"route":0})
- if mode=="adventure" and number==5: result.append({"kind":3,"boss":true,"route":0,"final":true})
+ if mode=="adventure" and adventure_wins<9 and number==5: result.append({"kind":3,"boss":true,"route":0,"final":true})
+ if mode=="adventure" and adventure_wins>=9:
+  result.insert(mini(result.size(),2),{"kind":(number-1)%4,"boss":true,"route":0,"final":number==10})
+  if number==10:
+   for boss_kind in range(5): result.append({"kind":boss_kind%4,"boss":true,"route":boss_kind%CxCatalog.MAPS[map_index].ground.size(),"final":true})
  return result
 
 func spawn_enemy(spec:Dictionary) -> Dictionary:
@@ -148,7 +152,7 @@ func advance(delta:float) -> void:
 func tick(dt:float) -> void:
  if state=="finished": return
  elapsed+=dt
- if mode=="adventure" and adventure_wins>=9 and elapsed>=150.0 and not special_defeat:
+ if mode=="adventure" and adventure_wins>=9 and elapsed>=1500.0 and not special_defeat:
   special_defeat=true
   special_horde_clock=12.0
   events.append({"type":"special_defeat_start"})
@@ -183,7 +187,7 @@ func tick(dt:float) -> void:
   completed=wave
   gold+=35+wave*2
   earned+=35+wave*2
-  if mode=="adventure" and wave==5:
+  if mode=="adventure" and ((adventure_wins<9 and wave==5) or (adventure_wins>=9 and wave==10)):
    finish(true)
   else:
    state="preparation"
@@ -207,10 +211,14 @@ func target_at(point:Vector2,radius:float,air:bool) -> Variant:
  return best
 
 func build(slot:int,kind:int) -> bool:
- if state=="finished" or paused or slot<0 or slot>=towers.size() or towers[slot]!=null or kind<0 or kind>5: return false
+ if state=="finished" or paused or slot<0 or slot>=towers.size() or towers[slot]!=null or kind<0 or kind>=CxCatalog.TOWERS.size(): return false
+ if mode=="adventure" and kind not in [0,1]: return false
+ if kind==6 and not progression.exclusive.get("coin_generator",false): return false
  var d=CxCatalog.tower(kind,1,progression.towers[kind])
- if gold<d.cost: return false
- gold-=d.cost
+ var cost=d.cost
+ if d.get("economic",false): cost=13
+ if gold<cost: return false
+ gold-=cost
  towers[slot]={"id":new_id(),"kind":kind,"level":1,"pos":pads[slot],"hp":d.hp,"max_hp":d.hp,"attack":0.3,"anim":0.0,"hit":0.0,"buff":false}
  events.append({"type":"build"})
  burst(pads[slot],"build",35)
@@ -252,6 +260,11 @@ func update_towers(dt:float) -> void:
   if t==null: continue
   t.anim=maxf(0.0,t.anim-dt)
   t.hit=maxf(0.0,t.hit-dt)
+  if t.kind==6:
+   t.prod=maxf(0.0,t.get("prod",4.0)-dt)
+   if t.prod<=0.0:
+    gold+=1; t.prod=4.0; events.append({"type":"coin"})
+   continue
   t.buff=support_for(t)
   t.attack-=dt*(1.25 if t.buff else 1.0)
   if t.attack>0.0: continue

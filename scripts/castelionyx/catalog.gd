@@ -15,7 +15,8 @@ const TOWERS = [
  {"id":"frost","name":"Torre Glacial","sprite":2,"cost":125,"hp":195.0,"damage":9.0,"interval":2.6,"range":150.0,"air":true,"desc":"Gelo por 2s com resistência e imunidade após o efeito."},
  {"id":"electric","name":"Torre Elétrica","sprite":3,"cost":175,"hp":200.0,"damage":23.0,"interval":1.25,"range":145.0,"air":true,"desc":"Saltos elétricos entre 2 a 4 invasores próximos."},
  {"id":"barracks","name":"Quartel","sprite":4,"cost":120,"hp":300.0,"damage":13.0,"interval":7.0,"range":145.0,"air":false,"desc":"Produz até 2–4 cavaleiros vivos que interceptam terrestres."},
- {"id":"support","name":"Santuário de Suporte","sprite":5,"cost":160,"hp":230.0,"damage":0.0,"interval":1.0,"range":170.0,"air":false,"desc":"+25% de cadência e +15% de alcance nas defesas próximas. Não acumula."}
+ {"id":"support","name":"Santuário de Suporte","sprite":5,"cost":160,"hp":230.0,"damage":0.0,"interval":1.0,"range":170.0,"air":false,"desc":"+25% de cadência e +15% de alcance nas defesas próximas. Não acumula."},
+ {"id":"coin_generator","name":"Gerador de Moedas","sprite":5,"cost":13,"hp":180.0,"damage":0.0,"interval":4.0,"range":0.0,"air":false,"economic":true,"desc":"Estrutura econômica exclusiva: produz 1 moeda a cada 4 segundos."}
 ]
 const SPELLS = [
  {"id":"meteor","name":"Meteoros","short":"Meteoro","cooldown":30.0,"duration":1.0,"desc":"Marque uma área: 3 meteoros causam dano em área após 0,8s."},

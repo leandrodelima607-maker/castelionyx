@@ -113,6 +113,7 @@ func run() -> void:
   adventure.queue.clear()
   adventure.tick(0.01)
  check(adventure.state=="finished" and adventure.completed==5 and adventure.terminal.victory,"adventure ends only after exactly five cleared waves")
+ check(adventure.towers.size()==5 and not adventure.build(0,2),"adventure has five pads and blocks non-arrow/cannon structures")
  var persistence=CxPersistence.new()
  var saved=persistence.data.duplicate(true)
  persistence.data=CxPersistence.defaults()
@@ -138,7 +139,7 @@ func run() -> void:
  tenth.stats.adventure_wins=9
  tenth.stats.adventure_extra=80
  var special=CxBattle.new(0,"adventure",[],tenth)
- special.tick(150.1)
+ special.tick(1500.1)
  check(special.terminal.get("special_defeat",false)==true,"special defeat only after tenth adventure cycle timeout")
  var normal_run=CxBattle.new(0,"infinite",[],d)
  normal_run.hp=0.0

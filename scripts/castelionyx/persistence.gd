@@ -9,7 +9,7 @@ func _init() -> void:
  load_data()
 
 static func defaults() -> Dictionary:
- return {"version":2,"profile":{},"gems":0,"selected":0,"heroes":[1,0,0,0,0,0],"towers":[1,1,1,1,1,1],"spells":[1,1,1,1,1],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
+ return {"version":2,"profile":{},"gems":0,"selected":0,"heroes":[1,0,0,0,0,0],"towers":[1,1,1,1,1,1,0],"spells":[1,1,1,1,1],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
 
 static func clean_number(value:Variant,fallback:float,minimum:float,maximum:float) -> float:
  if not (value is int or value is float): return fallback
@@ -34,11 +34,13 @@ static func validate(candidate:Variant) -> Dictionary:
  result.gems=int(clean_number(c.get("gems",0),0,0,99999999))
  result["player_level"]=int(clean_number(c.get("player_level",0),0,0,9999))
  if c.get("events",{}) is Dictionary: result["events"]=c.get("events",{}).duplicate(true)
+ if c.get("exclusive",{}) is Dictionary:
+  for key in result.exclusive: result.exclusive[key]=c.get("exclusive",{}).get(key,false)==true
  for key in ["heroes","towers","spells"]:
   var values=c.get(key,[])
   if values is Array:
    for i in range(mini(values.size(),result[key].size())):
-    result[key][i]=int(clean_number(values[i],result[key][i],0 if key=="heroes" else 1,10))
+    result[key][i]=int(clean_number(values[i],result[key][i],0 if key=="heroes" or (key=="towers" and i==6) else 1,10))
  result.heroes[0]=maxi(1,result.heroes[0])
  result.selected=int(clean_number(c.get("selected",0),0,0,5))
  if result.heroes[result.selected]<1: result.selected=0
@@ -132,8 +134,10 @@ func record(result:Dictionary) -> int:
  if data.claimed.has(result.id): return 0
  var before=data.duplicate(true)
  var gems=int(result.completed/10) if result.mode=="infinite" else 0
+ var adventure_attempt=int(data.stats.adventure_wins)
+ if result.mode=="adventure" and result.victory:
+  gems=1000 if adventure_attempt==0 else 6742 if adventure_attempt==9 and result.completed==10 and result.time<1500.0 else 500
  if result.mode=="adventure" and result.victory and result.completed==5 and not data.stats.adventure_claimed:
-  gems=1000
   data.stats.adventure_claimed=true
  data.gems+=gems
  data.stats.total+=1
@@ -150,6 +154,7 @@ func record(result:Dictionary) -> int:
    data.stats.adventure_wins+=1
   data.stats.adventure_extra=(data.stats.adventure_wins-1)*10
  update_events(result)
+ claim_event_rewards(result)
  var stored=result.duplicate(true)
  stored.gems=gems
  data.stats.last=stored
@@ -180,6 +185,19 @@ func update_events(result:Dictionary) -> void:
 func modifiers_match(result:Dictionary,a:String,b:String,c:String="") -> bool:
  var mods=result.get("modifiers",[])
  return mods is Array and mods.has(a) and mods.has(b) and (c.is_empty() or mods.has(c))
+
+
+func claim_event_rewards(result:Dictionary) -> void:
+ if result.mode!="infinite": return
+ var rules={"survivor_no_army":[50,"coin_generator"],"sky_falls":[35,"sky_ballista"],"last_hope":[25,"barrier_realm"],"mutant_plague":[40,"meteor_plus"],"scarcity_master":[30,"gem_mine"],"extra_hero":[50,"second_hero_slot"]}
+ for id in rules:
+  if not data.events.has(id) or not data.events[id].complete or data.exclusive[rules[id][1]]: continue
+  data.exclusive[rules[id][1]]=true
+  data.events[id].reward_claimed=true
+  if id=="last_hope": data.gems+=250
+  if id=="scarcity_master": data.gems+=500
+  if id=="sky_falls": data.gems+=300
+  if id=="extra_hero": data.gems+=400
 
 func reset() -> bool:
  var old=data.duplicate(true)

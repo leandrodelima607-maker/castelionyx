@@ -226,7 +226,7 @@ func show_menu() -> void:
  texts.size_flags_horizontal=Control.SIZE_EXPAND_FILL
  header.add_child(texts)
  label(texts,str(persistence.data.profile.get("name","Defensor")),22)
- label(texts,"%d gemas · Melhor: %d ondas" % [persistence.data.gems,persistence.data.stats.best],16,Color("dcc38c"))
+ label(texts,"%d gemas · Nível %d · %d/%d ondas para o próximo" % [persistence.data.gems,persistence.data.player_level,persistence.data.stats.waves%100,100],16,Color("dcc38c"))
  button(col,"JOGAR · DEFESA INFINITA",func(): show_setup("infinite"),true)
  var grid=GridContainer.new()
  grid.columns=2
@@ -241,6 +241,7 @@ func show_menu() -> void:
  button(grid,"Eventos",show_events)
  button(grid,"Configurações",func(): show_settings("menu"))
  label(col,"Defenda as rotas. Toque nos espaços de pedra para construir. Use o herói e os feitiços quando o cerco apertar.",16,Color("abc0b3"))
+ label(col,"Desafio dos Chefes: "+("DESBLOQUEADO" if persistence.data.player_level>=5 else "bloqueado até o nível 5")+" · Sobrevivência Extrema: "+("DESBLOQUEADO" if persistence.data.player_level>=24 else "bloqueado até o nível 24"),14,Color("b7c8bd"))
  label(col,"SEM ANÚNCIOS · SALVAMENTO LOCAL",12,Color("a1af9e"))
 
 func show_maps() -> void:
@@ -286,12 +287,13 @@ func show_collection(kind:String) -> void:
    label(c,"Recarga-base %.0fs · Duração-base %.1fs\nMelhorias aumentam a força/duração e reduzem a recarga." % [d.cooldown,d.duration],14,Color("adc5be"))
   var cost=persistence.purchase_cost(kind,i)
   var buy=button(c,"Nível máximo" if level>=10 else "%s · %d gemas" % ["Desbloquear" if level==0 else "Melhorar",cost],func():
-   if persistence.buy(kind,i):
+   if kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false): notify("Conclua A Primeira Fortuna para desbloquear esta estrutura.")
+   elif persistence.buy(kind,i):
     AudioDirector.play_cue("score.reward")
     show_collection(kind)
    else: notify("Saldo insuficiente ou falha ao salvar.")
   )
-  buy.disabled=level>=10 or persistence.data.gems<cost
+  buy.disabled=level>=10 or persistence.data.gems<cost or (kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false))
  back(col)
 
 func show_setup(mode:String) -> void:
@@ -536,8 +538,9 @@ func show_build(slot:int) -> void:
  var col=modal("Construir defesa" if t==null else CxCatalog.TOWERS[t.kind].name)
  label(col,"Saldo: %d ouro · posição %d" % [battle.gold,slot+1],16)
  if t==null:
-  for i in range(6):
+  for i in range(CxCatalog.TOWERS.size()):
    var d=CxCatalog.TOWERS[i]
+   if i==6 and not persistence.data.exclusive.get("coin_generator",false): continue
    var row=HBoxContainer.new()
    col.add_child(row)
    art(row,"building",i,54)
