@@ -51,7 +51,7 @@ func _ready() -> void:
  add_child(world)
  ui=Control.new()
  ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
- ui.mouse_filter=Control.MOUSE_FILTER_IGNORE
+ ui.mouse_filter=Control.MOUSE_FILTER_PASS
  add_child(ui)
  overlay=Control.new()
  overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -663,6 +663,8 @@ func show_profile(edit:bool=false) -> void:
  profile_name.text=str(saved.get("name",""))
  profile_name.max_length=24
  profile_name.custom_minimum_size.y=58
+ profile_name.mouse_filter=Control.MOUSE_FILTER_STOP
+ profile_name.focus_mode=Control.FOCUS_ALL
  col.add_child(profile_name)
  label(col,"E-mail",16)
  profile_country=LineEdit.new()
@@ -670,7 +672,11 @@ func show_profile(edit:bool=false) -> void:
  profile_country.text=str(saved.get("email",saved.get("country","")))
  profile_country.max_length=120
  profile_country.custom_minimum_size.y=58
+ profile_country.mouse_filter=Control.MOUSE_FILTER_STOP
+ profile_country.focus_mode=Control.FOCUS_ALL
  col.add_child(profile_country)
+ label(col,"O e-mail é obrigatório para salvar este perfil neste dispositivo. Não há sincronização remota nesta versão.",13,Color("b7c8bd"))
+ if not edit: profile_name.grab_focus()
  label(col,"Escolha um avatar",18)
  var grid=GridContainer.new()
  grid.columns=4
@@ -683,7 +689,7 @@ func show_profile(edit:bool=false) -> void:
   b.custom_minimum_size=Vector2(70,80)
  button(col,"Escolher imagem da galeria",choose_photo)
  button(col,"CONCLUIR PERFIL",func():
-  if profile_name.text.strip_edges().is_empty(): notify("Digite seu nome antes de concluir."); return
+  if profile_name.text.strip_edges().is_empty(): notify("Digite seu nome antes de concluir."); profile_name.grab_focus(); return
   if persistence.profile(profile_name.text,profile_country.text,profile_avatar,profile_photo): show_menu()
   else: notify(persistence.last_error)
  ,true)

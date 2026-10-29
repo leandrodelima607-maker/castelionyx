@@ -16,6 +16,12 @@ static func clean_number(value:Variant,fallback:float,minimum:float,maximum:floa
  if not is_finite(float(value)): return fallback
  return clampf(float(value),minimum,maximum)
 
+static func valid_email(value:String) -> bool:
+ var email=value.strip_edges()
+ var at=email.find("@")
+ var dot=email.rfind(".")
+ return email.length()>=6 and at>0 and dot>at+1 and dot<email.length()-1 and email.find(" ")<0
+
 static func validate(candidate:Variant) -> Dictionary:
  var result=defaults()
  if not candidate is Dictionary: return result
@@ -23,7 +29,8 @@ static func validate(candidate:Variant) -> Dictionary:
  if int(clean_number(c.get("version",1),1,0,100))>2: return result
  var profile=c.get("profile",{})
  if profile is Dictionary and not str(profile.get("name","")).strip_edges().is_empty():
-  result.profile={"name":str(profile.name).replace("\n"," ").replace("\r"," ").strip_edges().left(24),"email":str(profile.get("email",profile.get("country",""))).strip_edges().left(120),"avatar":int(clean_number(profile.get("avatar",0),0,0,7)),"photo":str(profile.get("photo","")).left(160000)}
+  var saved_email=str(profile.get("email",profile.get("country",""))).strip_edges().left(120)
+  result.profile={"name":str(profile.name).replace("\n"," ").replace("\r"," ").strip_edges().left(24),"email":saved_email if valid_email(saved_email) else "","avatar":int(clean_number(profile.get("avatar",0),0,0,7)),"photo":str(profile.get("photo","")).left(160000)}
  result.gems=int(clean_number(c.get("gems",0),0,0,99999999))
  result["player_level"]=int(clean_number(c.get("player_level",0),0,0,9999))
  if c.get("events",{}) is Dictionary: result["events"]=c.get("events",{}).duplicate(true)
@@ -82,10 +89,11 @@ func commit() -> bool:
  return true
 
 func has_profile() -> bool:
- return not data.profile.is_empty()
+ return not str(data.profile.get("name","")).strip_edges().is_empty() and valid_email(str(data.profile.get("email","")))
 
 func profile(name:String,country:String,avatar:int,photo:String="") -> bool:
- if name.strip_edges().is_empty(): return false
+ if name.strip_edges().is_empty(): last_error="Digite seu nome ou apelido."; return false
+ if not valid_email(country): last_error="Digite um e-mail válido para salvar o perfil."; return false
  var old=data.duplicate(true)
  data.profile={"name":name.strip_edges().replace("\n"," ").left(24),"email":country.strip_edges().left(120),"avatar":clampi(avatar,0,7),"photo":photo.left(160000)}
  if commit(): return true

@@ -50,3 +50,7 @@ Foram renderizadas e inspecionadas capturas nativas reais do menu, combate e mel
 Faltam refinamento visual de animações quadro a quadro, cenário mais elaborado em todos os mapas, balanceamento fino das ondas tardias e revisão humana de áudio/input no navegador. As melhorias de estruturas alteram tamanho/marcadores/atributos, não todas as peças de uma nova sprite por nível. O bloqueio do Guardião é redução de dano simplificada, não um sistema direcional detalhado de escudo. A validação aceita saves legados compatíveis, mas não existe um migrador específico para o código original ausente. As estatísticas ainda não oferecem filtros separados de infinito e aventura.
 
 A versão é funcional, mas **não deve ser descrita como cumprimento integral de todo o prompt mestre**.
+
+### Correção do cadastro
+
+O formulário agora aceita teclado e toque normalmente: a camada de interface não bloqueia mais os filhos, o campo de nome recebe foco automaticamente na criação, ambos os campos têm foco explícito e a mensagem de erro devolve o foco ao campo de nome quando necessário. O nome/apelido e um e-mail válido são obrigatórios. O e-mail é validado por formato básico e fica salvo somente no perfil local; ele não é enviado a servidor, não cria conta remota e não recupera o progresso em outro dispositivo. Saves antigos sem e-mail continuam com o progresso, mas reabrem o cadastro para que o e-mail seja preenchido antes de entrar no reino.
