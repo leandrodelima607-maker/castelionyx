@@ -9,7 +9,7 @@ func _init() -> void:
  load_data()
 
 static func defaults() -> Dictionary:
- return {"version":2,"profile":{},"gems":0,"selected":0,"heroes":[1,0,0,0,0,0],"towers":[1,1,1,1,1,1,0],"spells":[1,1,1,1,1],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
+ return {"version":3,"profile":{},"gems":0,"selected":0,"heroes":[1,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0],"spells":[1,0,0,0,0,0],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
 
 static func clean_number(value:Variant,fallback:float,minimum:float,maximum:float) -> float:
  if not (value is int or value is float): return fallback
@@ -26,7 +26,7 @@ static func validate(candidate:Variant) -> Dictionary:
  var result=defaults()
  if not candidate is Dictionary: return result
  var c:Dictionary=candidate
- if int(clean_number(c.get("version",1),1,0,100))>2: return result
+ if int(clean_number(c.get("version",1),1,0,100))>3: return result
  var profile=c.get("profile",{})
  if profile is Dictionary and not str(profile.get("name","")).strip_edges().is_empty():
   var saved_email=str(profile.get("email",profile.get("country",""))).strip_edges().left(120)
@@ -42,7 +42,7 @@ static func validate(candidate:Variant) -> Dictionary:
    for i in range(mini(values.size(),result[key].size())):
     result[key][i]=int(clean_number(values[i],result[key][i],0 if key=="heroes" or (key=="towers" and i==6) else 1,10))
  result.heroes[0]=maxi(1,result.heroes[0])
- result.selected=int(clean_number(c.get("selected",0),0,0,5))
+ result.selected=int(clean_number(c.get("selected",0),0,0,result.heroes.size()-1))
  if result.heroes[result.selected]<1: result.selected=0
  var settings=c.get("settings",{})
  if settings is Dictionary:
@@ -118,12 +118,10 @@ func buy(kind:String,index:int) -> bool:
  return false
 
 func purchase_cost(kind:String,index:int) -> int:
- var level=int(data[kind][index])
- var base=3600.0*pow(1.17,level)
- return clampi(int(round(base*pow(1.22,index))),3600,88000)
+ return CxCatalog.purchase_cost(kind,index,int(data[kind][index]))
 
 func select_hero(index:int) -> bool:
- if index<0 or index>5 or data.heroes[index]<=0: return false
+ if index<0 or index>=data.heroes.size() or data.heroes[index]<=0: return false
  var old=int(data.selected)
  data.selected=index
  if commit(): return true
@@ -139,7 +137,7 @@ func record(result:Dictionary) -> int:
   gems=1000 if adventure_attempt==0 else 6742 if adventure_attempt==9 and result.completed==10 and result.time<1500.0 else 500
  if result.mode=="adventure" and result.victory and result.completed==5 and not data.stats.adventure_claimed:
   data.stats.adventure_claimed=true
- data.gems+=gems
+ data.gems+=gems+int(result.get("gem_mine_gems",0))
  data.stats.total+=1
  data.stats.waves+=result.completed
  data.stats.bosses+=result.bosses
@@ -189,13 +187,17 @@ func modifiers_match(result:Dictionary,a:String,b:String,c:String="") -> bool:
 
 func claim_event_rewards(result:Dictionary) -> void:
  if result.mode!="infinite": return
- # Somente recompensas com mecânica completa são concedidas automaticamente.
- # Os demais eventos permanecem persistidos como concluídos até suas recompensas reais existirem.
- var event_id="survivor_no_army"
- if not data.events.has(event_id) or not data.events[event_id].complete: return
- if data.exclusive.get("coin_generator",false): return
- data.exclusive["coin_generator"]=true
- data.events[event_id].reward_claimed=true
+ var rewards={"survivor_no_army":"arcane_sentinel","sky_falls":"sky_ballista","last_hope":"barrier_realm","mutant_plague":"meteor_plus","scarcity_master":"gem_mine","extra_hero":"second_hero_slot"}
+ for event_id in rewards:
+  if not data.events.has(event_id) or not data.events[event_id].complete: continue
+  if data.events[event_id].reward_claimed: continue
+  var reward_id:String=rewards[event_id]
+  data.exclusive[reward_id]=true
+  data.events[event_id].reward_claimed=true
+  if event_id=="survivor_no_army": data.heroes[6]=1
+  elif event_id=="sky_falls": data.towers[7]=1
+  elif event_id=="last_hope": data.spells[5]=1
+  elif event_id=="scarcity_master": data.towers[8]=1
 
 func reset() -> bool:
  var old=data.duplicate(true)

@@ -26,9 +26,10 @@ var projectiles:Array=[]
 var effects:Array=[]
 var events:Array=[]
 var pads:Array=[]
-var spells:Array=[0.0,0.0,0.0,0.0,0.0]
+var spells:Array=[0.0,0.0,0.0,0.0,0.0,0.0]
 var special_cd=0.0
 var barrier=0.0
+var barrier_reduction=0.2
 var hero_target=Vector2(810,310)
 var next_id=1
 var terminal:Dictionary={}
@@ -38,6 +39,7 @@ var special_defeat=false
 var special_horde_clock=0.0
 var adventure_wins=0
 var adventure_extra=0
+var gem_earned=0
 var rng=RandomNumberGenerator.new()
 
 func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:Dictionary={}) -> void:
@@ -53,7 +55,7 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
  pads=CxCatalog.MAPS[map_index].pads.duplicate()
  pads.shuffle()
  var wanted=5 if mode=="adventure" else 10
- if modifiers.has("reduced"): wanted=maxi(4,int(ceil(float(wanted)/2.0)))
+ if modifiers.has("reduced") and mode!="adventure": wanted=maxi(5,int(ceil(float(wanted)/2.0)))
  while pads.size()<wanted:
   var route=CxCatalog.MAPS[map_index].ground[pads.size()%CxCatalog.MAPS[map_index].ground.size()]
   pads.append(CxCatalog.path_position(route,route.size()*38.0+pads.size()*24.0))
@@ -76,7 +78,7 @@ func create_heroes() -> void:
  var d=CxCatalog.hero(index,maxi(1,int(progression.heroes[index])))
  for twin in range(2 if index==2 else 1):
   var p=hero_target+Vector2(0,twin*28)
-  allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0})
+  allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0,"arcane_target":-1,"arcane_hits":0})
 
 func hero_allowed() -> bool:
  return not modifiers.has("nohero") and mode!="adventure"
@@ -108,6 +110,7 @@ func wave_schedule(number:int) -> Array:
   if map_index==2 and i%3==0: kind=3
   if modifiers.has("aerial") and i%3==0: kind=3
   if modifiers.has("mutants") and i%4==0: kind=6
+  if modifiers.has("extreme") and i%2==0: kind=6
   if mode=="adventure":
    if number==1: kind=0
    if number==2: kind=1
@@ -116,6 +119,7 @@ func wave_schedule(number:int) -> Array:
    if number==5: kind=[2,3,5,6][i%4]
   result.append({"kind":kind,"boss":false,"route":i%CxCatalog.MAPS[map_index].ground.size()})
  if number%10==0 and mode=="infinite": result.insert(int(count/2.0),{"kind":int(number/10.0-1)%4,"boss":true,"route":0})
+ if modifiers.has("boss_challenge") and number%5==0: result.insert(int(count/3.0),{"kind":int(number/5.0-1)%4,"boss":true,"route":0})
  if mode=="adventure" and adventure_wins<9 and number==5: result.append({"kind":3,"boss":true,"route":0,"final":true})
  if mode=="adventure" and adventure_wins>=9:
   result.insert(mini(result.size(),2),{"kind":(number-1)%4,"boss":true,"route":0,"final":number==10})
@@ -129,6 +133,7 @@ func spawn_enemy(spec:Dictionary) -> Dictionary:
  var factor=1.0+0.11*tier+0.004*tier*tier
  if mode=="adventure": factor=[0.7,1.1,1.4,1.6,1.55][clampi(wave-1,0,4)]
  if spec.get("boss",false) and mode=="infinite": factor=1.0+0.3*maxi(0,int(wave/10.0)-1)
+ if modifiers.has("extreme"): factor*=1.35
  if spec.get("final",false): d.hp=1900.0
  var route=CxCatalog.MAPS[map_index].air if d.air else CxCatalog.MAPS[map_index].ground[spec.get("route",0)]
  if mode=="adventure" and adventure_wins>=9:
@@ -213,13 +218,16 @@ func target_at(point:Vector2,radius:float,air:bool) -> Variant:
 func build(slot:int,kind:int) -> bool:
  if state=="finished" or paused or slot<0 or slot>=towers.size() or towers[slot]!=null or kind<0 or kind>=CxCatalog.TOWERS.size(): return false
  if mode=="adventure" and kind not in [0,1]: return false
+ if kind>=progression.towers.size() or progression.towers[kind]<=0: return false
  if kind==6 and not progression.exclusive.get("coin_generator",false): return false
+ if kind==7 and not progression.exclusive.get("sky_ballista",false): return false
+ if kind==8 and not progression.exclusive.get("gem_mine",false): return false
  var d=CxCatalog.tower(kind,1,progression.towers[kind])
  var cost=d.cost
  if d.get("economic",false): cost=13
  if gold<cost: return false
  gold-=cost
- towers[slot]={"id":new_id(),"kind":kind,"level":1,"pos":pads[slot],"hp":d.hp,"max_hp":d.hp,"attack":0.3,"anim":0.0,"hit":0.0,"buff":false}
+ towers[slot]={"id":new_id(),"kind":kind,"level":1,"pos":pads[slot],"hp":d.hp,"max_hp":d.hp,"attack":0.3,"anim":0.0,"hit":0.0,"buff":false,"prod":d.interval,"shots":0}
  events.append({"type":"build"})
  burst(pads[slot],"build",35)
  return true
@@ -265,6 +273,11 @@ func update_towers(dt:float) -> void:
    if t.prod<=0.0:
     gold+=1; t.prod=4.0; events.append({"type":"coin"})
    continue
+  if t.kind==8:
+   t.prod=maxf(0.0,t.get("prod",60.0)-dt)
+   if t.prod<=0.0:
+    gem_earned+=1; t.prod=60.0; events.append({"type":"gem"})
+   continue
   t.buff=support_for(t)
   t.attack-=dt*(1.25 if t.buff else 1.0)
   if t.attack>0.0: continue
@@ -278,12 +291,29 @@ func update_towers(dt:float) -> void:
     summon(CxCatalog.nearest_ground(map_index,t.pos),1,45.0,t.id,t.level,false)
     t.attack=d.interval
    continue
-  var target=target_at(t.pos,d.range*(1.15 if t.buff else 1.0),d.air)
+  var target=null
+  if t.kind==7:
+   for candidate in enemies:
+    if not candidate.dead and candidate.air and t.pos.distance_to(candidate.pos)<=d.range:
+     target=candidate
+     break
+  if target==null: target=target_at(t.pos,d.range*(1.15 if t.buff else 1.0),d.air)
   if target==null: continue
   t.attack=d.interval
   t.anim=0.25
   if t.kind==3:
    chain(t.pos,target.pos,d.damage,1+t.level,85.0)
+  elif t.kind==7:
+   t.shots=int(t.get("shots",0))+1
+   if t.shots%4==0:
+    var hits=0
+    for candidate in enemies:
+     if not candidate.dead and candidate.air and candidate.pos.distance_to(target.pos)<95.0 and hits<3:
+      damage_enemy(candidate,d.damage,"arrow")
+      hits+=1
+    events.append({"type":"arrow"})
+   else:
+    fire(t.pos+Vector2(0,-24),target,d.damage,"arrow",true)
   else:
    fire(t.pos+Vector2(0,-24),target,d.damage,["arrow","cannon","ice"][t.kind],d.air)
 
@@ -435,7 +465,12 @@ func update_allies(dt:float) -> void:
   a.attack=a.interval
   var amount=a.damage*(1.4 if a.combo>0.0 else 1.0)
   if a.air:
-   fire(a.pos+Vector2(0,-15),target,amount,"ice" if a.hero==4 else "magic" if a.hero==5 or a.kind=="summon" else "arrow",true)
+   if a.hero==6:
+    if target.uid==a.get("arcane_target",-1): a.arcane_hits=int(a.get("arcane_hits",0))+1
+    else: a.arcane_target=target.uid; a.arcane_hits=1
+    if a.arcane_hits>=6:
+     amount*=2.0; a.arcane_hits=0; burst(target.pos,"rune",28)
+   fire(a.pos+Vector2(0,-15),target,amount,"ice" if a.hero==4 else "magic" if a.hero==5 or a.hero==6 or a.kind=="summon" else "arrow",true)
   else:
    damage_enemy(target,amount)
    burst(target.pos,"slash",20)
@@ -485,7 +520,7 @@ func skill() -> bool:
  return true
 
 func cast(index:int,point:Vector2) -> bool:
- if index<0 or index>4 or paused or state=="finished" or spells[index]>0.0: return false
+ if index<0 or index>=spells.size() or index>=progression.spells.size() or progression.spells[index]<=0 or paused or state=="finished" or spells[index]>0.0: return false
  var level=progression.spells[index]
  spells[index]=CxCatalog.SPELLS[index].cooldown*maxf(0.65,1.0-0.035*(level-1))
  match index:
@@ -499,12 +534,18 @@ func cast(index:int,point:Vector2) -> bool:
    events.append({"type":"ice"})
   2:
    barrier=9.0+0.5*(level-1)
+   barrier_reduction=0.2
    burst(Vector2(945,285),"barrier",100)
    events.append({"type":"summon"})
   3: chain(point,point,100.0+15*(level-1),5+mini(2,int((level-1)/3.0)),150.0)
   4:
    summon(point,3,20.0,-3,level,false)
    events.append({"type":"summon"})
+  5:
+   barrier=6.0
+   barrier_reduction=0.4
+   burst(Vector2(945,285),"barrier",100)
+   events.append({"type":"barrier"})
  return true
 
 func update_enemies(dt:float) -> void:
@@ -551,7 +592,7 @@ func update_enemies(dt:float) -> void:
   e.distance+=velocity*dt
   e.pos=CxCatalog.path_position(e.path,e.distance)
   if e.distance>=CxCatalog.path_length(e.path):
-   hp-=e.damage*(0.2 if barrier>0.0 else 1.0)
+   hp-=e.damage*(barrier_reduction if barrier>0.0 else 1.0)
    e.dead=true
    burst(Vector2(925,285),"breach",65)
    events.append({"type":"breach"})
@@ -603,7 +644,7 @@ func boss_update(e:Dictionary,dt:float) -> void:
     for t in towers.duplicate():
      if t!=null and t.pos.distance_to(e.pos)<150: damage_tower(t,30.0+e.phase*10.0)
     if e.pos.distance_to(Vector2(945,285))<230:
-     hp-=(18.0+e.phase*7.0)*(0.2 if barrier>0.0 else 1.0)
+     hp-=(18.0+e.phase*7.0)*(barrier_reduction if barrier>0.0 else 1.0)
     burst(e.pos,"fire" if e.kind=="dragon" else "shock",165)
    e.special=maxf(3.5,8.0-e.phase)
  elif e.special<=0.0:
@@ -631,7 +672,7 @@ func boss_alive() -> Variant:
 func finish(victory:bool) -> void:
  if state=="finished": return
  state="finished"
- terminal={"id":run_id,"mode":mode,"map":map_index,"completed":completed,"defeat_wave":0 if victory else wave,"bosses":bosses,"time":elapsed,"earned":earned,"victory":victory,"special_defeat":special_defeat,"modifiers":modifiers.duplicate()}
+ terminal={"id":run_id,"mode":mode,"map":map_index,"completed":completed,"defeat_wave":0 if victory else wave,"bosses":bosses,"time":elapsed,"earned":earned,"gem_mine_gems":gem_earned,"victory":victory,"special_defeat":special_defeat,"modifiers":modifiers.duplicate()}
  events.append({"type":"victory" if victory else "defeat"})
  burst(Vector2(925,285),"explosion",130)
 

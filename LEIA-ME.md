@@ -31,7 +31,11 @@ Uma segunda parte original foi gerada com voz em português brasileiro, unida à
 
 Foram implementados e testados: separação das duas músicas de derrota; derrota especial condicionada à décima progressão da Aventura; derrota normal preservada; e-mail no perfil local no lugar do rótulo de país; moedas de combate de 50 por inimigo derrotado; seleção aleatória de espaços de construção com 5 na Aventura e 10 no Infinito quando o mapa permite; Aventura sem heróis; inimigos extras por vitória da Aventura; persistência de vitórias, nível por ondas acumuladas e seção funcional de eventos com progresso por modificadores.
 
-Os seis eventos já registram progresso persistente conforme condições reais, mas as recompensas exclusivas ainda precisam ser conectadas às coleções e aos efeitos de combate. Autenticação remota por e-mail continua não implementada: o projeto permanece com salvamento local e não simula sincronização entre dispositivos.
+Os seis eventos registram progresso persistente conforme condições reais e agora concedem as recompensas nas coleções: Sentinela Arcana, Balista Celeste, Barreira do Reino, Meteoro Aprimorado, Mina de Gemas e Segundo espaço de herói. A Mina produz gemas durante a partida e a Balista prioriza voadores com disparo perfurante. Autenticação remota por e-mail continua não implementada: o projeto permanece com salvamento local e não simula sincronização entre dispositivos.
+
+## Economia e modos
+
+Heróis, estruturas e feitiços não começam todos desbloqueados. O Guardião, as duas primeiras estruturas e o Meteoro são a base; os demais itens compráveis usam custos progressivos de 3.600 a 88.000 gemas para heróis/estruturas e 300 a 500 gemas para feitiços. Recompensas de eventos são separadas das compras e não podem ser compradas por engano. O menu **Modos** inclui Desafio dos Chefes (chefes adicionais a cada cinco ondas) e Sobrevivência Extrema (economia limitada, mutantes, cerco aéreo, espaços reduzidos e inimigos reforçados), com níveis mínimos aplicados de verdade.
 
 Sete SFX foram gerados em áudio: construção, canhão, explosão, gelo, eletricidade, invocação e entrada de chefe. Outros seis efeitos curtos foram sintetizados para interface, flecha, moeda, dano ao castelo, melhoria e vitória. Esses efeitos não substituem nenhuma música. Volumes de música, efeitos e interface são separados. O áudio exige um gesto do usuário no navegador.
 

@@ -7,7 +7,8 @@ const HEROES = [
  {"id":"twins","name":"Gêmeos Furiosos","sprite":2,"hp":115.0,"damage":19.0,"interval":0.42,"range":43.0,"speed":140.0,"air":false,"armor":0.0,"cost":4,"cooldown":16.0,"skill":"Combo dos Gêmeos","desc":"Dois guerreiros com vidas próprias. Combo acelera e reforça os golpes."},
  {"id":"iron","name":"Cavaleiro de Ferro","sprite":4,"hp":450.0,"damage":28.0,"interval":1.45,"range":55.0,"speed":86.0,"air":false,"armor":0.55,"cost":6,"cooldown":18.0,"skill":"Golpe Sísmico","desc":"Muito resistente. Atrai terrestres próximos e os empurra com um golpe pesado."},
  {"id":"ice","name":"Mago Glacial","sprite":5,"hp":150.0,"damage":18.0,"interval":1.05,"range":165.0,"speed":105.0,"air":true,"armor":0.0,"cost":8,"cooldown":20.0,"skill":"Inverno Absoluto","desc":"Projéteis aplicam lentidão. O especial congela um grupo por tempo limitado."},
- {"id":"summoner","name":"Invocador","sprite":6,"hp":160.0,"damage":22.0,"interval":1.1,"range":165.0,"speed":100.0,"air":true,"armor":0.0,"cost":10,"cooldown":24.0,"skill":"Pacto Violeta","desc":"Invoca três aliados mágicos com vida própria e duração de 18 segundos."}
+ {"id":"summoner","name":"Invocador","sprite":6,"hp":160.0,"damage":22.0,"interval":1.1,"range":165.0,"speed":100.0,"air":true,"armor":0.0,"cost":10,"cooldown":24.0,"skill":"Pacto Violeta","desc":"Invoca três aliados mágicos com vida própria e duração de 18 segundos."},
+ {"id":"arcane_sentinel","name":"Sentinela Arcana","sprite":7,"hp":125.0,"damage":21.0,"interval":1.5,"range":220.0,"speed":92.0,"air":true,"armor":0.0,"cost":0,"cooldown":20.0,"skill":"Explosão Rúnica","desc":"Herói exclusivo: atinge terra e ar; a cada cinco ataques no mesmo alvo, duplica o próximo disparo."}
 ]
 const TOWERS = [
  {"id":"arrow","name":"Torre de Arqueiros","sprite":0,"cost":100,"hp":220.0,"damage":28.0,"interval":0.72,"range":155.0,"air":true,"desc":"Flechas rápidas; acerta terrestres e aéreos."},
@@ -16,14 +17,17 @@ const TOWERS = [
  {"id":"electric","name":"Torre Elétrica","sprite":3,"cost":175,"hp":200.0,"damage":23.0,"interval":1.25,"range":145.0,"air":true,"desc":"Saltos elétricos entre 2 a 4 invasores próximos."},
  {"id":"barracks","name":"Quartel","sprite":4,"cost":120,"hp":300.0,"damage":13.0,"interval":7.0,"range":145.0,"air":false,"desc":"Produz até 2–4 cavaleiros vivos que interceptam terrestres."},
  {"id":"support","name":"Santuário de Suporte","sprite":5,"cost":160,"hp":230.0,"damage":0.0,"interval":1.0,"range":170.0,"air":false,"desc":"+25% de cadência e +15% de alcance nas defesas próximas. Não acumula."},
- {"id":"coin_generator","name":"Gerador de Moedas","sprite":5,"cost":13,"hp":180.0,"damage":0.0,"interval":4.0,"range":0.0,"air":false,"economic":true,"desc":"Estrutura econômica exclusiva: produz 1 moeda a cada 4 segundos."}
+ {"id":"coin_generator","name":"Gerador de Moedas","sprite":5,"cost":13,"hp":180.0,"damage":0.0,"interval":4.0,"range":0.0,"air":false,"economic":true,"desc":"Estrutura econômica exclusiva: produz 1 moeda a cada 4 segundos."},
+ {"id":"sky_ballista","name":"Balista Celeste","sprite":6,"cost":180,"hp":245.0,"damage":78.0,"interval":2.5,"range":235.0,"air":true,"exclusive":true,"desc":"Estrutura exclusiva: prioriza voadores e perfura até três alvos a cada quatro disparos."},
+ {"id":"gem_mine","name":"Mina de Gemas","sprite":7,"cost":250,"hp":210.0,"damage":0.0,"interval":60.0,"range":0.0,"air":false,"economic":true,"exclusive":true,"desc":"Estrutura exclusiva: produz 1 gema permanente a cada 60 segundos ativa."}
 ]
 const SPELLS = [
  {"id":"meteor","name":"Meteoros","short":"Meteoro","cooldown":30.0,"duration":1.0,"desc":"Marque uma área: 3 meteoros causam dano em área após 0,8s."},
  {"id":"prison","name":"Prisão Glacial","short":"Gelo","cooldown":24.0,"duration":4.0,"desc":"Congela inimigos em área por 4s; chefes resistem parcialmente."},
  {"id":"barrier","name":"Barreira Real","short":"Barreira","cooldown":35.0,"duration":9.0,"desc":"Reduz 80% do dano ao castelo durante 9s."},
  {"id":"chain","name":"Corrente Elétrica","short":"Raio","cooldown":22.0,"duration":0.5,"desc":"Atinge até 5–7 alvos conectados, com dano real por salto."},
- {"id":"guards","name":"Invocação Emergencial","short":"Guardas","cooldown":32.0,"duration":20.0,"desc":"Três guardas com escudo quebrável, vida própria e duração de 20s."}
+ {"id":"guards","name":"Invocação Emergencial","short":"Guardas","cooldown":32.0,"duration":20.0,"desc":"Três guardas com escudo quebrável, vida própria e duração de 20s."},
+ {"id":"barrier_realm","name":"Barreira do Reino","short":"Reino","cooldown":45.0,"duration":6.0,"cost":120,"exclusive":true,"desc":"Feitiço exclusivo: reduz em 60% o dano ao castelo por 6 segundos."}
 ]
 const ENEMIES = [
  {"id":"common","name":"Goblin","sprite":0,"hp":46.0,"speed":48.0,"damage":9.0,"reward":12,"armor":0.0,"air":false},
@@ -58,14 +62,14 @@ const MODIFIERS = [
 const ADVENTURE_NAMES = ["Enxame","Velocidade","Céu e Terra","Resistência","Chefe Final"]
 
 static func hero(index:int,level:int=1) -> Dictionary:
- var d=HEROES[clampi(index,0,5)].duplicate(true)
+ var d=HEROES[clampi(index,0,HEROES.size()-1)].duplicate(true)
  d.hp *= 1.0+0.12*(level-1)
  d.damage *= 1.0+0.15*(level-1)
  d.cooldown *= maxf(0.65,1.0-0.04*(level-1))
  return d
 
 static func tower(index:int,level:int=1,persistent:int=1) -> Dictionary:
- var d=TOWERS[clampi(index,0,5)].duplicate(true)
+ var d=TOWERS[clampi(index,0,TOWERS.size()-1)].duplicate(true)
  d.hp *= 1.0+0.25*(level-1)
  d.damage *= (1.0+0.48*(level-1))*(1.0+0.06*(persistent-1))
  d.range += 10.0*(level-1)
@@ -74,6 +78,10 @@ static func tower(index:int,level:int=1,persistent:int=1) -> Dictionary:
 
 static func upgrade_cost(tower_index:int,level:int) -> int:
  return int(TOWERS[tower_index].cost*(0.75+0.4*level))
+
+static func purchase_cost(kind:String,index:int,level:int=0) -> int:
+ if kind=="spells": return [300,350,400,450,500,500][clampi(index,0,5)] + level*80
+ return clampi(int(round(3600.0*pow(1.17,level)*pow(1.22,index))),3600,88000)
 
 static func path_length(points:Array) -> float:
  var total=0.0

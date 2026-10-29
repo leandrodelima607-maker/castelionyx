@@ -39,7 +39,7 @@ var photo_callback:Variant=null
 var pointer_touch=false
 var returning_from_settings="menu"
 var font=preload("res://assets/template/fonts/ui_regular.tres")
-const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png")]
+const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png")]
 
 func _ready() -> void:
  name="Castelionyx"
@@ -239,6 +239,7 @@ func show_menu() -> void:
  button(grid,"Perfil",func(): show_profile(true))
  button(grid,"Estatísticas",show_stats)
  button(grid,"Eventos",show_events)
+ button(grid,"Modos",show_modes)
  button(grid,"Configurações",func(): show_settings("menu"))
  label(col,"Defenda as rotas. Toque nos espaços de pedra para construir. Use o herói e os feitiços quando o cerco apertar.",16,Color("abc0b3"))
  label(col,"Desafio dos Chefes: "+("DESBLOQUEADO" if persistence.data.player_level>=5 else "bloqueado até o nível 5")+" · Sobrevivência Extrema: "+("DESBLOQUEADO" if persistence.data.player_level>=24 else "bloqueado até o nível 24"),14,Color("b7c8bd"))
@@ -287,18 +288,20 @@ func show_collection(kind:String) -> void:
    label(c,"Recarga-base %.0fs · Duração-base %.1fs\nMelhorias aumentam a força/duração e reduzem a recarga." % [d.cooldown,d.duration],14,Color("adc5be"))
   var cost=persistence.purchase_cost(kind,i)
   var buy=button(c,"Nível máximo" if level>=10 else "%s · %d gemas" % ["Desbloquear" if level==0 else "Melhorar",cost],func():
-   if kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false): notify("Conclua A Primeira Fortuna para desbloquear esta estrutura.")
+   if (kind=="towers" and d.get("exclusive",false)) or (kind=="heroes" and d.get("cost",0)==0 and level==0) or (kind=="spells" and d.get("exclusive",false)):
+    notify("Esta recompensa é exclusiva de um evento.")
    elif persistence.buy(kind,i):
     AudioDirector.play_cue("score.reward")
     show_collection(kind)
    else: notify("Saldo insuficiente ou falha ao salvar.")
   )
-  buy.disabled=level>=10 or persistence.data.gems<cost or (kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false))
+  buy.disabled=level>=10 or persistence.data.gems<cost or (d.get("exclusive",false) and level==0) or (kind=="heroes" and d.get("cost",0)==0 and level==0) or (kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false))
  back(col)
 
 func show_setup(mode:String) -> void:
  battle_mode=mode
- var col=begin_page("setup","Modo Aventura" if mode=="adventure" else "Defesa infinita","Prepare as defesas antes de abrir os portões.")
+ var setup_title="Modo Aventura" if mode=="adventure" else "Desafio dos Chefes" if mode=="boss" else "Sobrevivência Extrema" if mode=="extreme" else "Defesa infinita"
+ var col=begin_page("setup",setup_title,"Prepare as defesas antes de abrir os portões.")
  var option=OptionButton.new()
  option.custom_minimum_size.y=58
  for map in CxCatalog.MAPS: option.add_item(map.name)
@@ -327,9 +330,27 @@ func show_setup(mode:String) -> void:
  button(col,"DEFENDER O REINO",func(): launch(mode),true)
  back(col)
 
+func show_modes() -> void:
+ var col=begin_page("modes","Modos de Castelionyx","Desafios secundários com regras próprias e desbloqueios persistentes.")
+ var boss=card(col)
+ label(boss,"Desafio dos Chefes",22,Color("e8c67f"))
+ label(boss,"Sequência de chefes a cada dez ondas, com inimigos reforçados e sem bônus de gemas. Exige nível 5.",16)
+ var boss_button=button(boss,"JOGAR DESAFIO DOS CHEFES",func(): show_setup("boss"),true)
+ boss_button.disabled=persistence.data.player_level<5
+ var extreme=card(col)
+ label(extreme,"Sobrevivência Extrema",22,Color("e8c67f"))
+ label(extreme,"Ondas aceleradas, mutantes frequentes, economia limitada e chefes com dano aumentado. Exige nível 24.",16)
+ var extreme_button=button(extreme,"JOGAR SOBREVIVÊNCIA EXTREMA",func(): show_setup("extreme"),true)
+ extreme_button.disabled=persistence.data.player_level<24
+ label(col,"Nível atual: %d · Os modos ficam bloqueados até a progressão real." % persistence.data.player_level,14,Color("b7c8bd"))
+ back(col)
+
 func launch(mode:String) -> void:
  previous_result=persistence.data.stats.last.duplicate(true)
- battle=CxBattle.new(selected_map,mode,modifiers if mode=="infinite" else [],persistence.data)
+ var run_modifiers=modifiers.duplicate() if mode=="infinite" else []
+ if mode=="boss": run_modifiers=["boss_challenge"]
+ if mode=="extreme": run_modifiers=["reduced","economy","mutants","aerial","extreme"]
+ battle=CxBattle.new(selected_map,"infinite",run_modifiers,persistence.data)
  battle_mode=mode
  world.battle=battle
  world.reduced=not persistence.data.settings.quality
@@ -377,11 +398,11 @@ func show_battle_ui() -> void:
  ui.add_child(bottom)
  hint=label(bottom,"Toque num espaço de pedra para construir. Toque na rota para mover o herói.",15,Color("c8d1bd"))
  var spells_row=GridContainer.new()
- spells_row.columns=5
+ spells_row.columns=3
  spell_grid=spells_row
  bottom.add_child(spells_row)
  spell_buttons=[]
- for i in range(5):
+ for i in range(CxCatalog.SPELLS.size()):
   var b=button(spells_row,CxCatalog.SPELLS[i].short,func(): choose_spell(i))
   b.icon=SPELL_ICONS[i]
   b.expand_icon=true
@@ -446,14 +467,14 @@ func refresh_hud() -> void:
  var living=battle.allies.filter(func(a): return a.kind=="hero" and a.hp>0)
  skill_button.disabled=battle.special_cd>0 or not battle.hero_allowed() or living.is_empty()
  skill_button.text="Habilidade · %ds" % int(ceil(battle.special_cd)) if battle.special_cd>0 else "Habilidade"
- for i in range(5):
-  spell_buttons[i].disabled=battle.spells[i]>0
+ for i in range(CxCatalog.SPELLS.size()):
+  spell_buttons[i].disabled=battle.spells[i]>0 or persistence.data.spells[i]<=0
   spell_buttons[i].text=CxCatalog.SPELLS[i].short+("\n%ds" % int(ceil(battle.spells[i])) if battle.spells[i]>0 else "")
 
 func choose_spell(index:int) -> void:
  if battle==null: return
- if index==2:
-  if battle.cast(2,Vector2(945,285)): notify("Barreira ativa por %.0fs" % battle.barrier)
+ if index in [2,5]:
+  if battle.cast(index,Vector2(945,285)): notify(CxCatalog.SPELLS[index].name+" ativa por %.0fs" % battle.barrier)
   return
  selected_spell=index
  world.aiming=index
@@ -541,6 +562,8 @@ func show_build(slot:int) -> void:
   for i in range(CxCatalog.TOWERS.size()):
    var d=CxCatalog.TOWERS[i]
    if i==6 and not persistence.data.exclusive.get("coin_generator",false): continue
+   if i==7 and not persistence.data.exclusive.get("sky_ballista",false): continue
+   if i==8 and not persistence.data.exclusive.get("gem_mine",false): continue
    var row=HBoxContainer.new()
    col.add_child(row)
    art(row,"building",i,54)
