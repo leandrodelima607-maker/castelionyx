@@ -56,8 +56,13 @@ func sprite(kind:String,index:int,point:Vector2,height:float,tint:Color=Color.WH
  draw_set_transform(Vector2.ZERO)
 
 func health(point:Vector2,value:float,maximum:float,width:float=35,color:Color=Color("74bf87")) -> void:
- draw_rect(Rect2(point+Vector2(-width/2,-3),Vector2(width,5)),Color("142329"))
- draw_rect(Rect2(point+Vector2(-width/2,-3),Vector2(width*clampf(value/maxf(1,maximum),0,1),4)),color)
+ var ratio=clampf(value/maxf(1,maximum),0,1)
+ var bar_color=Color("e36c63") if ratio<0.28 else color
+ draw_rect(Rect2(point+Vector2(-width/2-1,-4),Vector2(width+2,7)),Color("0b171b"))
+ draw_rect(Rect2(point+Vector2(-width/2,-3),Vector2(width,5)),Color("39454a"))
+ draw_rect(Rect2(point+Vector2(-width/2,-3),Vector2(width*ratio,4)),bar_color)
+ if ratio<0.28 and sin(clock*8.0)>0.0:
+  draw_rect(Rect2(point+Vector2(-width/2,-3),Vector2(width*ratio,1)),Color("ffd08b"))
 
 func _draw() -> void:
  var size_value=get_viewport_rect().size
@@ -102,6 +107,10 @@ func _draw() -> void:
    if t.buff: draw_rect(Rect2(p+Vector2(21,-24),Vector2(5,10)),Color("eaca72"))
  var castle_index=6 if battle.hp>0.0 else 7
  draw_atlas_in_world("building",castle_index,Vector2(955,330),155,Color.WHITE,s,offset)
+ if battle.hp>0.0 and battle.hp/maxf(1.0,battle.max_hp)<0.35:
+  var danger_alpha=0.18+0.12*(0.5+0.5*sin(clock*7.0))
+  draw_arc(Vector2(955,330),92,0,TAU,32,Color(1.0,0.32,0.24,danger_alpha),5)
+  draw_arc(Vector2(955,330),104,clock,clock+1.2,18,Color(0.95,0.58,0.28,danger_alpha),3)
  if battle.barrier>0.0:
   draw_arc(Vector2(945,280),95,0,TAU,32,Color(0.55,0.86,1,0.75),4)
  var actors:Array=[]
@@ -185,13 +194,28 @@ func draw_map() -> void:
    var p=CxCatalog.path_position(route,j*17)
    draw_rect(Rect2(p+Vector2(j%5-3,4),Vector2(6,3)),Color(0.36,0.37,0.27,0.32))
   if index==1:
-   for j in range(int(length/36)):
-    var p=CxCatalog.path_position(route,j*36)
+   for q in range(int(length/36)):
+    var p=CxCatalog.path_position(route,q*36)
     draw_rect(Rect2(p-Vector2(3,22),Vector2(6,44)),Color(0.75,0.74,0.61,0.4))
+   for k in range(int(length/84)+1):
+    var arrow_at=CxCatalog.path_position(route,fmod(k*84.0+clock*18.0,length))
+    var arrow_next=CxCatalog.path_position(route,fmod(k*84.0+clock*18.0+14.0,length))
+    var arrow_dir=(arrow_next-arrow_at).normalized()
+    var arrow_side=arrow_dir.orthogonal()*5.0
+    draw_line(arrow_at-arrow_dir*9.0,arrow_at+arrow_dir*7.0,Color(0.98,0.86,0.5,0.38),2)
+    draw_line(arrow_at+arrow_dir*7.0,arrow_at+arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
+    draw_line(arrow_at+arrow_dir*7.0,arrow_at-arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
  var air_route=CxCatalog.MAPS[index].air
  for j in range(int(CxCatalog.path_length(air_route)/35)):
   var p=CxCatalog.path_position(air_route,j*35)
   draw_rect(Rect2(p,Vector2(7,2)),Color(0.69,0.87,0.94,0.4))
+ for m in range(int(CxCatalog.path_length(air_route)/105)+1):
+  var arrow_at=CxCatalog.path_position(air_route,fmod(m*105.0+clock*22.0,CxCatalog.path_length(air_route)))
+  var arrow_next=CxCatalog.path_position(air_route,fmod(m*105.0+clock*22.0+18.0,CxCatalog.path_length(air_route)))
+  var arrow_dir=(arrow_next-arrow_at).normalized()
+  draw_line(arrow_at-arrow_dir*8.0,arrow_at+arrow_dir*7.0,Color(0.75,0.93,1.0,0.6),2)
+  draw_line(arrow_at+arrow_dir*7.0,arrow_at+arrow_dir.orthogonal()*4.0,Color(0.75,0.93,1.0,0.6),2)
+  draw_line(arrow_at+arrow_dir*7.0,arrow_at-arrow_dir.orthogonal()*4.0,Color(0.75,0.93,1.0,0.6),2)
  for i in range(26):
   var p=Vector2((i*157+48)%950,(i*111+20)%550)
   var near=false
@@ -221,6 +245,9 @@ func draw_effect(fx:Dictionary) -> void:
   return
  if fx.type=="death":
   draw_rect(Rect2(p+Vector2(-13,0),Vector2(26,5)),Color(0.08,0.14,0.16,1-progress))
+  for i in range(5):
+   var spark=Vector2(float(i-2)*7.0,-10.0-progress*18.0+sin(clock*4.0+i)*4.0)
+   draw_rect(Rect2(p+spark,Vector2(3,3)),Color(0.95,0.68,0.32,1.0-progress))
   return
  if fx.type=="meteor":
   draw_circle(p,fx.radius*0.72,Color(1,0.45,0.14,0.08))

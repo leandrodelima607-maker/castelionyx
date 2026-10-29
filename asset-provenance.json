@@ -648,9 +648,9 @@
         "autoload/audio_director.gd"
       ],
       "regions": [],
-      "sha256": "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9",
+      "sha256": "sha256:ec979388a9374031d047d4fac672c091467954fc6359d6d5b2d65de685885763",
       "shipped": true,
-      "size": 797781,
+      "size": 967177,
       "source": {},
       "status": "present",
       "transformations": [],
@@ -658,7 +658,21 @@
         "autoload/audio_director.gd"
       ],
       "used": true,
-      "usedBy": []
+      "usedBy": [],
+      "versions": {
+        "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9": {
+          "generator": {},
+          "inputs": [],
+          "license": {},
+          "origin": "unknown",
+          "regions": [],
+          "sha256": "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9",
+          "size": 797781,
+          "source": {},
+          "transformations": [],
+          "usedBy": []
+        }
+      }
     },
     "assets/songs/opening.ogg": {
       "declaredUseEvidence": [],
@@ -1052,9 +1066,9 @@
         ]
       }
     ],
-    "pckSha256": "sha256:0d4eaae31d7df4765fdb1441a3435d84c95606d252b571eccca065b2f4fc6bfc",
+    "pckSha256": "sha256:4c3bcb697f9849e80d3b9d2c782bbb96923fe3e3a5b6fa53608266708813b2c1",
     "profile": "release",
-    "sourceFingerprint": "sha256:cac543a41acf6070693e651af0fcf5f0f49cdc5bdad9550912d2fa90ba80f3f5"
+    "sourceFingerprint": "sha256:0c452724144bcd4049310899da26565d18aebe75fb1b357a533df02756f42fac"
   },
   "procedures": {},
   "summary": {

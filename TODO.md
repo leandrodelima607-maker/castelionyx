@@ -5,6 +5,8 @@
 - [x] Gerar cinco ícones originais de feitiço em pixel art transparente e integrá-los aos controles de batalha, mantendo rótulos legíveis e estados de recarga.
 - [x] Reforçar o renderer com leitura visual de seleção, alcance, dano, congelamento, escudo, telemetria de chefe, projéteis e partículas sem trocar as regras autoritativas da simulação.
 - [x] Preservar suporte a mouse, toque, retrato, landscape, WASD, pausa, 1x/2x, save local e os efeitos sonoros existentes.
+- [x] Reforçar a leitura do campo com setas animadas de direção nas rotas terrestre/aérea, barras de vida com moldura e alerta crítico, halo pulsante no castelo sob risco e faíscas de derrota, sem alterar a simulação.
+- [x] Substituir a faixa de derrota por uma nova gravação cantada que contém “É inútil... você deve desistir”; duração medida em 62,8s e frase confirmada por transcrição.
 
 ## Em andamento
 
