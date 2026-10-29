@@ -189,15 +189,13 @@ func modifiers_match(result:Dictionary,a:String,b:String,c:String="") -> bool:
 
 func claim_event_rewards(result:Dictionary) -> void:
  if result.mode!="infinite": return
- var rules={"survivor_no_army":[50,"coin_generator"],"sky_falls":[35,"sky_ballista"],"last_hope":[25,"barrier_realm"],"mutant_plague":[40,"meteor_plus"],"scarcity_master":[30,"gem_mine"],"extra_hero":[50,"second_hero_slot"]}
- for id in rules:
-  if not data.events.has(id) or not data.events[id].complete or data.exclusive[rules[id][1]]: continue
-  data.exclusive[rules[id][1]]=true
-  data.events[id].reward_claimed=true
-  if id=="last_hope": data.gems+=250
-  if id=="scarcity_master": data.gems+=500
-  if id=="sky_falls": data.gems+=300
-  if id=="extra_hero": data.gems+=400
+ # Somente recompensas com mecânica completa são concedidas automaticamente.
+ # Os demais eventos permanecem persistidos como concluídos até suas recompensas reais existirem.
+ var event_id="survivor_no_army"
+ if not data.events.has(event_id) or not data.events[event_id].complete: return
+ if data.exclusive.get("coin_generator",false): return
+ data.exclusive["coin_generator"]=true
+ data.events[event_id].reward_claimed=true
 
 func reset() -> bool:
  var old=data.duplicate(true)
