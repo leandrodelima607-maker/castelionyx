@@ -22,9 +22,9 @@ As três músicas foram geradas como gravações cantadas em português brasilei
 | --- | ---: | --- |
 | Abertura | 63,8s | Canção original de convite para criar o perfil e defender o reino |
 | Batalha | 334,8s | Rock/orquestra épico cantado, com seção intensa real usada nos chefes |
-| Derrota | 5,0s | Vinheta cantada curta com exatamente “É inútil... você deve desistir” |
+| Derrota | 17,0s | Vinheta cantada curta com a letra final exata solicitada |
 
-Uma segunda parte original foi gerada com voz em português brasileiro, unida à primeira por crossfade de 4 segundos e medida em 334,8s — acima dos cinco minutos solicitados sem repetir artificialmente um trecho curto. A faixa funciona em loop durante a partida sem reiniciar a cada onda. A intensificação de chefe desloca a reprodução para o clímax real da parte estendida e retorna à posição anterior depois. A derrota não fica em loop. As letras efetivamente geradas são originais/adaptadas: **não são a letra exata dos anexos**. Para a vinheta de derrota solicitada, foi recortada apenas a frase cantada “É inútil... você deve desistir”, acelerada para caber em no máximo 5 segundos, sem versos extras; a transcrição reconheceu a frase completa.
+Uma segunda parte original foi gerada com voz em português brasileiro, unida à primeira por crossfade de 4 segundos e medida em 334,8s — acima dos cinco minutos solicitados sem repetir artificialmente um trecho curto. A faixa funciona em loop durante a partida sem reiniciar a cada onda. A intensificação de chefe desloca a reprodução para o clímax real da parte estendida e retorna à posição anterior depois. A derrota não fica em loop. As letras efetivamente geradas são originais/adaptadas: **não são a letra exata dos anexos**. A vinheta final da derrota foi montada somente com os trechos cantados reconhecidos “É inevitável... insuperável... é inútil... você deve desistir... pare de tentar persistir...”, sem palavras extras; duração medida em 17,0s.
 
 Sete SFX foram gerados em áudio: construção, canhão, explosão, gelo, eletricidade, invocação e entrada de chefe. Outros seis efeitos curtos foram sintetizados para interface, flecha, moeda, dano ao castelo, melhoria e vitória. Esses efeitos não substituem nenhuma música. Volumes de música, efeitos e interface são separados. O áudio exige um gesto do usuário no navegador.
 

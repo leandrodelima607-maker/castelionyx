@@ -6,7 +6,7 @@
 - [x] Reforçar o renderer com leitura visual de seleção, alcance, dano, congelamento, escudo, telemetria de chefe, projéteis e partículas sem trocar as regras autoritativas da simulação.
 - [x] Preservar suporte a mouse, toque, retrato, landscape, WASD, pausa, 1x/2x, save local e os efeitos sonoros existentes.
 - [x] Reforçar a leitura do campo com setas animadas de direção nas rotas terrestre/aérea, barras de vida com moldura e alerta crítico, halo pulsante no castelo sob risco e faíscas de derrota, sem alterar a simulação.
-- [x] Substituir a faixa de derrota por uma vinheta cantada com exatamente “É inútil... você deve desistir”; MP3/OGG limitados a no máximo 5 segundos e frase completa confirmada por transcrição.
+- [x] Substituir diretamente a faixa de derrota pela vinheta cantada com a letra final “É inevitável... insuperável... é inútil... você deve desistir... pare de tentar persistir...”; transcrição confirmou os três trechos sem palavras extras.
 
 ## Em andamento
 
