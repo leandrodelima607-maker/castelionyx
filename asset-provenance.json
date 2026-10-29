@@ -648,9 +648,9 @@
         "autoload/audio_director.gd"
       ],
       "regions": [],
-      "sha256": "sha256:ec979388a9374031d047d4fac672c091467954fc6359d6d5b2d65de685885763",
+      "sha256": "sha256:7239e83ab954e0c56ead3f05f1b2bb4dc07f125eb12670d4a05b93021e514e86",
       "shipped": true,
-      "size": 967177,
+      "size": 84539,
       "source": {},
       "status": "present",
       "transformations": [],
@@ -660,6 +660,30 @@
       "used": true,
       "usedBy": [],
       "versions": {
+        "sha256:1ffffe6146b532a5a52ead057bfd503221dd3df3e30aacf9407331ea7e49c64e": {
+          "generator": {},
+          "inputs": [],
+          "license": {},
+          "origin": "unknown",
+          "regions": [],
+          "sha256": "sha256:1ffffe6146b532a5a52ead057bfd503221dd3df3e30aacf9407331ea7e49c64e",
+          "size": 85534,
+          "source": {},
+          "transformations": [],
+          "usedBy": []
+        },
+        "sha256:ec979388a9374031d047d4fac672c091467954fc6359d6d5b2d65de685885763": {
+          "generator": {},
+          "inputs": [],
+          "license": {},
+          "origin": "unknown",
+          "regions": [],
+          "sha256": "sha256:ec979388a9374031d047d4fac672c091467954fc6359d6d5b2d65de685885763",
+          "size": 967177,
+          "source": {},
+          "transformations": [],
+          "usedBy": []
+        },
         "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9": {
           "generator": {},
           "inputs": [],
@@ -1066,9 +1090,9 @@
         ]
       }
     ],
-    "pckSha256": "sha256:4c3bcb697f9849e80d3b9d2c782bbb96923fe3e3a5b6fa53608266708813b2c1",
+    "pckSha256": "sha256:564bea21e252b236b17c2a8214151f6a8be0b4bb3ca26f1f17de552df87e8038",
     "profile": "release",
-    "sourceFingerprint": "sha256:0c452724144bcd4049310899da26565d18aebe75fb1b357a533df02756f42fac"
+    "sourceFingerprint": "sha256:4f3bcad25095f5e3dea6544db797f12c4101c4ef6d8b5c2a77884a14f784ddce"
   },
   "procedures": {},
   "summary": {

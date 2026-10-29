@@ -3,7 +3,7 @@
   "engineVersion": "4.7.2.stable.official.ed1daf0bf",
   "inputs": {
     "objectFormat": "sha1",
-    "tree": "f027f0a79db3af642f71c9d3aac2382b930b9116",
+    "tree": "f9824b6d2f657b3fba1d204bec834dd532c16b30",
     "entries": [
       {
         "path": ".gitignore",
@@ -27,7 +27,7 @@
         "path": "LEIA-ME.md",
         "type": "file",
         "mode": "100644",
-        "object": "66de5e1729a4c5218430fa745213661f0963bc8a"
+        "object": "c801294d2ace905dbdf52c1465d8df7cd9279d90"
       },
       {
         "path": "README.md",
@@ -39,7 +39,7 @@
         "path": "TODO.md",
         "type": "file",
         "mode": "100644",
-        "object": "f0a13c20ca6bf40aa96686011c9ae667e0b13db0"
+        "object": "dd399fbd76fbc9d68c7f0d147d6fcbb03cc29f3a"
       },
       {
         "path": "app.config.ts",
@@ -51,7 +51,7 @@
         "path": "assets.lock.json",
         "type": "file",
         "mode": "100644",
-        "object": "a2c29e5a607167a034f6da29d5d28bac9e07560d"
+        "object": "d82bcce1f58997abb24bea69f6aa23307a21294d"
       },
       {
         "path": "assets/combat/enemies.png",
@@ -375,7 +375,7 @@
       {
         "path": "assets/songs/defeat.ogg",
         "type": "managed",
-        "sha256": "sha256:ec979388a9374031d047d4fac672c091467954fc6359d6d5b2d65de685885763"
+        "sha256": "sha256:7239e83ab954e0c56ead3f05f1b2bb4dc07f125eb12670d4a05b93021e514e86"
       },
       {
         "path": "assets/songs/defeat.ogg.import",
@@ -1324,7 +1324,7 @@
     ]
   },
   "build": {
-    "snapshotId": "sha256:ebce63266a219edb5db9a66f867a1725a337c3f1c1dd4a07766499920cc64ded",
+    "snapshotId": "sha256:9eeef8194d109c5a1b1cea4dcee059d2a66331f1c0cf7383c9c0f4db16e49063",
     "toolchain": {
       "engineVersion": "4.7.2.stable.official.ed1daf0bf",
       "engineDigest": "sha256:3fcb80f4fe794e3859360eb641d8c41d8ffe2c2e54ba1981e55a76851d5ed1f4",
@@ -1337,21 +1337,21 @@
     "profile": "release",
     "export": {
       "profile": "release",
-      "snapshotId": "sha256:ebce63266a219edb5db9a66f867a1725a337c3f1c1dd4a07766499920cc64ded",
+      "snapshotId": "sha256:9eeef8194d109c5a1b1cea4dcee059d2a66331f1c0cf7383c9c0f4db16e49063",
       "files": {
         "THIRD_PARTY_NOTICES.txt": "sha256:c729a77bf07eb9745b2d89c3ce4ead3357438366f41743d2755ae35f98509cf9",
         "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
         "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
         "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-        "index.html": "sha256:0a59f500e8a9c7a65f2e1834fe373fe264292b54fa7a26d1ed1b45e7dc62c041",
+        "index.html": "sha256:f676a331bec31d001cf258e5157ec4e61f3c8f01be68e60c58da3fe0ddc275dd",
         "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
         "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
-        "index.pck": "sha256:4c3bcb697f9849e80d3b9d2c782bbb96923fe3e3a5b6fa53608266708813b2c1",
+        "index.pck": "sha256:564bea21e252b236b17c2a8214151f6a8be0b4bb3ca26f1f17de552df87e8038",
         "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",
         "index.wasm": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0",
         "open-source-licenses.html": "sha256:9215f5fdd50039a9b6f3d8f0271cbc21bbdf64b917fb118dd29c8a16b9974e00"
       },
-      "digest": "sha256:8cf64ce6d24e4ddbf47a7cb573e8403280f5482148af3c502dfb163edae7693f"
+      "digest": "sha256:b1a4d369bba67075fe009e8110a3a412e25f8937e581744eb148d04036a8814f"
     }
   },
   "artifacts": {
@@ -1360,8 +1360,8 @@
       "sha256": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
     },
     "pck": {
-      "path": "/manus-storage/game/sha256/4c3bcb697f9849e80d3b9d2c782bbb96923fe3e3a5b6fa53608266708813b2c1.pck",
-      "sha256": "sha256:4c3bcb697f9849e80d3b9d2c782bbb96923fe3e3a5b6fa53608266708813b2c1"
+      "path": "/manus-storage/game/sha256/564bea21e252b236b17c2a8214151f6a8be0b4bb3ca26f1f17de552df87e8038.pck",
+      "sha256": "sha256:564bea21e252b236b17c2a8214151f6a8be0b4bb3ca26f1f17de552df87e8038"
     }
   },
   "files": {
@@ -1370,7 +1370,7 @@
     "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
     "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
     "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-    "index.html": "sha256:3bc7fd714794044d64f85b806b7300aa25690de163079e9c0cfff6dae4f6a771",
+    "index.html": "sha256:cfd2bc37df95b4b81bf872e0a8b091fdaa4532ea64a7de88b6a4ca1d3808ed00",
     "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
     "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
     "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",
