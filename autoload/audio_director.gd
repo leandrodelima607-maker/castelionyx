@@ -10,6 +10,7 @@ const CUES := {
 	"music.title": {"path": "res://assets/songs/opening.ogg", "kind": "music"},
 	"music.gameplay": {"path": "res://assets/songs/battle.ogg", "kind": "music"},
 	"music.defeat": {"path": "res://assets/songs/defeat.ogg", "kind": "music"},
+	"music.defeat_special": {"path": "res://assets/songs/defeat_special.ogg", "kind": "music"},
 	"ui.confirm": {"path": "res://assets/cues/click.wav", "bus": "UI"},
 	"ui.cancel": {"path": "res://assets/cues/click.wav", "bus": "UI"},
 	"player.action": {"path": "res://assets/cues/arrow.wav", "bus": "SFX"},
@@ -137,7 +138,7 @@ func play_music(cue_id: String, crossfade_seconds: float = 0.35) -> bool:
 	var next_player: BrowserBgmPlayer = _music_players[_music_index]
 	next_player.stop()
 	next_player.stream = stream
-	next_player.force_loop = cue_id != "music.defeat"
+	next_player.force_loop = cue_id not in ["music.defeat", "music.defeat_special"]
 	next_player.volume_db = -40.0 if old_player.playing else 0.0
 	_music_cue = cue_id
 	_boss_active = false
@@ -282,8 +283,8 @@ func _on_tuning_changed(id: String, _requested: Variant, _active: Variant) -> vo
 
 
 func _on_music_finished(player: BrowserBgmPlayer) -> void:
-		if player == _music_players[_music_index] and not _music_cue.is_empty() and _music_cue != "music.defeat" and player.stream != null:
-			player.play()
+	if player == _music_players[_music_index] and not _music_cue.is_empty() and _music_cue not in ["music.defeat", "music.defeat_special"] and player.stream != null:
+		player.play()
 
 
 var _boss_active := false

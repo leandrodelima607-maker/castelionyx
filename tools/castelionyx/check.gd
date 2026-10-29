@@ -26,7 +26,7 @@ func run() -> void:
  m.tick(0.1)
  check(m.wave==1 and m.state=="combat","empty live list cannot complete pending wave")
  check(m.build(0,0),"construction spends real gold")
- check(m.gold==337,"gold matches kill and build")
+ check(m.gold==375,"50 coins per defeated enemy and build cost")
  check(not m.build(0,1),"occupied slot rejected")
  var before=m.gold
  m.gold=0
@@ -127,11 +127,22 @@ func run() -> void:
  var infinite={"id":"test-infinite-"+str(Time.get_ticks_usec()),"mode":"infinite","map":0,"completed":16,"defeat_wave":17,"bosses":1,"time":110.0,"earned":230,"victory":false}
  check(persistence.record(infinite)==1,"16 complete defeat17 produces one gem")
  check(persistence.data.stats.last.completed==16 and persistence.data.stats.last.defeat_wave==17,"completed count distinct from defeat wave")
- check(persistence.buy("heroes",1) and persistence.data.heroes[1]==1,"hero unlock purchase saved")
+ persistence.data.gems=4392
+ check(persistence.buy("heroes",1) and persistence.data.heroes[1]==1,"progressive hero purchase costs 3600 gems")
  check(persistence.select_hero(1),"unlocked hero can be selected")
  check(not persistence.select_hero(5),"locked hero cannot be selected")
  persistence.data=saved
  persistence.commit()
  check(CxCatalog.MAPS[0].ground!=CxCatalog.MAPS[1].ground and CxCatalog.MAPS[3].ground.size()==2,"different maps have different actual routes")
+ var tenth=CxPersistence.defaults()
+ tenth.stats.adventure_wins=9
+ tenth.stats.adventure_extra=80
+ var special=CxBattle.new(0,"adventure",[],tenth)
+ special.tick(150.1)
+ check(special.terminal.get("special_defeat",false)==true,"special defeat only after tenth adventure cycle timeout")
+ var normal_run=CxBattle.new(0,"infinite",[],d)
+ normal_run.hp=0.0
+ normal_run.tick(0.1)
+ check(normal_run.terminal.get("special_defeat",false)==false,"normal defeat does not use special defeat music")
  print("[castelionyx-check] ","PASS:" if failed==0 else "FAIL:"," ",passed," passing, ",failed," failing")
  quit(0 if failed==0 else 1)

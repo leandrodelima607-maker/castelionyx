@@ -22,9 +22,16 @@ As três músicas foram geradas como gravações cantadas em português brasilei
 | --- | ---: | --- |
 | Abertura | 63,8s | Canção original de convite para criar o perfil e defender o reino |
 | Batalha | 334,8s | Rock/orquestra épico cantado, com seção intensa real usada nos chefes |
-| Derrota | 17,0s | Vinheta cantada curta com a letra final exata solicitada |
+| Derrota normal | 43,1s | Faixa anterior restaurada; usada em derrotas comuns |
+| Derrota especial | 17,0s | Usada somente após o timeout de 25 minutos da décima progressão da Aventura |
 
-Uma segunda parte original foi gerada com voz em português brasileiro, unida à primeira por crossfade de 4 segundos e medida em 334,8s — acima dos cinco minutos solicitados sem repetir artificialmente um trecho curto. A faixa funciona em loop durante a partida sem reiniciar a cada onda. A intensificação de chefe desloca a reprodução para o clímax real da parte estendida e retorna à posição anterior depois. A derrota não fica em loop. As letras efetivamente geradas são originais/adaptadas: **não são a letra exata dos anexos**. A vinheta final da derrota foi montada somente com os trechos cantados reconhecidos “É inevitável... insuperável... é inútil... você deve desistir... pare de tentar persistir...”, sem palavras extras; duração medida em 17,0s.
+Uma segunda parte original foi gerada com voz em português brasileiro, unida à primeira por crossfade de 4 segundos e medida em 334,8s — acima dos cinco minutos solicitados sem repetir artificialmente um trecho curto. A faixa funciona em loop durante a partida sem reiniciar a cada onda. A intensificação de chefe desloca a reprodução para o clímax real da parte estendida e retorna à posição anterior depois. A derrota normal usa novamente a gravação anterior e a vinheta com “É inevitável... insuperável... é inútil... você deve desistir... pare de tentar persistir...” foi separada em `music.defeat_special`. Ela só é chamada quando o resultado traz `special_defeat=true`, ativado após 150 segundos na progressão da décima Aventura; derrotas infinitas normais não chamam essa faixa.
+
+## Atualização desta rodada
+
+Foram implementados e testados: separação das duas músicas de derrota; derrota especial condicionada à décima progressão da Aventura; derrota normal preservada; e-mail no perfil local no lugar do rótulo de país; moedas de combate de 50 por inimigo derrotado; seleção aleatória de espaços de construção com 5 na Aventura e 10 no Infinito quando o mapa permite; Aventura sem heróis; inimigos extras por vitória da Aventura; persistência de vitórias, nível por ondas acumuladas e seção funcional de eventos com progresso por modificadores.
+
+Os seis eventos já registram progresso persistente conforme condições reais, mas as recompensas exclusivas ainda precisam ser conectadas às coleções e aos efeitos de combate. Autenticação remota por e-mail continua não implementada: o projeto permanece com salvamento local e não simula sincronização entre dispositivos.
 
 Sete SFX foram gerados em áudio: construção, canhão, explosão, gelo, eletricidade, invocação e entrada de chefe. Outros seis efeitos curtos foram sintetizados para interface, flecha, moeda, dano ao castelo, melhoria e vitória. Esses efeitos não substituem nenhuma música. Volumes de música, efeitos e interface são separados. O áudio exige um gesto do usuário no navegador.
 

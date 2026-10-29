@@ -261,6 +261,14 @@
       "used": true
     },
     "assets/songs/defeat.ogg": {
+      "path": "/manus-storage/game/sha256/f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9.ogg",
+      "sha256": "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9",
+      "size": 797781,
+      "assetType": "audio",
+      "groupId": "songs",
+      "used": true
+    },
+    "assets/songs/defeat_special.ogg": {
       "path": "/manus-storage/game/sha256/dba88f7532675e5b33211b1e11a1e2b8703d9f4dac3da7016b14e768d9b38d15.ogg",
       "sha256": "sha256:dba88f7532675e5b33211b1e11a1e2b8703d9f4dac3da7016b14e768d9b38d15",
       "size": 218480,

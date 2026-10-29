@@ -238,6 +238,7 @@ func show_menu() -> void:
  button(grid,"Modo Aventura",func(): show_setup("adventure"))
  button(grid,"Perfil",func(): show_profile(true))
  button(grid,"Estatísticas",show_stats)
+ button(grid,"Eventos",show_events)
  button(grid,"Configurações",func(): show_settings("menu"))
  label(col,"Defenda as rotas. Toque nos espaços de pedra para construir. Use o herói e os feitiços quando o cerco apertar.",16,Color("abc0b3"))
  label(col,"SEM ANÚNCIOS · SALVAMENTO LOCAL",12,Color("a1af9e"))
@@ -663,10 +664,11 @@ func show_profile(edit:bool=false) -> void:
  profile_name.max_length=24
  profile_name.custom_minimum_size.y=58
  col.add_child(profile_name)
- label(col,"País",16)
+ label(col,"E-mail",16)
  profile_country=LineEdit.new()
- profile_country.text=str(saved.get("country","Brasil"))
- profile_country.max_length=40
+ profile_country.placeholder_text="seu@email.com"
+ profile_country.text=str(saved.get("email",saved.get("country","")))
+ profile_country.max_length=120
  profile_country.custom_minimum_size.y=58
  col.add_child(profile_country)
  label(col,"Escolha um avatar",18)
@@ -724,6 +726,16 @@ func show_stats() -> void:
   label(card(col),"Última partida\n%d ondas completas · %d chefes\nTempo %s · %d gemas" % [last.get("completed",0),last.get("bosses",0),time_string(last.get("time",0)),last.get("gems",0)],18)
  back(col)
 
+func show_events() -> void:
+ var col=begin_page("events","Eventos especiais","O progresso só avança com partidas válidas e é salvo no perfil.")
+ var names={"survivor_no_army":["Sobrevivente sem Exército","50 ondas com Exército Reduzido + Sem Heróis","Sentinela Arcana"],"sky_falls":["O Céu Está Caindo","35 ondas com Cerco Aéreo + Exército Reduzido","Balista Celeste"],"last_hope":["Última Esperança","25 ondas com Última Muralha + Economia Limitada","Barreira do Reino"],"mutant_plague":["A Praga Mutante","40 ondas com Inimigos Mutantes + Cerco Aéreo","Meteoro Aprimorado"],"scarcity_master":["Mestre da Escassez","30 ondas com Exército Reduzido + Economia Limitada + Sem Heróis","Mina de Gemas"],"extra_hero":["O Herói Extra","50 ondas com Última Muralha + Inimigos Mutantes","Segundo espaço de herói"]}
+ for id in names:
+  var e:Dictionary=persistence.data.events.get(id,{"progress":0,"goal":0,"complete":false})
+  var c=card(col)
+  label(c,names[id][0],20,Color("e8c67f"))
+  label(c,names[id][1]+"\nProgresso: %d/%d ondas\nRecompensa: %s\n%s" % [int(e.progress),int(e.goal),names[id][2],"CONCLUÍDO" if e.complete else "EM ANDAMENTO"],16,Color("c5d8cb" if e.complete else "b5c2b8"))
+ back(col)
+
 func time_string(seconds:float) -> String:
  return "%dm %02ds" % [int(seconds/60.0),int(seconds)%60]
 
@@ -738,7 +750,7 @@ func complete_run() -> void:
  overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE
  world.battle=battle
  if result.victory: AudioDirector.stop_music(0.5); AudioDirector.play_cue("game.victory")
- else: AudioDirector.play_music("music.defeat",0.65)
+ else: AudioDirector.play_music("music.defeat_special" if result.get("special_defeat",false) else "music.defeat",0.65)
  apply_volumes()
  var col=modal("O REINO RESISTIU!" if result.victory else "A MURALHA CAIU")
  label(col,"Aventura concluída" if result.victory else "Derrota na onda %d" % result.defeat_wave,20,Color("e4bf7e"))

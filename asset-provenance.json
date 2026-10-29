@@ -648,9 +648,9 @@
         "autoload/audio_director.gd"
       ],
       "regions": [],
-      "sha256": "sha256:dba88f7532675e5b33211b1e11a1e2b8703d9f4dac3da7016b14e768d9b38d15",
+      "sha256": "sha256:f5965c6e64d4570bdf236b06fc4b801d982da060faad7f5ce0f06aee64ef98e9",
       "shipped": true,
-      "size": 218480,
+      "size": 797781,
       "source": {},
       "status": "present",
       "transformations": [],
@@ -709,6 +709,28 @@
           "usedBy": []
         }
       }
+    },
+    "assets/songs/defeat_special.ogg": {
+      "declaredUseEvidence": [],
+      "generator": {},
+      "inputs": [],
+      "license": {},
+      "origin": "unknown",
+      "referenceEvidence": [
+        "autoload/audio_director.gd"
+      ],
+      "regions": [],
+      "sha256": "sha256:dba88f7532675e5b33211b1e11a1e2b8703d9f4dac3da7016b14e768d9b38d15",
+      "shipped": true,
+      "size": 218480,
+      "source": {},
+      "status": "present",
+      "transformations": [],
+      "useEvidence": [
+        "autoload/audio_director.gd"
+      ],
+      "used": true,
+      "usedBy": []
     },
     "assets/songs/opening.ogg": {
       "declaredUseEvidence": [],
@@ -1102,9 +1124,9 @@
         ]
       }
     ],
-    "pckSha256": "sha256:11dd6e14f0888f77f4443cd249438575b91ece352ca4bf6ea8af711a9e749ee8",
+    "pckSha256": "sha256:08bd021b74f08feb6ce5f54ccf2ec30c58e728b6fbb72785bcbda637601c9e6a",
     "profile": "release",
-    "sourceFingerprint": "sha256:03853c6fd5f24d3c4fc000634659b152d520f4c66d2f42bdc26573fcc8d75484"
+    "sourceFingerprint": "sha256:1ebb18f74b7cd80991a88616980bfdf7107728294d810b4cdd08060db8c3e23e"
   },
   "procedures": {},
   "summary": {
@@ -1137,9 +1159,9 @@
     },
     "files": {
       "downloaded": 0,
-      "retained": 46,
-      "shipped": 42,
-      "used": 30
+      "retained": 47,
+      "shipped": 43,
+      "used": 31
     },
     "origins": {
       "ai": {
@@ -1173,9 +1195,9 @@
         "used": 3
       },
       "unknown": {
-        "retained": 31,
-        "shipped": 27,
-        "used": 27
+        "retained": 32,
+        "shipped": 28,
+        "used": 28
       }
     },
     "packs": {

@@ -34,6 +34,10 @@ var next_id=1
 var terminal:Dictionary={}
 var run_id=""
 var previous_boss=false
+var special_defeat=false
+var special_horde_clock=0.0
+var adventure_wins=0
+var adventure_extra=0
 var rng=RandomNumberGenerator.new()
 
 func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:Dictionary={}) -> void:
@@ -41,12 +45,19 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
  mode=which_mode
  modifiers=mods.duplicate()
  progression=CxPersistence.validate(progress)
+ adventure_wins=int(progression.stats.get("adventure_wins",0))
+ adventure_extra=int(progression.stats.get("adventure_extra",0))
  speed=int(progression.settings.speed)
- rng.seed=12345+map_index*137
+ rng.seed=Time.get_ticks_usec()+map_index*137
  run_id="%s-%d-%d" % [str(Time.get_unix_time_from_system()),Time.get_ticks_usec(),rng.randi()]
  pads=CxCatalog.MAPS[map_index].pads.duplicate()
- if modifiers.has("reduced") or mode=="adventure":
-  pads=pads.slice(0,maxi(4,int(pads.size()/2.0)))
+ pads.shuffle()
+ var wanted=5 if mode=="adventure" else 10
+ if modifiers.has("reduced"): wanted=maxi(4,int(ceil(float(wanted)/2.0)))
+ while pads.size()<wanted:
+  var route=CxCatalog.MAPS[map_index].ground[pads.size()%CxCatalog.MAPS[map_index].ground.size()]
+  pads.append(CxCatalog.path_position(route,route.size()*38.0+pads.size()*24.0))
+ pads=pads.slice(0,wanted)
  if modifiers.has("wall"): max_hp=150.0
  hp=max_hp
  if modifiers.has("economy"): gold=300
@@ -68,7 +79,7 @@ func create_heroes() -> void:
   allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0})
 
 func hero_allowed() -> bool:
- return not modifiers.has("nohero") and not (mode=="adventure" and wave==1)
+ return not modifiers.has("nohero") and mode!="adventure"
 
 func start_wave() -> bool:
  if state!="preparation" or hp<=0.0: return false
@@ -85,7 +96,7 @@ func wave_schedule(number:int) -> Array:
  if map_index==1: count=int(ceil(count*1.25))
  if modifiers.has("reduced"): count=int(ceil(count*1.25))
  count=mini(count,100)
- if mode=="adventure": count=[24,25,24,16,14][clampi(number-1,0,4)]
+ if mode=="adventure": count=[24,25,24,16,14][clampi(number-1,0,4)]+adventure_extra
  for i in range(count):
   var kind=0
   if number>=2 and i%4==1: kind=1
@@ -116,7 +127,9 @@ func spawn_enemy(spec:Dictionary) -> Dictionary:
  if spec.get("boss",false) and mode=="infinite": factor=1.0+0.3*maxi(0,int(wave/10.0)-1)
  if spec.get("final",false): d.hp=1900.0
  var route=CxCatalog.MAPS[map_index].air if d.air else CxCatalog.MAPS[map_index].ground[spec.get("route",0)]
- var enemy={"uid":new_id(),"kind":d.id,"name":d.name,"sprite":d.sprite,"hp":d.hp*factor,"max_hp":d.hp*factor,"damage":d.damage*(1.0+0.04*tier),"speed":d.speed*minf(1.65,1.0+0.008*tier),"reward":d.reward,"armor":d.armor,"air":d.air,"boss":spec.get("boss",false),"final":spec.get("final",false),"phase":1,"path":route,"distance":0.0,"pos":route[0],"freeze":0.0,"immune":0.0,"slow":0.0,"hit":0.0,"anim":0.0,"attack":0.0,"special":7.0,"telegraph":0.0,"regen_block":0.0,"dead":false,"shell":42.0 if d.id=="mutant" else 0.0,"dash":0.0}
+ if mode=="adventure" and adventure_wins>=9:
+  factor*=1.1 if not spec.get("boss",false) else 1.19
+ var enemy={"uid":new_id(),"kind":d.id,"name":d.name,"sprite":d.sprite,"hp":d.hp*factor,"max_hp":d.hp*factor,"damage":d.damage*(1.0+0.04*tier)*(1.39 if mode=="adventure" and adventure_wins>=9 and spec.get("boss",false) else 1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"speed":d.speed*minf(1.65,1.0+0.008*tier)*(1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"reward":d.reward,"armor":d.armor,"air":d.air,"boss":spec.get("boss",false),"final":spec.get("final",false),"phase":1,"path":route,"distance":0.0,"pos":route[0],"freeze":0.0,"immune":0.0,"slow":0.0,"hit":0.0,"anim":0.0,"attack":0.0,"special":7.0,"telegraph":0.0,"regen_block":0.0,"dead":false,"shell":42.0 if d.id=="mutant" else 0.0,"dash":0.0}
  enemies.append(enemy)
  if enemy.boss:
   events.append({"type":"boss","name":enemy.name})
@@ -135,6 +148,16 @@ func advance(delta:float) -> void:
 func tick(dt:float) -> void:
  if state=="finished": return
  elapsed+=dt
+ if mode=="adventure" and adventure_wins>=9 and elapsed>=150.0 and not special_defeat:
+  special_defeat=true
+  special_horde_clock=12.0
+  events.append({"type":"special_defeat_start"})
+  for i in range(28): queue.append({"kind":i%7,"boss":false,"route":i%CxCatalog.MAPS[map_index].ground.size()})
+  state="combat"
+ if special_defeat:
+  special_horde_clock-=dt
+  if special_horde_clock<=0.0:
+   hp=0.0
  barrier=maxf(0.0,barrier-dt)
  special_cd=maxf(0.0,special_cd-dt)
  for i in range(5): spells[i]=maxf(0.0,spells[i]-dt)
@@ -294,8 +317,10 @@ func damage_enemy(e:Dictionary,amount:float,kind:String="physical") -> void:
  if e.hp<=0.0:
   e.dead=true
   var reward=int(e.reward*(0.7 if modifiers.has("economy") else 1.0))
-  gold+=reward
+  gold+=50
   earned+=reward
+  earned+=50-reward
+  events.append({"type":"coin"})
   burst(e.pos,"death",e.sprite)
   if e.boss:
    bosses+=1
@@ -593,7 +618,7 @@ func boss_alive() -> Variant:
 func finish(victory:bool) -> void:
  if state=="finished": return
  state="finished"
- terminal={"id":run_id,"mode":mode,"map":map_index,"completed":completed,"defeat_wave":0 if victory else wave,"bosses":bosses,"time":elapsed,"earned":earned,"victory":victory}
+ terminal={"id":run_id,"mode":mode,"map":map_index,"completed":completed,"defeat_wave":0 if victory else wave,"bosses":bosses,"time":elapsed,"earned":earned,"victory":victory,"special_defeat":special_defeat,"modifiers":modifiers.duplicate()}
  events.append({"type":"victory" if victory else "defeat"})
  burst(Vector2(925,285),"explosion",130)
 
