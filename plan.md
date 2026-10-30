@@ -1,26 +1,29 @@
-# CASTELIONYX — implementação
+# CASTELIONYX — manutenção da versão mais recente
 
-O projeto terá uma simulação 2D autoritativa em Godot, exportada para navegador com uma camada HTML/CSS/JavaScript. Não havia código-fonte no envio: esta é uma implementação nova, e não uma modificação do código original. O idioma será português brasileiro e o perfil/progresso ficarão apenas no armazenamento local do navegador; não haverá conta online, servidor, anúncios ou pagamentos.
+## Escopo
 
-## Estrutura
+Continuar apenas o clone de `leandrodelima607-maker/castelionyx` no branch `main`. Preservar a arquitetura Godot 2D e o jogo existente; não editar repositórios anteriores nem tratar a URL publicada como cópia editável. Os arquivos de implementação são `catalog.gd` (catálogo), `battle.gd` (simulação), `persistence.gd` (saves locais), `main.gd` (telas/HUD), `world.gd` (renderer) e `tools/castelionyx/check.gd` (testes).
 
-- `scripts/castelionyx/catalog.gd`: definições e balanceamento de seis heróis, seis estruturas, sete inimigos, quatro chefes, cinco feitiços, quatro mapas, seis modificadores e cinco ondas de aventura.
-- `scripts/castelionyx/battle.gd`: estados de ondas, fila de geração, combate, unidades, projéteis, feitiços, chefes, simulação baseada em delta time e resultado imutável.
-- `scripts/castelionyx/persistence.gd`: validação/migração e gravação local de perfil, níveis, moeda, estatísticas e recompensas uma única vez.
-- `scripts/castelionyx/world.gd`: terreno/rotas, sprites originais, efeitos e estados visuais sem autoridade sobre o combate.
-- `scripts/main.gd`: telas, HUD, seleção, controles por toque/mouse/teclado, pausa e configurações.
-- `autoload/audio_director.gd`: reprodução reutilizando o backend de áudio seguro do navegador, transições e canais independentes.
-- `assets/combat`, `assets/kingdom`, `assets/songs`, `assets/cues`: arte e áudio originais gerados e versões compactadas de runtime.
-- `web/loading.html`: carregamento real em português, progresso, retry e identidade de Castelionyx.
+## Compatibilização dos anexos
 
-## Direção visual
+Os anexos 2 e 3 descrevem o mesmo conjunto de seis desafios com metas, modificadores e recompensas detalhadas. Esse conjunto específico foi implementado: Sobrevivente sem Exército, O Céu Está Caindo, Última Esperança, A Praga Mutante, Mestre da Escassez e O Herói Extra. O anexo 1 apresenta outros cinco conceitos genéricos, sem os detalhes e valores necessários; para não substituir as seis recompensas específicas, eles não foram adicionados como eventos extras nesta rodada. A Primeira Fortuna, requisito não conflitante do anexo 1, foi mantida como um marco adicional: 100 abates acumulados no Infinito liberam permanentemente o Gerador de Moedas.
 
-Pixel art de estratégia medieval: contornos escuros, aço e telhados azuis, campos verde-musgo, florestas azul-petróleo e detalhes dourados. Personagens e edifícios usam os sprites originais produzidos; caminhos e terrenos complementares são desenhados em pixels. A interface usa painéis escuros e ouro, tipografia legível e controles amplos. O campo se ajusta ao espaço disponível e, no retrato, controles ficam abaixo dele em vez de cobri-lo.
+O pagamento explícito de 50 moedas temporárias por abate prevalece sobre o redutor genérico de 30% do modificador Economia Limitada: esse modificador reduz o ouro inicial e os bônus de onda, sem alterar os 50 por inimigo. A Aventura mantém cinco espaços e apenas Torre de Arqueiros/Canhão; o Infinito normal mantém dez espaços; Exército Reduzido usa cinco nos desafios compatíveis. Evoluções permanentes de heróis, estruturas e feitiços ficam limitadas a 0–4.
 
-## Áudio
+## Trabalho integrado
 
-Música não será substituída por osciladores. As gerações solicitam voz cantada em português e composição original. Letras exatas não são garantidas pela ferramenta. A batalha é planejada em duas partes diferentes para superar cinco minutos, com crossfade; não se repete um trecho curto para simular a duração. Uma geração de continuação falhou e a autorização para nova tentativa foi solicitada. A derrota gerada excedeu a duração pedida; a adequação será descrita com transparência após verificar o arquivo. Efeitos são arquivos próprios separados, gerados ou sintetizados como SFX, jamais como substitutos das músicas.
+- Rotas sorteadas e visíveis por partida, com caminhos que terminam no castelo, distribuição por rota e máximo de quatro vias; espaços também sorteados, fora das rotas e sem sobreposição.
+- Economia temporária idempotente; Gerador por 13 moedas/1 moeda a cada 4 segundos enquanto a partida está ativa; Mina exclusiva por 250 moedas/1 gema a cada 60 segundos de combate ativo, com crédito local imediato idempotente.
+- Seis desafios reais com modificadores, progresso por partida válida, recompensas persistentes e entrada pela interface; seleção de até dois heróis após o desbloqueio; Sentinela, Balista, Barreira do Reino e Meteoro Aprimorado integrados ao combate.
+- Aventura mais pressionada, nível do jogador calculado somente por ondas do Infinito, Desafio dos Chefes no nível 5 e Sobrevivência Extrema no 24, com registros separados.
+- Perfil local com nome/e-mail e validação de formato. Não há autenticação remota ou sincronização; a interface deve preservar esse aviso.
+- Indicadores de ciclo de produção do Gerador e da Mina são desenhados continuamente acima das estruturas; não dependem do painel modal, que pausa a simulação.
+- Economia Limitada parte de 70% do saldo inicial padrão com arredondamento à moeda inteira mais próxima (425 → 298); os 50 por abate permanecem exatos.
 
-## Regras centrais
+## Áudio e arquivos grandes
 
-Ondas só terminam com fila vazia e zero inimigos vivos. Chefes não são saltados. Ataques terrestres não atingem voadores. Gêmeos têm duas entidades e vidas próprias. Guardas/invocações têm vida, escudo, limite e duração. Freeze tem resistência e imunidade temporária, suporte não acumula sem limite. Melhorias afetam atributos. A aventura tem exatamente cinco ondas e recompensa integral uma única vez após vitória. Infinito concede `floor(completas/10)` ao encerrar, sem duplicação. O resultado separa concluídas de onda de derrota.
+A faixa especial referenciada em `assets.lock.json` foi recuperada em uma cópia temporária do armazenamento público e conferida por transcrição: “É inútil, você deve desistir”, com cerca de 0,5 s de pausa entre “inútil” e “você”. As palavras solicitadas já estão na faixa e as outras linhas permanecem intactas; por isso nenhum áudio foi regenerado ou alterado. O clone de GitHub contém os metadados `.import` e o manifesto, enquanto a mídia é hidratada do armazenamento gerenciado.
+
+## Verificação e limite de entrega
+
+A suíte comportamental isolada do Godot passou com **242 testes e 0 falhas**. A cena mínima da interface real também iniciou por três frames sem erros de GDScript/runtime, com imagens/fontes e autoload de áudio substitutos apenas na pasta temporária. Isso não substitui a exportação nem a aceitação em navegador/dispositivo: `tools/verify.sh` exige o `GAME_RUNTIME` emitido por um projeto Webdev anexado e ele não está disponível nesta sessão. A conexão GitHub foi autorizada e o repositório/branch `main` foi confirmado; ainda falta enviar o commit. A versão publicada não foi alterada.

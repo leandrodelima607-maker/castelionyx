@@ -105,6 +105,14 @@ func _draw() -> void:
    for star in range(t.level): draw_rect(Rect2(p+Vector2(-10+star*9,6),Vector2(6,4)),Color("e2b56a"))
    health(p+Vector2(0,13),t.hp,t.max_hp,42)
    if t.buff: draw_rect(Rect2(p+Vector2(21,-24),Vector2(5,10)),Color("eaca72"))
+   if t.kind in [6,8]:
+    var cycle=4.0 if t.kind==6 else 60.0
+    var progress=clampf(1.0-float(t.prod)/cycle,0.0,1.0)
+    var bar=Rect2(p+Vector2(-21,-64),Vector2(42,7))
+    var tint=Color("e8bd64") if t.kind==6 else Color("70dbd2")
+    draw_rect(bar,Color("152329",0.92))
+    draw_rect(Rect2(bar.position+Vector2(1,1),Vector2(40.0*progress,5)),tint)
+    draw_rect(bar,tint.darkened(0.2),false,1)
  var castle_index=6 if battle.hp>0.0 else 7
  draw_atlas_in_world("building",castle_index,Vector2(955,330),155,Color.WHITE,s,offset)
  if battle.hp>0.0 and battle.hp/maxf(1.0,battle.max_hp)<0.35:
@@ -184,7 +192,7 @@ func draw_map() -> void:
   for p in battle.pads:
    draw_colored_polygon(PackedVector2Array([p+Vector2(-48,22),p+Vector2(48,22),p+Vector2(22,65),p+Vector2(-20,61)]),Color("486779"))
    draw_rect(Rect2(p-Vector2(48,25),Vector2(96,48)),Color("6b805d"))
- for route in CxCatalog.MAPS[index].ground:
+ for route in battle.ground_routes:
   var points=PackedVector2Array(route)
   draw_polyline(points,Color("263c33") if index!=1 else Color("283c43"),47,false)
   draw_polyline(points,Color("a4a078") if index!=1 else Color("8d9990"),36,false)
@@ -205,7 +213,7 @@ func draw_map() -> void:
     draw_line(arrow_at-arrow_dir*9.0,arrow_at+arrow_dir*7.0,Color(0.98,0.86,0.5,0.38),2)
     draw_line(arrow_at+arrow_dir*7.0,arrow_at+arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
     draw_line(arrow_at+arrow_dir*7.0,arrow_at-arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
- var air_route=CxCatalog.MAPS[index].air
+ var air_route:Array=battle.air_route
  for j in range(int(CxCatalog.path_length(air_route)/35)):
   var p=CxCatalog.path_position(air_route,j*35)
   draw_rect(Rect2(p,Vector2(7,2)),Color(0.69,0.87,0.94,0.4))
@@ -219,7 +227,7 @@ func draw_map() -> void:
  for i in range(26):
   var p=Vector2((i*157+48)%950,(i*111+20)%550)
   var near=false
-  for route in CxCatalog.MAPS[index].ground:
+  for route in battle.ground_routes:
    for segment in range(1,route.size()):
     if p.distance_to(Geometry2D.get_closest_point_to_segment(p,route[segment-1],route[segment]))<48: near=true
   for pad in battle.pads:
@@ -255,11 +263,13 @@ func draw_effect(fx:Dictionary) -> void:
   draw_arc(p,fx.radius*0.78,0,TAU,24,Color(1,0.82,0.38,0.45),2)
   for i in range(3):
    var at=p+Vector2((i-1)*32,-200*(1-progress))
-   draw_line(at-Vector2(24,45),at,Color("eea357"),8)
-   draw_rect(Rect2(at-Vector2(8,8),Vector2(16,16)),Color("ffe0a1"))
+   var meteor_color=Color("c991ff") if fx.get("enhanced",false) else Color("eea357")
+   draw_line(at-Vector2(24,45),at,meteor_color,10 if fx.get("enhanced",false) else 8)
+   draw_rect(Rect2(at-Vector2(8,8),Vector2(16,16)),Color("efe0ff") if fx.get("enhanced",false) else Color("ffe0a1"))
   return
  var color=Color("f1b66d")
  if fx.type in ["ice","barrier"]: color=Color("b8efff")
+ if fx.type=="rune": color=Color("c99cff")
  if fx.type in ["summon","shell"]: color=Color("bf90ed")
  if fx.type in ["build","upgrade"]: color=Color("e8d399")
  if fx.type=="warning": color=Color("f88660")

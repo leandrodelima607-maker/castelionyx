@@ -15,7 +15,7 @@ var hud:Label
 var status_label:Label
 var boss_label:Label
 var hint:Label
-var skill_button:Button
+var skill_buttons:Array=[]
 var next_button:Button
 var speed_button:Button
 var spell_buttons:Array=[]
@@ -27,14 +27,18 @@ var action_grid:GridContainer
 var intro_button:Button
 var update_clock=0.0
 var result_reward=-2
+var gem_mine_saved=0
+var mine_save_cooldown=0.0
+var mine_save_warning=false
 var previous_result:Dictionary={}
 var profile_avatar=0
 var profile_photo=""
 var profile_name:LineEdit
-var profile_country:LineEdit
+var profile_email:LineEdit
 var toast:Label
 var toast_time=0.0
 var song_boss=false
+var pending_event_id=""
 var photo_callback:Variant=null
 var pointer_touch=false
 var returning_from_settings="menu"
@@ -226,7 +230,7 @@ func show_menu() -> void:
  texts.size_flags_horizontal=Control.SIZE_EXPAND_FILL
  header.add_child(texts)
  label(texts,str(persistence.data.profile.get("name","Defensor")),22)
- label(texts,"%d gemas · Nível %d · %d/%d ondas para o próximo" % [persistence.data.gems,persistence.data.player_level,persistence.data.stats.waves%100,100],16,Color("dcc38c"))
+ label(texts,"%d gemas · Nível %d · %d/100 ondas infinitas para o próximo" % [persistence.data.gems,persistence.data.player_level,persistence.data.stats.waves%100],16,Color("dcc38c"))
  button(col,"JOGAR · DEFESA INFINITA",func(): show_setup("infinite"),true)
  var grid=GridContainer.new()
  grid.columns=2
@@ -257,8 +261,13 @@ func show_maps() -> void:
 
 func show_collection(kind:String) -> void:
  var names={"heroes":"Heróis","towers":"Estruturas","spells":"Feitiços"}
- var col=begin_page(kind,names[kind],"Saldo: %d gemas · melhorias permanentes até nível 10" % persistence.data.gems)
+ var col=begin_page(kind,names[kind],"Saldo: %d gemas · evolução permanente até nível 4" % persistence.data.gems)
  var items=CxCatalog.HEROES if kind=="heroes" else CxCatalog.TOWERS if kind=="towers" else CxCatalog.SPELLS
+ if kind=="heroes":
+  var selected:Array=persistence.data.selected_heroes
+  var first=CxCatalog.HEROES[int(selected[0])].name if not selected.is_empty() else "Guardião"
+  var second=CxCatalog.HEROES[int(selected[1])].name if selected.size()>1 else "vazio"
+  label(col,"Espaço 1: %s · Espaço 2: %s%s" % [first,second," · desbloqueado" if persistence.data.exclusive.second_hero_slot else " · obtenha O Herói Extra"],15,Color("c6d5bf"))
  for i in range(items.size()):
   var d=items[i]
   var level=int(persistence.data[kind][i])
@@ -271,23 +280,40 @@ func show_collection(kind:String) -> void:
   info.size_flags_horizontal=Control.SIZE_EXPAND_FILL
   row.add_child(info)
   label(info,d.name,21)
-  label(info,"BLOQUEADO" if level==0 else "Nível %d%s" % [level," · SELECIONADO" if kind=="heroes" and persistence.data.selected==i else ""],15,Color("d9bb7e"))
+  var hero_status=""
+  if kind=="heroes" and persistence.data.selected_heroes.has(i):
+   hero_status=" · ESPAÇO %d" % (persistence.data.selected_heroes.find(i)+1)
+  label(info,"BLOQUEADO" if level==0 else "Nível %d/4%s" % [level,hero_status],15,Color("d9bb7e"))
   label(c,d.desc,16)
   if kind=="heroes":
    var h=CxCatalog.hero(i,maxi(level,1))
-   label(c,"Vida %.0f · Dano %.0f · %.2fs por ataque\nAlcance %.0f · Movimento %.0f · %s · Recarga %.0fs" % [h.hp,h.damage,h.interval,h.range,h.speed,h.skill,h.cooldown],14,Color("adc5be"))
-   var select=button(c,"Selecionar herói",func():
-    if persistence.select_hero(i): show_collection(kind)
+   label(c,"Vida %.0f · Dano %.0f · %.2fs por ataque
+Alcance %.0f · Movimento %.0f · %s · Recarga %.0fs" % [h.hp,h.damage,h.interval,h.range,h.speed,h.skill,h.cooldown],14,Color("adc5be"))
+   var selected:Array=persistence.data.selected_heroes
+   var primary=button(c,"Usar no espaço 1" if selected.is_empty() or selected[0]!=i else "Selecionado no espaço 1",func():
+    if persistence.select_hero(i,0): show_collection(kind)
     else: notify("Herói bloqueado ou salvamento indisponível.")
    )
-   select.disabled=level==0 or persistence.data.selected==i
+   primary.disabled=level==0 or (not selected.is_empty() and selected[0]==i)
+   if persistence.data.exclusive.second_hero_slot:
+    var secondary=button(c,"Usar no espaço 2" if selected.size()<2 or selected[1]!=i else "Selecionado no espaço 2",func():
+     if persistence.select_hero(i,1): show_collection(kind)
+     else: notify("Escolha um herói desbloqueado e diferente no segundo espaço.")
+    )
+    secondary.disabled=level==0 or (selected.size()>0 and selected[0]==i) or (selected.size()>1 and selected[1]==i)
   elif kind=="towers":
-   var t=CxCatalog.tower(i,1,level)
-   label(c,"Construção: %d ouro · Vida %.0f · Dano %.0f\nAlcance %.0f · Ataque %.2fs · 3 níveis na partida\nA melhoria permanente aumenta o dano em 6%% por nível." % [t.cost,t.hp,t.damage,t.range,t.interval],14,Color("adc5be"))
+   var t=CxCatalog.tower(i,1,maxi(level,1))
+   label(c,"Construção: %d moedas · Vida %.0f · Dano %.0f
+Alcance %.0f · Ataque %.2fs · melhorias de partida até nível 3
+A melhoria permanente aumenta o dano em 6%% por nível." % [t.cost,t.hp,t.damage,t.range,t.interval],14,Color("adc5be"))
   else:
-   label(c,"Recarga-base %.0fs · Duração-base %.1fs\nMelhorias aumentam a força/duração e reduzem a recarga." % [d.cooldown,d.duration],14,Color("adc5be"))
+   label(c,"Recarga-base %.0fs · Duração-base %.1fs%s
+Melhorias aumentam força/duração e reduzem recarga." % [d.cooldown,d.duration," · custa 120 moedas ao ativar" if d.get("exclusive",false) else ""],14,Color("adc5be"))
+   if i==0 and persistence.data.exclusive.meteor_plus:
+    label(c,"APRIMORAMENTO DE EVENTO ATIVO · +25% de dano e +15% de área; sem usos extras.",14,Color("b8d5c3"))
   var cost=persistence.purchase_cost(kind,i)
-  var buy=button(c,"Nível máximo" if level>=10 else "%s · %d gemas" % ["Desbloquear" if level==0 else "Melhorar",cost],func():
+  var maxed=level>=4
+  var buy=button(c,"Nível máximo" if maxed else "%s · %d gemas" % ["Desbloquear" if level==0 else "Melhorar",cost],func():
    if (kind=="towers" and d.get("exclusive",false)) or (kind=="heroes" and d.get("cost",0)==0 and level==0) or (kind=="spells" and d.get("exclusive",false)):
     notify("Esta recompensa é exclusiva de um evento.")
    elif persistence.buy(kind,i):
@@ -295,8 +321,26 @@ func show_collection(kind:String) -> void:
     show_collection(kind)
    else: notify("Saldo insuficiente ou falha ao salvar.")
   )
-  buy.disabled=level>=10 or persistence.data.gems<cost or (d.get("exclusive",false) and level==0) or (kind=="heroes" and d.get("cost",0)==0 and level==0) or (kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false))
+  buy.disabled=maxed or persistence.data.gems<cost or (d.get("exclusive",false) and level==0) or (kind=="heroes" and d.get("cost",0)==0 and level==0) or (kind=="towers" and i==6 and not persistence.data.exclusive.get("coin_generator",false))
  back(col)
+
+func event_metadata() -> Dictionary:
+ return {
+  "first_fortune":{"name":"A Primeira Fortuna","goal":100,"type":"abates acumulados no Infinito","mods":[],"reward":"Gerador de Moedas"},
+  "survivor_no_army":{"name":"Sobrevivente sem Exército","goal":50,"type":"ondas consecutivas numa partida","mods":["reduced","nohero"],"reward":"Sentinela Arcana"},
+  "sky_falls":{"name":"O Céu Está Caindo","goal":35,"type":"ondas consecutivas numa partida","mods":["aerial","reduced"],"reward":"Balista Celeste"},
+  "last_hope":{"name":"Última Esperança","goal":25,"type":"ondas consecutivas numa partida","mods":["wall","economy"],"reward":"Barreira do Reino"},
+  "mutant_plague":{"name":"A Praga Mutante","goal":40,"type":"ondas consecutivas numa partida","mods":["mutants","aerial"],"reward":"Meteoro Aprimorado"},
+  "scarcity_master":{"name":"Mestre da Escassez","goal":30,"type":"ondas consecutivas numa partida","mods":["reduced","economy","nohero"],"reward":"Mina de Gemas"},
+  "extra_hero":{"name":"O Herói Extra","goal":50,"type":"ondas consecutivas numa partida","mods":["wall","mutants"],"reward":"Desbloqueia um segundo espaço de herói"}
+ }
+
+func start_event(event_id:String) -> void:
+ var meta:Dictionary=event_metadata().get(event_id,{})
+ if meta.is_empty(): return
+ pending_event_id=event_id
+ modifiers=meta.mods.duplicate()
+ show_setup("infinite")
 
 func show_setup(mode:String) -> void:
  battle_mode=mode
@@ -308,18 +352,38 @@ func show_setup(mode:String) -> void:
  option.selected=selected_map
  option.item_selected.connect(func(index): selected_map=index)
  col.add_child(option)
- label(col,"Herói: "+CxCatalog.HEROES[persistence.data.selected].name,19)
+ var selected:Array=persistence.data.selected_heroes
+ var hero_names:Array=[]
+ for hero_id in selected: hero_names.append(CxCatalog.HEROES[int(hero_id)].name)
+ label(col,"Herói(s): "+(", ".join(hero_names) if not hero_names.is_empty() else "nenhum"),19)
  if mode=="adventure":
   var c=card(col)
-  label(c,"Cinco ondas. Uma única recompensa integral.",20)
-  label(c,"1 Enxame · sem herói\n2 Velocidade\n3 Céu e Terra\n4 Resistência\n5 Chefe multifases + reforços\nPoucos espaços. 540 de ouro inicial.",16)
-  label(c,"Prêmio: 1.000 gemas na primeira conclusão integral." if not persistence.data.stats.adventure_claimed else "Prêmio integral já recebido. Replays contam para o recorde, sem repetir as 1.000 gemas.",16,Color("e8c67f"))
+  label(c,"Cinco ondas. Exatamente cinco espaços. Sem heróis; somente Arqueiros e Canhão.",20)
+  label(c,"Enxame · Velocidade · Céu e Terra · Resistência · Chefe final com reforços. As ondas crescem em tamanho e resistência; 540 moedas iniciais.",16)
+  label(c,"Prêmio: 1.000 gemas na primeira conclusão integral." if not persistence.data.stats.adventure_claimed else "Prêmio integral já recebido; replays não repetem a primeira recompensa.",16,Color("e8c67f"))
+ elif mode=="boss":
+  var c=card(col)
+  label(c,"Desafio finito: vença 20 ondas e quatro chefes, um a cada cinco ondas. Chefes têm fases, habilidades e resistência crescente. Recompensa: gemas e estatística deste modo.",17)
+ elif mode=="extreme":
+  var c=card(col)
+  label(c,"Sobrevivência sem fim em dificuldade elevada: exército reduzido, economia curta, mutantes e voadores frequentes; chefes a cada três ondas. Recompensa e histórico próprios.",17)
  else:
-  label(col,"Gemas da partida = ondas completas ÷ 10, arredondado para baixo. Chefes a cada dez ondas.",16)
+  var meta:Dictionary=event_metadata().get(pending_event_id,{})
+  if not meta.is_empty():
+   var c=card(col)
+   var readable:Array=[]
+   for mod_id in meta.mods:
+    for mod in CxCatalog.MODIFIERS:
+     if mod.id==mod_id: readable.append(mod.name)
+   label(c,"DESAFIO: %s · meta %d %s · recompensa: %s" % [meta.name,meta.goal,meta.type,meta.reward],18,Color("e8c67f"))
+   label(c,"Modificadores obrigatórios: %s. Inicie uma única partida Infinita; a Aventura não conta." % (", ".join(readable) if not readable.is_empty() else "nenhum — acumule abates"),15)
+  label(col,"Infinito: gemas por ondas completas ÷ 10. Um abate concede exatamente 50 moedas temporárias; Economia Limitada reduz o ouro inicial e o bônus de onda, não essa recompensa fixa.",15)
+  var required:Array=meta.get("mods",[]) if not meta.is_empty() else []
   for d in CxCatalog.MODIFIERS:
    var check=CheckButton.new()
    check.text=d.name
-   check.button_pressed=modifiers.has(d.id)
+   check.button_pressed=modifiers.has(d.id) or required.has(d.id)
+   check.disabled=required.has(d.id)
    check.custom_minimum_size.y=52
    check.toggled.connect(func(pressed):
     if pressed and not modifiers.has(d.id): modifiers.append(d.id)
@@ -331,32 +395,47 @@ func show_setup(mode:String) -> void:
  back(col)
 
 func show_modes() -> void:
- var col=begin_page("modes","Modos de Castelionyx","Desafios secundários com regras próprias e desbloqueios persistentes.")
+ var col=begin_page("modes","Modos de Castelionyx","Desafios secundários com regras, estatísticas e desbloqueios próprios.")
  var boss=card(col)
  label(boss,"Desafio dos Chefes",22,Color("e8c67f"))
- label(boss,"Sequência de chefes a cada dez ondas, com inimigos reforçados e sem bônus de gemas. Exige nível 5.",16)
+ var boss_stats:Dictionary=persistence.data.stats.modes.boss
+ label(boss,"Nível 5. Vinte ondas, chefes nas ondas 5/10/15/20 e vitória ao derrotar o quarto chefe. Progresso: %d ondas · recorde %d · %d chefes." % [boss_stats.waves,boss_stats.best,boss_stats.bosses],16)
  var boss_button=button(boss,"JOGAR DESAFIO DOS CHEFES",func(): show_setup("boss"),true)
- boss_button.disabled=persistence.data.player_level<5
+ boss_button.disabled=not persistence.data.exclusive.boss_mode_unlocked
  var extreme=card(col)
  label(extreme,"Sobrevivência Extrema",22,Color("e8c67f"))
- label(extreme,"Ondas aceleradas, mutantes frequentes, economia limitada e chefes com dano aumentado. Exige nível 24.",16)
+ var extreme_stats:Dictionary=persistence.data.stats.modes.extreme
+ label(extreme,"Nível 24. Sobrevivência sem fim com quatro modificadores reais. Progresso: %d ondas · recorde %d · %d chefes." % [extreme_stats.waves,extreme_stats.best,extreme_stats.bosses],16)
  var extreme_button=button(extreme,"JOGAR SOBREVIVÊNCIA EXTREMA",func(): show_setup("extreme"),true)
- extreme_button.disabled=persistence.data.player_level<24
- label(col,"Nível atual: %d · Os modos ficam bloqueados até a progressão real." % persistence.data.player_level,14,Color("b7c8bd"))
+ extreme_button.disabled=not persistence.data.exclusive.extreme_mode_unlocked
+ label(col,"Nível atual: %d · os níveis sobem apenas com ondas concluídas no Infinito comum." % persistence.data.player_level,14,Color("b7c8bd"))
  back(col)
 
 func launch(mode:String) -> void:
+ if mode=="boss" and not persistence.data.exclusive.boss_mode_unlocked:
+  notify("Desbloqueie no nível 5."); show_modes(); return
+ if mode=="extreme" and not persistence.data.exclusive.extreme_mode_unlocked:
+  notify("Desbloqueie no nível 24."); show_modes(); return
  previous_result=persistence.data.stats.last.duplicate(true)
  var run_modifiers=modifiers.duplicate() if mode=="infinite" else []
  if mode=="boss": run_modifiers=["boss_challenge"]
  if mode=="extreme": run_modifiers=["reduced","economy","mutants","aerial","extreme"]
- battle=CxBattle.new(selected_map,"infinite",run_modifiers,persistence.data)
+ var run_event_id=pending_event_id if mode=="infinite" else ""
+ if not run_event_id.is_empty():
+  for required in event_metadata()[run_event_id].mods:
+   if not run_modifiers.has(required): run_modifiers.append(required)
+ battle=CxBattle.new(selected_map,mode,run_modifiers,persistence.data)
+ battle.event_id=run_event_id
  battle_mode=mode
+ pending_event_id=""
  world.battle=battle
  world.reduced=not persistence.data.settings.quality
  selected_slot=-1
  selected_spell=-1
  result_reward=-2
+ gem_mine_saved=0
+ mine_save_cooldown=0.0
+ mine_save_warning=false
  song_boss=false
  AudioDirector.set_game_paused(false)
  AudioDirector.play_music("music.gameplay",0.8)
@@ -396,7 +475,7 @@ func show_battle_ui() -> void:
  bottom.offset_bottom=-12
  battle_bottom=bottom
  ui.add_child(bottom)
- hint=label(bottom,"Toque num espaço de pedra para construir. Toque na rota para mover o herói.",15,Color("c8d1bd"))
+ hint=label(bottom,"Toque num espaço de pedra para construir. Toque na rota para mover os heróis.",15,Color("c8d1bd"))
  var spells_row=GridContainer.new()
  spells_row.columns=3
  spell_grid=spells_row
@@ -413,11 +492,17 @@ func show_battle_ui() -> void:
  action_row.columns=2
  action_grid=action_row
  bottom.add_child(action_row)
- skill_button=button(action_row,"Habilidade do herói",func():
-  if battle.skill(): notify("Habilidade ativada!")
-  else: notify("Habilidade indisponível.")
- )
- skill_button.add_theme_font_size_override("font_size",16)
+ skill_buttons=[]
+ var skill_count=2 if persistence.data.exclusive.second_hero_slot and persistence.data.selected_heroes.size()>1 else 1
+ for slot in range(skill_count):
+  var hero_slot=slot
+  var b=button(action_row,"Habilidade %d" % (slot+1),func():
+   if battle.skill(hero_slot): notify("Habilidade ativada!")
+   else: notify("Habilidade indisponível ou em recarga.")
+   refresh_hud()
+  )
+  b.add_theme_font_size_override("font_size",15)
+  skill_buttons.append(b)
  next_button=button(action_row,"Iniciar onda",func(): battle.start_wave())
  next_button.add_theme_font_size_override("font_size",16)
  layout_world()
@@ -428,8 +513,7 @@ func layout_world() -> void:
  if world==null or battle==null: return
  var viewport=get_viewport_rect().size
  var landscape=viewport.x>viewport.y*1.15
- if battle_top!=null:
-  battle_top.size.x=viewport.x-24
+ if battle_top!=null: battle_top.size.x=viewport.x-24
  if landscape:
   world.set_field(Rect2(12,132,viewport.x-246,maxf(120,viewport.y-146)))
   if battle_bottom!=null:
@@ -439,7 +523,7 @@ func layout_world() -> void:
    battle_bottom.position=Vector2(viewport.x-218,132)
    battle_bottom.size=Vector2(206,viewport.y-130)
    for b in spell_buttons: b.custom_minimum_size.y=44
-   skill_button.custom_minimum_size.y=46
+   for b in skill_buttons: b.custom_minimum_size.y=46
    next_button.custom_minimum_size.y=46
  else:
   world.set_field(Rect2(8,138,viewport.x-16,maxf(140,viewport.y-346)))
@@ -452,24 +536,32 @@ func layout_world() -> void:
    spell_grid.columns=5
    action_grid.columns=2
    for b in spell_buttons: b.custom_minimum_size.y=54
-   skill_button.custom_minimum_size.y=56
+   for b in skill_buttons: b.custom_minimum_size.y=56
    next_button.custom_minimum_size.y=56
 
 func refresh_hud() -> void:
  if battle==null or page!="battle" or hud==null: return
- hud.text="CASTELO %.0f/%.0f\n%d OURO · ONDA %d" % [maxf(0,battle.hp),battle.max_hp,battle.gold,maxi(1,battle.wave)]
+ hud.text="CASTELO %.0f/%.0f\n%d MOEDAS · ONDA %d" % [maxf(0,battle.hp),battle.max_hp,battle.gold,maxi(1,battle.wave)]
  status_label.text="Preparação · %ds · %d ondas completas" % [int(ceil(battle.prep)),battle.completed] if battle.state=="preparation" else "Combate · %d vivos · %d por vir" % [battle.alive_count(),battle.pending_count()]
  if battle.mode=="adventure": status_label.text+=" · "+CxCatalog.ADVENTURE_NAMES[clampi(battle.wave-1,0,4)]
+ status_label.text+=" · %d rotas · %d espaços" % [battle.ground_routes.size()+1,battle.pads.size()]
+ if battle.barrier>0.0: status_label.text+=" · Barreira do Reino: %.1fs restantes (−60% dano)" % battle.barrier
  var boss=battle.boss_alive()
- boss_label.text="%s · FASE %d · VIDA %.0f/%.0f" % [boss.name,boss.phase,boss.hp,boss.max_hp] if boss!=null else "Sem herói nesta onda" if not battle.hero_allowed() else "Toque na rota para comandar seu herói"
+ boss_label.text="%s · FASE %d · VIDA %.0f/%.0f" % [boss.name,boss.phase,boss.hp,boss.max_hp] if boss!=null else "Sentinela: Explosão Rúnica automática" if 6 in persistence.data.selected_heroes else "Toque na rota para comandar os heróis" if battle.hero_allowed() else "Heróis indisponíveis neste desafio"
  next_button.disabled=battle.state!="preparation"
  next_button.text="Iniciar onda %d" % [battle.wave+1] if battle.state=="preparation" else "Onda em combate"
- var living=battle.allies.filter(func(a): return a.kind=="hero" and a.hp>0)
- skill_button.disabled=battle.special_cd>0 or not battle.hero_allowed() or living.is_empty()
- skill_button.text="Habilidade · %ds" % int(ceil(battle.special_cd)) if battle.special_cd>0 else "Habilidade"
+ for slot in range(skill_buttons.size()):
+  var selected:Array=persistence.data.selected_heroes
+  var hero_id=int(selected[slot]) if slot<selected.size() else 0
+  var hero=CxCatalog.HEROES[hero_id]
+  var cooldown=battle.hero_skill_cooldown(slot)
+  var automatic=hero_id==6
+  skill_buttons[slot].disabled=not battle.hero_allowed() or cooldown>0.0 or automatic
+  skill_buttons[slot].text=("%s · auto" % hero.skill if automatic else "%s · %ds" % [hero.skill,int(ceil(cooldown))] if cooldown>0.0 else hero.skill)
  for i in range(CxCatalog.SPELLS.size()):
-  spell_buttons[i].disabled=battle.spells[i]>0 or persistence.data.spells[i]<=0
-  spell_buttons[i].text=CxCatalog.SPELLS[i].short+("\n%ds" % int(ceil(battle.spells[i])) if battle.spells[i]>0 else "")
+  var cost=int(CxCatalog.SPELLS[i].get("cost",0))
+  spell_buttons[i].disabled=battle.spells[i]>0.0 or persistence.data.spells[i]<=0 or battle.gold<cost
+  spell_buttons[i].text=CxCatalog.SPELLS[i].short+(" · %d moedas" % cost if cost>0 and battle.spells[i]<=0.0 else "\n%ds" % int(ceil(battle.spells[i])) if battle.spells[i]>0.0 else "")
 
 func choose_spell(index:int) -> void:
  if battle==null: return
@@ -493,8 +585,9 @@ func _unhandled_input(event:InputEvent) -> void:
    return
   if page=="battle":
    if event.keycode==KEY_SPACE: battle.start_wave()
-   if event.keycode==KEY_H: battle.skill()
-   if event.keycode in [KEY_1,KEY_2,KEY_3,KEY_4,KEY_5]: choose_spell(event.keycode-KEY_1)
+   if event.keycode==KEY_H: battle.skill(0)
+   if event.keycode==KEY_J: battle.skill(1)
+   if event.keycode in [KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6]: choose_spell(event.keycode-KEY_1)
  if event is InputEventScreenTouch and event.pressed:
   pointer_touch=true
   handle_field(event.position)
@@ -557,7 +650,7 @@ func show_build(slot:int) -> void:
  AudioDirector.set_game_paused(true)
  var t=battle.towers[slot]
  var col=modal("Construir defesa" if t==null else CxCatalog.TOWERS[t.kind].name)
- label(col,"Saldo: %d ouro · posição %d" % [battle.gold,slot+1],16)
+ label(col,"Saldo: %d moedas · posição %d" % [battle.gold,slot+1],16)
  if t==null:
   for i in range(CxCatalog.TOWERS.size()):
    var d=CxCatalog.TOWERS[i]
@@ -567,26 +660,28 @@ func show_build(slot:int) -> void:
    var row=HBoxContainer.new()
    col.add_child(row)
    art(row,"building",i,54)
-   var b=button(row,"%s · %d ouro" % [d.name,d.cost],func():
+   var b=button(row,"%s · %d moedas" % [d.name,d.cost],func():
     battle.paused=false
     if battle.build(slot,i): close_modal(); notify("Defesa construída")
-    else: battle.paused=true; notify("Não há ouro suficiente ou o espaço já está ocupado.")
+    else: battle.paused=true; notify("Não há moedas suficientes ou o espaço já está ocupado.")
    )
    b.add_theme_font_size_override("font_size",16)
-   b.disabled=battle.gold<d.cost
+   b.disabled=battle.gold<d.cost or (battle.mode=="adventure" and i not in [0,1])
    label(col,d.desc,14,Color("b6caba"))
  else:
   art(col,"building",t.kind,110)
   var d=CxCatalog.tower(t.kind,t.level,persistence.data.towers[t.kind])
   label(col,"Nível %d/3 · Vida %.0f/%.0f\nDano %.0f · Alcance %.0f · Ataque %.2fs%s" % [t.level,t.hp,t.max_hp,d.damage,d.range,d.interval,"\nSuporte: +25% cadência e +15% alcance" if t.buff else ""],17)
+  if t.kind==6: label(col,"Produção: %d/4 s · +1 moeda por ciclo, somente durante combate ativo." % int(4.0-float(t.prod)),15,Color("e1c589"))
+  elif t.kind==8: label(col,"Produção: %d/60 s · +1 gema local por ciclo de combate ativo. Total nesta partida: %d." % [int(60.0-float(t.prod)),battle.gem_earned],15,Color("e1c589"))
   var cost=CxCatalog.upgrade_cost(t.kind,t.level)
-  var b=button(col,"Nível máximo" if t.level>=3 else "Evoluir · %d ouro" % cost,func():
+  var b=button(col,"Nível máximo" if t.level>=3 else "Evoluir · %d moedas" % cost,func():
    battle.paused=false
    if battle.upgrade(slot): close_modal(); notify("Defesa evoluída")
    else: battle.paused=true; notify("Melhoria indisponível")
   ,true)
   b.disabled=t.level>=3 or battle.gold<cost
-  button(col,"Vender · %d ouro" % int(CxCatalog.TOWERS[t.kind].cost*0.6),func(): battle.paused=false; battle.sell(slot); close_modal())
+  button(col,"Vender · %d moedas" % int(CxCatalog.TOWERS[t.kind].cost*0.6),func(): battle.paused=false; battle.sell(slot); close_modal())
  back(col,close_modal)
  apply_volumes()
 
@@ -693,14 +788,14 @@ func show_profile(edit:bool=false) -> void:
  profile_name.focus_mode=Control.FOCUS_ALL
  col.add_child(profile_name)
  label(col,"E-mail",16)
- profile_country=LineEdit.new()
- profile_country.placeholder_text="seu@email.com"
- profile_country.text=str(saved.get("email",saved.get("country","")))
- profile_country.max_length=120
- profile_country.custom_minimum_size.y=58
- profile_country.mouse_filter=Control.MOUSE_FILTER_STOP
- profile_country.focus_mode=Control.FOCUS_ALL
- col.add_child(profile_country)
+ profile_email=LineEdit.new()
+ profile_email.placeholder_text="seu@email.com"
+ profile_email.text=str(saved.get("email",saved.get("country","")))
+ profile_email.max_length=120
+ profile_email.custom_minimum_size.y=58
+ profile_email.mouse_filter=Control.MOUSE_FILTER_STOP
+ profile_email.focus_mode=Control.FOCUS_ALL
+ col.add_child(profile_email)
  label(col,"O e-mail é obrigatório para salvar este perfil neste dispositivo. Não há sincronização remota nesta versão.",13,Color("b7c8bd"))
  if not edit: profile_name.grab_focus()
  label(col,"Escolha um avatar",18)
@@ -716,7 +811,7 @@ func show_profile(edit:bool=false) -> void:
  button(col,"Escolher imagem da galeria",choose_photo)
  button(col,"CONCLUIR PERFIL",func():
   if profile_name.text.strip_edges().is_empty(): notify("Digite seu nome antes de concluir."); profile_name.grab_focus(); return
-  if persistence.profile(profile_name.text,profile_country.text,profile_avatar,profile_photo): show_menu()
+  if persistence.profile(profile_name.text,profile_email.text,profile_avatar,profile_photo): show_menu()
   else: notify(persistence.last_error)
  ,true)
  if edit: back(col)
@@ -750,22 +845,32 @@ func choose_photo() -> void:
 
 func show_stats() -> void:
  var s=persistence.data.stats
- var col=begin_page("stats","Estatísticas","Seu histórico local do reino")
- label(card(col),"Partidas: %d\nOndas concluídas: %d\nChefes derrotados: %d\nTempo de combate: %s\nMelhor: %d ondas\nPior: %s\nAventura: %d/5 · %d tentativas" % [s.total,s.waves,s.bosses,time_string(s.time),s.best,"nenhuma partida" if s.worst<0 else str(s.worst)+" ondas",s.adventure_best,s.adventure_attempts],20)
- label(col,"Pior partida significa a menor quantidade de ondas completas, inclusive zero. Não é a onda onde ocorreu a derrota.",15)
+ var col=begin_page("stats","Estatísticas","Histórico local do reino; as ondas que liberam níveis vêm do Infinito.")
+ label(card(col),"Partidas: %d\nOndas infinitas concluídas: %d\nAbates no Infinito: %d\nChefes derrotados: %d\nTempo total: %s\nMelhor Infinito: %d ondas\nPior Infinito: %s\nAventura: %d/5 · %d tentativas" % [s.total,s.waves,s.kills,s.bosses,time_string(s.time),s.best,"nenhuma partida" if s.worst<0 else str(s.worst)+" ondas",s.adventure_best,s.adventure_attempts],18)
+ label(col,"Desafio dos Chefes: %d ondas · recorde %d\nSobrevivência Extrema: %d ondas · recorde %d" % [s.modes.boss.waves,s.modes.boss.best,s.modes.extreme.waves,s.modes.extreme.best],16,Color("e0c58c"))
  if not s.last.is_empty():
   var last=s.last
-  label(card(col),"Última partida\n%d ondas completas · %d chefes\nTempo %s · %d gemas" % [last.get("completed",0),last.get("bosses",0),time_string(last.get("time",0)),last.get("gems",0)],18)
+  label(card(col),"Última partida · %s\n%d ondas completas · %d chefes · %d gemas (inclui Mina)" % [str(last.get("mode","infinite")),last.get("completed",0),last.get("bosses",0),last.get("gems",0)+last.get("gem_mine_gems",0)],17)
  back(col)
 
 func show_events() -> void:
- var col=begin_page("events","Eventos especiais","O progresso só avança com partidas válidas e é salvo no perfil.")
- var names={"survivor_no_army":["Sobrevivente sem Exército","50 ondas com Exército Reduzido + Sem Heróis","Sentinela Arcana"],"sky_falls":["O Céu Está Caindo","35 ondas com Cerco Aéreo + Exército Reduzido","Balista Celeste"],"last_hope":["Última Esperança","25 ondas com Última Muralha + Economia Limitada","Barreira do Reino"],"mutant_plague":["A Praga Mutante","40 ondas com Inimigos Mutantes + Cerco Aéreo","Meteoro Aprimorado"],"scarcity_master":["Mestre da Escassez","30 ondas com Exército Reduzido + Economia Limitada + Sem Heróis","Mina de Gemas"],"extra_hero":["O Herói Extra","50 ondas com Última Muralha + Inimigos Mutantes","Segundo espaço de herói"]}
- for id in names:
-  var e:Dictionary=persistence.data.events.get(id,{"progress":0,"goal":0,"complete":false})
+ var col=begin_page("events","Eventos especiais","Desafios do Infinito; cada recompensa é permanente e resgatada uma vez.")
+ var all_events=event_metadata()
+ var order=["first_fortune","survivor_no_army","sky_falls","last_hope","mutant_plague","scarcity_master","extra_hero"]
+ for event_id in order:
+  var meta:Dictionary=all_events[event_id]
+  var e:Dictionary=persistence.data.events[event_id]
   var c=card(col)
-  label(c,names[id][0],20,Color("e8c67f"))
-  label(c,names[id][1]+"\nProgresso: %d/%d ondas\nRecompensa: %s\n%s" % [int(e.progress),int(e.goal),names[id][2],"CONCLUÍDO" if e.complete else "EM ANDAMENTO"],16,Color("c5d8cb" if e.complete else "b5c2b8"))
+  label(c,meta.name,20,Color("e8c67f"))
+  var mods:Array=meta.mods
+  var mod_names:Array=[]
+  for id in mods:
+   for d in CxCatalog.MODIFIERS:
+    if d.id==id: mod_names.append(d.name)
+  var progress_unit="inimigos derrotados" if event_id=="first_fortune" else "ondas consecutivas numa única partida"
+  label(c,"Meta: %d %s%s\nProgresso salvo: %d/%d\nRecompensa: %s\n%s" % [meta.goal,progress_unit," · sem modificadores" if mods.is_empty() else " · "+", ".join(mod_names),int(e.progress),int(e.goal),meta.reward,"CONCLUÍDO — recompensa resgatada" if e.reward_claimed else "EM ANDAMENTO"],15,Color("c5d8cb" if e.complete else "b5c2b8"))
+  if not e.reward_claimed:
+   button(c,"Abrir desafio no Infinito",func(): start_event(event_id))
  back(col)
 
 func time_string(seconds:float) -> String:
@@ -774,7 +879,10 @@ func time_string(seconds:float) -> String:
 func complete_run() -> void:
  if battle==null or battle.terminal.is_empty(): return
  AudioDirector.set_game_paused(false)
- if result_reward==-2 or result_reward==-1: result_reward=persistence.record(battle.terminal)
+ if result_reward==-2 or result_reward==-1:
+  var result_to_save:Dictionary=battle.terminal.duplicate(true)
+  result_to_save.gem_mine_unpaid=maxi(0,int(result_to_save.get("gem_mine_gems",0))-gem_mine_saved)
+  result_reward=persistence.record(result_to_save)
  var result=battle.terminal
  page="result"
  clear(ui)
@@ -784,15 +892,23 @@ func complete_run() -> void:
  if result.victory: AudioDirector.stop_music(0.5); AudioDirector.play_cue("game.victory")
  else: AudioDirector.play_music("music.defeat_special" if result.get("special_defeat",false) else "music.defeat",0.65)
  apply_volumes()
+ var mode_names={"infinite":"Defesa Infinita","adventure":"Aventura","boss":"Desafio dos Chefes","extreme":"Sobrevivência Extrema"}
  var col=modal("O REINO RESISTIU!" if result.victory else "A MURALHA CAIU")
- label(col,"Aventura concluída" if result.victory else "Derrota na onda %d" % result.defeat_wave,20,Color("e4bf7e"))
+ label(col,mode_names.get(result.mode,"Partida")+" · "+("Vitória" if result.victory else "derrota na onda %d" % result.defeat_wave),20,Color("e4bf7e"))
  art(col,"building",6 if result.victory else 7,118)
- label(col,"%d ONDAS COMPLETAS\n%d chefes derrotados · %s\n%d ouro obtido · %s gemas\nRecorde: %d ondas" % [result.completed,result.bosses,time_string(result.time),result.earned,str(maxi(0,result_reward)),persistence.data.stats.best],20)
- if not previous_result.is_empty(): label(col,"Comparação com a última: %+d ondas completas" % [result.completed-int(previous_result.get("completed",0))],16)
+ var total_gems=maxi(0,result_reward)+int(result.get("gem_mine_gems",0))
+ label(col,"%d ondas completas · %d abates · %d chefes\n%s · %d moedas obtidas\n%d gemas desta partida (inclui %d da Mina)" % [result.completed,result.kills,result.bosses,time_string(result.time),result.earned,total_gems,int(result.get("gem_mine_gems",0))],19)
+ if result.mode in ["boss","extreme"]:
+  label(col,"Estatística salva separadamente neste modo: %d ondas totais · recorde %d." % [persistence.data.stats.modes[result.mode].waves,persistence.data.stats.modes[result.mode].best],15)
+ if not previous_result.is_empty(): label(col,"Comparação com a última partida: %+d ondas completas" % [result.completed-int(previous_result.get("completed",0))],15)
  if result_reward<0:
   label(col,"O salvamento falhou; a recompensa ainda não foi confirmada.",16)
   button(col,"Tentar salvar resultado",complete_run)
- button(col,"REVANCHE",func(): launch(battle_mode),true)
+ button(col,"REVANCHE",func():
+  pending_event_id=str(result.get("event_id",""))
+  if not pending_event_id.is_empty(): modifiers=event_metadata()[pending_event_id].mods.duplicate()
+  launch(battle_mode)
+ ,true)
  button(col,"Voltar ao reino",show_menu)
 
 func notify(message:String) -> void:
@@ -810,12 +926,27 @@ func _process(delta:float) -> void:
  if toast_time>0:
   toast_time-=delta
   toast.visible=toast_time>0
+ if mine_save_cooldown>0.0: mine_save_cooldown=maxf(0.0,mine_save_cooldown-delta)
  if battle==null: return
  if page=="battle":
   var move=Input.get_vector("move_left","move_right","move_up","move_down")
   if move.length()>0 and battle.hero_allowed():
    battle.hero_target=Vector2(clampf(battle.hero_target.x+move.x*140.0*delta*battle.speed,15,905),clampf(battle.hero_target.y+move.y*140.0*delta*battle.speed,70,505))
   battle.advance(delta)
+  var produced=int(battle.gem_earned)
+  if produced>gem_mine_saved and mine_save_cooldown<=0.0:
+   var unsaved=produced-gem_mine_saved
+   persistence.data.gems+=unsaved
+   if persistence.commit():
+    gem_mine_saved=produced
+    mine_save_warning=false
+    notify("+%d gema(s) da Mina salvas no perfil." % unsaved)
+   else:
+    persistence.data.gems-=unsaved
+    mine_save_cooldown=3.0
+    if not mine_save_warning:
+     notify("Não consegui salvar a gema da Mina; tentarei novamente.")
+     mine_save_warning=true
   update_clock+=delta
   if update_clock>0.18:
    refresh_hud()
