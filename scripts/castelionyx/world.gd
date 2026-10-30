@@ -161,11 +161,40 @@ func _draw() -> void:
  draw_set_transform(Vector2.ZERO)
 
 func draw_atlas_in_world(kind:String,index:int,point:Vector2,height:float,tint:Color,s:float,offset:Vector2,turn:float=0.0) -> void:
+ if kind=="hero" and index>=7:
+  draw_set_transform(offset+point*s,turn,Vector2(s,s))
+  draw_unique_hero(index,height,tint)
+  draw_set_transform(offset,0,Vector2(s,s))
+  return
  var texture=atlas(kind,index)
  var width=height*float(texture.get_width())/maxf(texture.get_height(),1)
  draw_set_transform(offset+point*s,turn,Vector2(s,s))
  draw_texture_rect(texture,Rect2(Vector2(-width/2,-height),Vector2(width,height)),false,tint)
  draw_set_transform(offset,0,Vector2(s,s))
+
+func draw_unique_hero(index:int,height:float,tint:Color) -> void:
+ var scale_value=height/50.0
+ var body=Color("b94e45") if index==7 else Color("4f8f67") if index==8 else Color("d29b4e")
+ var accent=Color("f0b34f") if index==7 else Color("b9d978") if index==8 else Color("f6df86")
+ draw_rect(Rect2(Vector2(-10,-30)*scale_value,Vector2(20,24)*scale_value),body)
+ draw_rect(Rect2(Vector2(-8,-42)*scale_value,Vector2(16,12)*scale_value),Color("d7b18a"))
+ draw_rect(Rect2(Vector2(-6,-39)*scale_value,Vector2(3,3)*scale_value),Color("19272b"))
+ draw_rect(Rect2(Vector2(3,-39)*scale_value,Vector2(3,3)*scale_value),Color("19272b"))
+ draw_rect(Rect2(Vector2(-14,-27)*scale_value,Vector2(4,17)*scale_value),accent)
+ draw_rect(Rect2(Vector2(10,-27)*scale_value,Vector2(4,17)*scale_value),accent)
+ if index==7:
+  draw_rect(Rect2(Vector2(-22,-30)*scale_value,Vector2(8,3)*scale_value),accent)
+  draw_rect(Rect2(Vector2(14,-30)*scale_value,Vector2(8,3)*scale_value),accent)
+  draw_rect(Rect2(Vector2(-20,-34)*scale_value,Vector2(3,9)*scale_value),Color("7f352f"))
+  draw_rect(Rect2(Vector2(17,-34)*scale_value,Vector2(3,9)*scale_value),Color("7f352f"))
+ elif index==8:
+  draw_colored_polygon(PackedVector2Array([Vector2(9,-18),Vector2(25,-11),Vector2(12,-5)]),Color("9b6a46"))
+  draw_rect(Rect2(Vector2(21,-12)*scale_value,Vector2(8,4)*scale_value),accent)
+ elif index==9:
+  draw_arc(Vector2(0,-39)*scale_value,13*scale_value,0,TAU,12,accent,3*scale_value)
+  draw_rect(Rect2(Vector2(13,-38)*scale_value,Vector2(3,30)*scale_value),accent)
+ draw_rect(Rect2(Vector2(-9,-6)*scale_value,Vector2(7,8)*scale_value),Color("263943"))
+ draw_rect(Rect2(Vector2(2,-6)*scale_value,Vector2(7,8)*scale_value),Color("263943"))
 
 func draw_map() -> void:
  var index=battle.map_index

@@ -37,7 +37,9 @@ var toast_time=0.0
 var song_boss=false
 var photo_callback:Variant=null
 var pointer_touch=false
-var swarm_spell_choices:Array=[0,1,2]
+var swarm_spell_choices:Array=[0,4]
+var swarm_hero_choice=-1
+var tutorial_step=0
 var returning_from_settings="menu"
 var font=preload("res://assets/template/fonts/ui_regular.tres")
 const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_guards.png")]
@@ -333,9 +335,21 @@ func show_setup(mode:String) -> void:
  elif mode=="boss67":
   label(card(col),"Castelo com 1 HP. Apenas um chefe aparece por onda, em rotação. Sobreviva a 67 ondas para ganhar 6.700 gemas.",17,Color("e8c67f"))
  elif mode=="buildout":
-  label(card(col),"Você recebe 1.000 moedas, sem herói e sem feitiços. Construa durante a preparação; depois de iniciar, só assistir, pausar ou 2x. Sobreviva a 101 ondas para ganhar 10.101 gemas. Estruturas têm +25% de alcance.",17,Color("e8c67f"))
+  label(card(col),"Você recebe 9.999 moedas, sem herói e sem feitiços. Construa durante a preparação; depois de iniciar, só assistir, pausar ou 2x. Sobreviva a 101 ondas para ganhar 10.101 gemas. Estruturas têm +25% de alcance.",17,Color("e8c67f"))
  elif mode=="swarm12":
-  label(card(col),"Use apenas o herói e três feitiços escolhidos. Só vêm Goblins, começando com 10 e dobrando a cada onda. Castelo com o dobro de HP; sobreviva a 12 ondas para ganhar 2.400 gemas.",17,Color("e8c67f"))
+  swarm_spell_choices=swarm_spell_choices.filter(func(i): return i>=0 and i<persistence.data.spells.size() and persistence.data.spells[i]>0)
+  label(col,"Use apenas o herói e três feitiços escolhidos. Só vêm Goblins, começando com 10 e dobrando a cada onda. Castelo com o dobro de HP; sobreviva a 12 ondas para ganhar 2.400 gemas.",17,Color("e8c67f"))
+  label(col,"Escolha o herói desta partida:",16)
+  var hero_option=OptionButton.new()
+  var hero_ids=[]
+  for i in range(CxCatalog.HEROES.size()):
+   if persistence.data.heroes[i]>0:
+    hero_ids.append(i); hero_option.add_item(CxCatalog.HEROES[i].name)
+  swarm_hero_choice=int(persistence.data.selected if swarm_hero_choice<0 else swarm_hero_choice)
+  var hero_row_index=hero_ids.find(swarm_hero_choice)
+  hero_option.selected=maxi(0,hero_row_index)
+  hero_option.item_selected.connect(func(row): swarm_hero_choice=hero_ids[row])
+  col.add_child(hero_option)
   label(col,"Escolha exatamente três feitiços desbloqueados:",16)
   for i in range(CxCatalog.SPELLS.size()):
    var spell_check=CheckButton.new()
@@ -392,13 +406,18 @@ func show_modes() -> void:
  back(col)
 
 func launch(mode:String) -> void:
+ if mode=="swarm12" and swarm_spell_choices.size()!=3:
+  notify("Escolha exatamente três feitiços desbloqueados antes de começar.")
+  return
  previous_result=persistence.data.stats.last.duplicate(true)
  var run_modifiers=modifiers.duplicate() if mode=="infinite" else []
  if mode=="boss": run_modifiers=["boss_challenge"]
  if mode=="extreme": run_modifiers=["reduced","economy","mutants","aerial","extreme"]
  var battle_kind="adventure" if mode=="adventure" else mode if mode in ["boss67","buildout","swarm12"] else "infinite"
  battle=CxBattle.new(selected_map,battle_kind,run_modifiers,persistence.data)
- if mode=="swarm12": battle.allowed_spells=swarm_spell_choices.duplicate()
+ if mode=="swarm12":
+  battle.allowed_spells=swarm_spell_choices.duplicate()
+  battle.set_hero_override(swarm_hero_choice)
  battle_mode=mode
  world.battle=battle
  world.reduced=not persistence.data.settings.quality
@@ -456,7 +475,7 @@ func show_battle_ui() -> void:
   b.expand_icon=true
   b.add_theme_font_size_override("font_size",14)
   b.custom_minimum_size.y=54
-  b.visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and i>2))
+  b.visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and not battle.allowed_spells.has(i)))
   spell_buttons.append(b)
  var action_row=GridContainer.new()
  action_row.columns=2
@@ -519,13 +538,13 @@ func refresh_hud() -> void:
  skill_button.disabled=battle.special_cd>0 or not battle.hero_allowed() or living.is_empty()
  skill_button.text="Habilidade · %ds" % int(ceil(battle.special_cd)) if battle.special_cd>0 else "Habilidade"
  for i in range(CxCatalog.SPELLS.size()):
-  spell_buttons[i].visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and i>2))
+  spell_buttons[i].visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and not battle.allowed_spells.has(i)))
   spell_buttons[i].disabled=battle.spells[i]>0 or persistence.data.spells[i]<=0
   spell_buttons[i].text=CxCatalog.SPELLS[i].short+("\n%ds" % int(ceil(battle.spells[i])) if battle.spells[i]>0 else "")
 
 func choose_spell(index:int) -> void:
  if battle==null: return
- if battle.mode=="buildout" or (battle.mode=="swarm12" and index>2): return
+ if battle.mode=="buildout" or (battle.mode=="swarm12" and not battle.allowed_spells.has(index)): return
  if index in [2,5]:
   if battle.cast(index,Vector2(945,285)): notify(CxCatalog.SPELLS[index].name+" ativa por %.0fs" % battle.barrier)
   return
@@ -731,7 +750,31 @@ func show_settings(from:String="menu") -> void:
   else: show_menu()
  )
 
+func show_tutorial() -> void:
+ var col=begin_page("tutorial","Primeiros passos","Uma única passagem para aprender o básico de Castelionyx.")
+ var lessons=[
+  "Toque na tela para mover seu herói. No computador, clique na rota ou use WASD.",
+  "Toque em um espaço de pedra para construir uma estrutura. Ouro é ganho ao derrotar inimigos.",
+  "Escolha um feitiço e toque no campo para mirar. Use pausa e 2x quando precisar.",
+  "Você está pronto! Agora defenda o reino e escolha seu próximo desafio no menu."
+ ]
+ label(col,lessons[clampi(tutorial_step,0,lessons.size()-1)],22,Color("e8c67f"))
+ var progress=Label.new()
+ progress.text="Lição %d de %d" % [tutorial_step+1,lessons.size()]
+ progress.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+ progress.add_theme_font_size_override("font_size",16)
+ col.add_child(progress)
+ if tutorial_step<lessons.size()-1:
+  button(col,"Próxima instrução",func(): tutorial_step+=1; show_tutorial(),true)
+ else:
+  button(col,"Você está pronto! Ir ao menu",func():
+   persistence.data.tutorial_seen=true
+   persistence.commit()
+   show_menu()
+  ,true)
+
 func show_profile(edit:bool=false) -> void:
+ var creating=not persistence.has_profile()
  var col=begin_page("profile","Seu perfil local","Não é uma conta online. Perfil e progresso são salvos somente aqui.")
  var saved=persistence.data.profile
  profile_avatar=int(saved.get("avatar",0))
@@ -769,7 +812,10 @@ func show_profile(edit:bool=false) -> void:
  button(col,"Escolher imagem da galeria",choose_photo)
  button(col,"CONCLUIR PERFIL",func():
   if profile_name.text.strip_edges().is_empty(): notify("Digite seu nome antes de concluir."); profile_name.grab_focus(); return
-  if persistence.profile(profile_name.text,profile_country.text,profile_avatar,profile_photo): show_menu()
+  if persistence.profile(profile_name.text,profile_country.text,profile_avatar,profile_photo):
+   if creating and not persistence.data.tutorial_seen:
+    tutorial_step=0; show_tutorial()
+   else: show_menu()
   else: notify(persistence.last_error)
  ,true)
  if edit: back(col)

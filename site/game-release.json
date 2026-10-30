@@ -3,7 +3,7 @@
   "engineVersion": "4.7.2.stable.official.ed1daf0bf",
   "inputs": {
     "objectFormat": "sha1",
-    "tree": "c338fe98321ecc17573768d667745f11c1279198",
+    "tree": "3c5dbf2c484041844b162f0f5bc7c249452a2755",
     "entries": [
       {
         "path": ".gitignore",
@@ -27,7 +27,7 @@
         "path": "LEIA-ME.md",
         "type": "file",
         "mode": "100644",
-        "object": "73bebcf5d71d668d13ea92176a3a1a08f8f2a47e"
+        "object": "3a146b06ccef7e9619ef332dc41ccaf2b9d4afc2"
       },
       {
         "path": "README.md",
@@ -820,7 +820,7 @@
         "path": "scripts/castelionyx/battle.gd",
         "type": "file",
         "mode": "100644",
-        "object": "962afafa4c3ef502626340ff6d6d1e6aaa8caef5"
+        "object": "26e8a3553bd6f3f7ae513bf2104f36ee1d1fbc43"
       },
       {
         "path": "scripts/castelionyx/battle.gd.uid",
@@ -832,7 +832,7 @@
         "path": "scripts/castelionyx/catalog.gd",
         "type": "file",
         "mode": "100644",
-        "object": "a550f4524581b8f109c24bd502449c669234868a"
+        "object": "12e81b336b07a3fadabb6726277f4e78e060e44c"
       },
       {
         "path": "scripts/castelionyx/catalog.gd.uid",
@@ -844,7 +844,7 @@
         "path": "scripts/castelionyx/main.gd",
         "type": "file",
         "mode": "100644",
-        "object": "e3d41fa1dd5f611099df6af347ac642a8a9ede4c"
+        "object": "08a86e4d7ef620f054b7127b342d55b6d882ee2d"
       },
       {
         "path": "scripts/castelionyx/main.gd.uid",
@@ -856,7 +856,7 @@
         "path": "scripts/castelionyx/persistence.gd",
         "type": "file",
         "mode": "100644",
-        "object": "fefac16630e5257af6f0b8e18131ba91bb854aa0"
+        "object": "d2632e8a5d10350d13194085d972141897792f78"
       },
       {
         "path": "scripts/castelionyx/persistence.gd.uid",
@@ -868,7 +868,7 @@
         "path": "scripts/castelionyx/world.gd",
         "type": "file",
         "mode": "100644",
-        "object": "d034eb8d7acccd45bb0a1e214114f748102b1723"
+        "object": "a2391ff4ff5d81b9efe44956287cddfa6ea0dbda"
       },
       {
         "path": "scripts/castelionyx/world.gd.uid",
@@ -1240,7 +1240,7 @@
         "path": "tools/castelionyx/check.gd",
         "type": "file",
         "mode": "100644",
-        "object": "d79084977b634bf67e28157bf51a67266bad6226"
+        "object": "0451d21cfd6be799000f2a0e9af4e2b41d04da20"
       },
       {
         "path": "tools/castelionyx/check.gd.uid",
@@ -1335,7 +1335,7 @@
     ]
   },
   "build": {
-    "snapshotId": "sha256:f0b9dab69dab785b201e56fa8bad54886476fe7b22c1bd91dd4b64f27f335ecc",
+    "snapshotId": "sha256:213040dd25e3f0c85f37079e757b867a9cda838f97ba6974aa54e3fe2a829b0c",
     "toolchain": {
       "engineVersion": "4.7.2.stable.official.ed1daf0bf",
       "engineDigest": "sha256:3fcb80f4fe794e3859360eb641d8c41d8ffe2c2e54ba1981e55a76851d5ed1f4",
@@ -1348,21 +1348,21 @@
     "profile": "release",
     "export": {
       "profile": "release",
-      "snapshotId": "sha256:f0b9dab69dab785b201e56fa8bad54886476fe7b22c1bd91dd4b64f27f335ecc",
+      "snapshotId": "sha256:213040dd25e3f0c85f37079e757b867a9cda838f97ba6974aa54e3fe2a829b0c",
       "files": {
         "THIRD_PARTY_NOTICES.txt": "sha256:c729a77bf07eb9745b2d89c3ce4ead3357438366f41743d2755ae35f98509cf9",
         "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
         "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
         "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-        "index.html": "sha256:77715ef6f6e0cc9a4d8a04bc9f21771c58794b729a34df213a9e73ea2a62707f",
+        "index.html": "sha256:7a9889a0c66f99af6c4dd47239dbf869658992c39c07c6056d0750609fedd011",
         "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
         "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
-        "index.pck": "sha256:5f3b72eea64d0be9a0e7028fccde0dbae8c766af1f0ff309a01dd29608b555ca",
+        "index.pck": "sha256:14029409041581f73a771686c731e43e76dc1c355ce30b7036177c630a51dadc",
         "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",
         "index.wasm": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0",
         "open-source-licenses.html": "sha256:9215f5fdd50039a9b6f3d8f0271cbc21bbdf64b917fb118dd29c8a16b9974e00"
       },
-      "digest": "sha256:6c554e9f3bd011a7f774f80e30ad61931a7e5c21a6c31fc893628ca5fdf5d07b"
+      "digest": "sha256:77ef2186330015310c21927d325bbcb8a2cb84836b0fe878ceb605bdf3141c34"
     }
   },
   "artifacts": {
@@ -1371,8 +1371,8 @@
       "sha256": "sha256:fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
     },
     "pck": {
-      "path": "/manus-storage/game/sha256/5f3b72eea64d0be9a0e7028fccde0dbae8c766af1f0ff309a01dd29608b555ca.pck",
-      "sha256": "sha256:5f3b72eea64d0be9a0e7028fccde0dbae8c766af1f0ff309a01dd29608b555ca"
+      "path": "/manus-storage/game/sha256/14029409041581f73a771686c731e43e76dc1c355ce30b7036177c630a51dadc.pck",
+      "sha256": "sha256:14029409041581f73a771686c731e43e76dc1c355ce30b7036177c630a51dadc"
     }
   },
   "files": {
@@ -1381,7 +1381,7 @@
     "index.apple-touch-icon.png": "sha256:8a1737ea87f1e9a79214425e360474b9bbc64aea1b6b13a3f248c6adeb8c6309",
     "index.audio.position.worklet.js": "sha256:be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
     "index.audio.worklet.js": "sha256:5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
-    "index.html": "sha256:0d168a1b0e0920a310c8967fc01f67cc3112286447afc1af9fe71c37e17a5a5b",
+    "index.html": "sha256:0caf7baf62ab6849c75e3bff4d0e5a35e87e723c33dbe60ba23798ccf42507d7",
     "index.icon.png": "sha256:a5ae709f2bec7c113d278a4072b02435849edd2ce576baf98d3fcaa0b2c52ee5",
     "index.js": "sha256:cb28c2d8ffd8981888823f1b6d98cdec4e3e11adf209ad556c22878e6d51c63a",
     "index.png": "sha256:5743a648b82437e0e60db5e4aa08103cea96b01e110961082223c0e7fa819ebf",

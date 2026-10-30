@@ -26,7 +26,7 @@ var projectiles:Array=[]
 var effects:Array=[]
 var events:Array=[]
 var pads:Array=[]
-var spells:Array=[0.0,0.0,0.0,0.0,0.0,0.0]
+var spells:Array=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
 var special_cd=0.0
 var barrier=0.0
 var barrier_reduction=0.2
@@ -46,6 +46,7 @@ var aerial_route:Array=[]
 var thorn_walls:Array=[]
 var build_locked=false
 var allowed_spells:Array=[]
+var selected_hero_override=-1
 
 func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:Dictionary={}) -> void:
  map_index=clampi(which_map,0,3)
@@ -68,7 +69,7 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
  if modifiers.has("economy"): gold=300
  if mode=="adventure": gold=540
  if mode=="buildout":
-  gold=1000
+  gold=9999
   prep=999999.0
   allowed_spells=[]
  if mode=="swarm12": allowed_spells=[0,1,2]
@@ -119,14 +120,19 @@ func new_id() -> int:
 
 func create_heroes() -> void:
  if modifiers.has("nohero") or mode in ["adventure","buildout"]: return
- var selected=[int(progression.selected)]
- if progression.exclusive.get("second_hero_slot",false) and progression.selected_heroes is Array and progression.selected_heroes.size()>1 and int(progression.selected_heroes[1])>=0:
+ var selected=[selected_hero_override if selected_hero_override>=0 else int(progression.selected)]
+ if selected_hero_override<0 and progression.exclusive.get("second_hero_slot",false) and progression.selected_heroes is Array and progression.selected_heroes.size()>1 and int(progression.selected_heroes[1])>=0:
   selected.append(int(progression.selected_heroes[1]))
  for index in selected:
   var d=CxCatalog.hero(index,maxi(1,int(progression.heroes[index])))
   for twin in range(2 if index==2 else 1):
    var p=hero_target+Vector2(0,(selected.find(index)*42)+twin*28)
    allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0,"arcane_target":-1,"arcane_hits":0})
+
+func set_hero_override(index:int) -> void:
+ selected_hero_override=index
+ allies.clear()
+ create_heroes()
 
 func hero_allowed() -> bool:
  return not modifiers.has("nohero") and mode!="adventure"
@@ -287,6 +293,7 @@ func build(slot:int,kind:int) -> bool:
  if d.get("economic",false): cost=13
  if kind==7: cost=180
  if kind==8: cost=250
+ if kind==11: cost=1700
  if gold<cost: return false
  gold-=cost
  towers[slot]={"id":new_id(),"kind":kind,"level":1,"pos":pads[slot],"hp":d.hp,"max_hp":d.hp,"attack":0.3,"anim":0.0,"hit":0.0,"buff":false,"prod":d.interval,"shots":0}
@@ -343,6 +350,15 @@ func update_towers(dt:float) -> void:
    if t.prod<=0.0:
     gem_earned+=1; t.prod=60.0; events.append({"type":"gem"})
    continue
+  if t.kind==11:
+   t.prod=maxf(0.0,t.get("prod",5.0)-dt)
+   if t.prod<=0.0:
+    summon(CxCatalog.nearest_ground(map_index,t.pos),1,999999.0,t.id,t.level,true)
+    for a in allies:
+     if a.owner==t.id and a.life>0.0:
+      a.hp=180.0+35.0*t.level; a.max_hp=a.hp; a.damage=34.0+8.0*t.level; a.range=225.0; a.interval=0.7; a.speed=125.0; a.air=true
+    t.prod=5.0
+   continue
   t.buff=support_for(t)
   if t.kind==9: continue
   t.attack-=dt*(1.25 if t.buff else 1.0)
@@ -360,7 +376,7 @@ func update_towers(dt:float) -> void:
   var target=null
   if t.kind in [7,10]:
    for candidate in enemies:
-    if not candidate.dead and candidate.air and t.pos.distance_to(candidate.pos)<=d.range:
+    if not candidate.dead and (t.kind==10 or candidate.air) and t.pos.distance_to(candidate.pos)<=d.range:
      target=candidate
      break
   if target==null: target=target_at(t.pos,d.range*(1.15 if t.buff else 1.0),d.air)

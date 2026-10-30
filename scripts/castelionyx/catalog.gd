@@ -24,7 +24,8 @@ const TOWERS = [
  {"id":"sky_ballista","name":"Balista Celeste","sprite":6,"cost":180,"hp":245.0,"damage":78.0,"interval":2.5,"range":235.0,"air":true,"exclusive":true,"desc":"Custa 180 moedas. Prioriza voadores; dano moderado em terra. Longo alcance, 2,5 s por disparo e perfuração de até três alvos alinhados a cada quatro disparos."},
  {"id":"gem_mine","name":"Mina de Gemas","sprite":7,"cost":250,"hp":210.0,"damage":0.0,"interval":60.0,"range":0.0,"air":false,"economic":true,"exclusive":true,"desc":"Estrutura exclusiva: produz 1 gema permanente a cada 60 segundos ativa."},
  {"id":"thorn_wall","name":"Muralha de Espinhos","sprite":8,"cost":220,"hp":620.0,"damage":0.0,"interval":1.0,"range":0.0,"air":false,"desc":"Parede viva: não ataca, mas força inimigos terrestres a destruí-la antes de seguir."},
- {"id":"longbow","name":"Torre do Arco Longo","sprite":9,"cost":240,"hp":240.0,"damage":92.0,"interval":2.2,"range":285.0,"air":true,"desc":"Alcance extremo e flechas perfurantes contra alvos aéreos e terrestres."}
+ {"id":"longbow","name":"Torre do Arco Longo","sprite":9,"cost":240,"hp":240.0,"damage":18.0,"interval":0.45,"range":330.0,"air":true,"desc":"Alcance extremo, tiro muito rápido e dano baixo contra alvos aéreos e terrestres."},
+ {"id":"falcon_nest","name":"Ninho do Falcão","sprite":10,"cost":1700,"hp":360.0,"damage":0.0,"interval":5.0,"range":0.0,"air":true,"desc":"Libera um falcão permanente a cada 5 segundos. Cada falcão caça inimigos aéreos e terrestres."}
 ]
 const SPELLS = [
  {"id":"meteor","name":"Meteoros","short":"Meteoro","cooldown":30.0,"duration":1.0,"desc":"Marque uma área: 3 meteoros causam dano em área após 0,8s."},

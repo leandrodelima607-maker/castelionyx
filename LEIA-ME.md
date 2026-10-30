@@ -41,6 +41,14 @@ Além da Defesa infinita e da Aventura, a tela **Modos** agora possui três regr
 
 O catálogo também inclui o Ceifador dos Dois Machados (95 HP, 650 de dano por machado, ataque duplo, dano dobrado contra voadores e salto de área), o Mestre das Feras e o Oráculo Solar; Muralha de Espinhos e Torre do Arco Longo; Companhia de Arqueiros, Golem de Pedra (34 s de recarga e 54 s de duração), Fúria de Batalha e Parede de Mato. Os feitiços adicionais começam bloqueados e são comprados com gemas, enquanto Meteoros e Invocação Emergencial continuam sendo as opções iniciais. Nenhuma dessas novidades reutiliza congelamento, choque elétrico ou barreira temporária como efeito principal.
 
+## Onboarding, visuais e economia inicial
+
+Cada perfil novo recebe exatamente 100 gemas uma única vez, com salvamento atômico; editar o perfil não repete o brinde. Depois de concluir o cadastro, o tutorial de quatro instruções aparece uma única vez: mover o herói por toque/WASD, construir em espaços, mirar feitiços e pausar/usar 2x. A última tela diz “Você está pronto!” e leva ao menu; `tutorial_seen` impede a repetição. Perfis antigos são migrados sem apagar progresso.
+
+O **Enxame Duplicado** agora tem um seletor de herói próprio, aplica a escolha antes de criar as entidades da partida e só aceita exatamente três feitiços desbloqueados. A batalha mantém dez cooldowns de feitiços, não apenas os cinco/seis antigos. **Construção até a Onda 101** começa com 9.999 moedas.
+
+O **Ninho do Falcão** custa 1.700 moedas e libera um falcão a cada cinco segundos. Os falcões são aliados aéreos permanentes, atacam inimigos terrestres e aéreos e não desaparecem pelo tempo de vida. A **Torre do Arco Longo** tem alcance extremo, ataque muito rápido e dano baixo. O Ceifador, o Mestre das Feras e o Oráculo Solar possuem silhuetas pixel-art distintas no campo: machados duplos, lobo de guerra e halo/bastão solar, sem depender do mesmo recorte visual do atlas.
+
 ## Economia e modos
 
 Heróis, estruturas e feitiços não começam todos desbloqueados. O Guardião, as duas primeiras estruturas e o Meteoro são a base; os demais itens compráveis usam custos progressivos de 3.600 a 88.000 gemas para heróis/estruturas e 300 a 500 gemas para feitiços. Recompensas de eventos são separadas das compras e não podem ser compradas por engano. O menu **Modos** inclui Desafio dos Chefes (chefes adicionais a cada cinco ondas) e Sobrevivência Extrema (economia limitada, mutantes, cerco aéreo, espaços reduzidos e inimigos reforçados), com níveis mínimos aplicados de verdade.

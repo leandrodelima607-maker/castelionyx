@@ -9,7 +9,7 @@ func _init() -> void:
  load_data()
 
 static func defaults() -> Dictionary:
- return {"version":5,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0,0,0],"spells":[1,0,0,0,1,0,0,0,0,0],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
+ return {"version":6,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0,0,0,0],"spells":[1,0,0,0,1,0,0,0,0,0],"tutorial_seen":false,"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
 
 static func clean_number(value:Variant,fallback:float,minimum:float,maximum:float) -> float:
  if not (value is int or value is float): return fallback
@@ -26,12 +26,13 @@ static func validate(candidate:Variant) -> Dictionary:
  var result=defaults()
  if not candidate is Dictionary: return result
  var c:Dictionary=candidate
- if int(clean_number(c.get("version",1),1,0,100))>5: return result
+ if int(clean_number(c.get("version",1),1,0,100))>6: return result
  var profile=c.get("profile",{})
  if profile is Dictionary and not str(profile.get("name","")).strip_edges().is_empty():
   var saved_email=str(profile.get("email",profile.get("country",""))).strip_edges().left(120)
   result.profile={"name":str(profile.name).replace("\n"," ").replace("\r"," ").strip_edges().left(24),"email":saved_email if valid_email(saved_email) else "","avatar":int(clean_number(profile.get("avatar",0),0,0,7)),"photo":str(profile.get("photo","")).left(160000)}
  result.gems=int(clean_number(c.get("gems",0),0,0,99999999))
+ result.tutorial_seen=c.get("tutorial_seen",false)==true
  result["player_level"]=int(clean_number(c.get("player_level",0),0,0,9999))
  if c.get("events",{}) is Dictionary: result["events"]=c.get("events",{}).duplicate(true)
  if c.get("exclusive",{}) is Dictionary:
@@ -104,7 +105,9 @@ func profile(name:String,country:String,avatar:int,photo:String="") -> bool:
  if name.strip_edges().is_empty(): last_error="Digite seu nome ou apelido."; return false
  if not valid_email(country): last_error="Digite um e-mail válido para salvar o perfil."; return false
  var old=data.duplicate(true)
+ var new_profile=not has_profile()
  data.profile={"name":name.strip_edges().replace("\n"," ").left(24),"email":country.strip_edges().left(120),"avatar":clampi(avatar,0,7),"photo":photo.left(160000)}
+ if new_profile: data.gems+=100
  if commit(): return true
  data=old
  return false
