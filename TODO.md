@@ -20,7 +20,7 @@
 
 - [ ] **Lista alternativa do anexo 1:** Muralha Impossível, Caçador de Gigantes, Defesa Econômica, Reino Sem Heróis e Provação de Castelionyx não são as seis recompensas detalhadas dos anexos 2–3. Não foram acrescentados nesta rodada para evitar inventar metas/recompensas ou substituir o conjunto específico. Confirmar se devem virar cinco desafios adicionais.
 - [ ] **Validação oficial/exportação:** `tools/verify.sh` parou com “Set GAME_RUNTIME to the Game runtime directory returned by init/attach.” Falta o runtime oficial; o check temporário não é build/export completo nem aceitação no navegador/Android.
-- [ ] **GitHub:** conexão autorizada e acesso de leitura ao repositório/branch `main` confirmados. Ainda falta criar commit e enviar este worktree; não houve push até este ponto.
+- [x] **GitHub:** commit `0c995d7` enviado para `leandrodelima607-maker/castelionyx`, branch `main`, e SHA remoto conferido.
 - [ ] **Publicação:** a URL `castelionyx-mrgftfuz.manus.game` não foi atualizada nesta rodada. Só declarar isso depois do fluxo oficial de build/checkpoint/publicação e confirmação da nova versão.
 
 ## Resolução de especificações sobrepostas
