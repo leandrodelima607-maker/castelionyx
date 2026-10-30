@@ -326,7 +326,9 @@ func show_setup(mode:String) -> void:
   var c=card(col)
   label(c,"Cinco ondas. Uma única recompensa integral.",20)
   label(c,"1 Enxame · sem herói\n2 Velocidade\n3 Céu e Terra\n4 Resistência\n5 Chefe multifases + reforços\nPoucos espaços. 540 de ouro inicial.",16)
-  label(c,"Prêmio: 1.000 gemas na primeira conclusão integral." if not persistence.data.stats.adventure_claimed else "Prêmio integral já recebido. Replays contam para o recorde, sem repetir as 1.000 gemas.",16,Color("e8c67f"))
+  var adventure_wins=int(persistence.data.stats.adventure_wins)
+  var adventure_reward="1.000 gemas" if adventure_wins==0 else "6.742 gemas na próxima vitória (décima)" if adventure_wins==9 else "500 gemas nesta vitória"
+  label(c,"Recompensa desta tentativa: "+adventure_reward+". A vitória exige derrotar o chefe e todos os reforços.",16,Color("e8c67f"))
  else:
   label(col,"Gemas da partida = ondas completas ÷ 10, arredondado para baixo. Chefes a cada dez ondas.",16)
   for d in CxCatalog.MODIFIERS:
@@ -858,3 +860,4 @@ func play_event(event:Dictionary) -> void:
  if maps.has(event.type): AudioDirector.play_cue(maps[event.type])
  if event.type=="boss": notify(event.name+" entrou no campo!")
  if event.type=="phase": notify("%s · Fase %d" % [event.name,event.phase])
+ if event.type=="reinforcements": notify("%s chamou %d reforços na fase %d!" % [event.name,event.count,event.phase])

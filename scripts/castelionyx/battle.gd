@@ -108,7 +108,7 @@ func new_id() -> int:
  return value
 
 func create_heroes() -> void:
- if modifiers.has("nohero"): return
+ if modifiers.has("nohero") or mode=="adventure": return
  var selected=[int(progression.selected)]
  if progression.exclusive.get("second_hero_slot",false) and progression.selected_heroes is Array and progression.selected_heroes.size()>1 and int(progression.selected_heroes[1])>=0:
   selected.append(int(progression.selected_heroes[1]))
@@ -207,7 +207,7 @@ func tick(dt:float) -> void:
    hp=0.0
  barrier=maxf(0.0,barrier-dt)
  special_cd=maxf(0.0,special_cd-dt)
- for i in range(5): spells[i]=maxf(0.0,spells[i]-dt)
+ for i in range(spells.size()): spells[i]=maxf(0.0,spells[i]-dt)
  update_effects(dt)
  if state=="preparation":
   prep-=dt
@@ -672,7 +672,16 @@ func boss_update(e:Dictionary,dt:float) -> void:
   e.telegraph-=dt
   if e.telegraph<=0.0:
    e.anim=0.6
-   if e.kind=="necro":
+   if e.final:
+    var reinforcement_count=3 if e.phase==2 else 4
+    for i in range(reinforcement_count):
+     var final_spec={"kind":2 if i%3==0 else 3 if i%3==1 else 5,"boss":false,"route":i%ground_routes.size()}
+     var final_helper=spawn_enemy(final_spec)
+     if not final_helper.air:
+      final_helper.distance=e.distance
+      final_helper.pos=CxCatalog.path_position(final_helper.path,final_helper.distance)
+    events.append({"type":"reinforcements","name":e.name,"count":reinforcement_count,"phase":e.phase})
+   elif e.kind=="necro":
     var alive_aux=0
     for other in enemies:
      if not other.boss and not other.dead: alive_aux+=1

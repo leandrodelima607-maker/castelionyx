@@ -152,7 +152,7 @@ func record(result:Dictionary) -> int:
  var gems=int(result.completed/10) if result.mode=="infinite" else 0
  var adventure_attempt=int(data.stats.adventure_wins)
  if result.mode=="adventure" and result.victory:
-  gems=1000 if adventure_attempt==0 else 6742 if adventure_attempt==9 and result.completed==10 and result.time<1500.0 else 500
+  gems=1000 if adventure_attempt==0 else 6742 if adventure_attempt==9 else 500
  if result.mode=="adventure" and result.victory and result.completed==5 and not data.stats.adventure_claimed:
   data.stats.adventure_claimed=true
  data.gems+=gems+int(result.get("gem_mine_gems",0))
@@ -173,6 +173,8 @@ func record(result:Dictionary) -> int:
  claim_event_rewards(result)
  var stored=result.duplicate(true)
  stored.gems=gems
+ if result.mode=="adventure" and result.victory:
+  stored.adventure_reward_tier="primeira" if adventure_attempt==0 else "decima" if adventure_attempt==9 else "repeticao"
  data.stats.last=stored
  data.claimed.append(result.id)
  if data.claimed.size()>128: data.claimed.pop_front()

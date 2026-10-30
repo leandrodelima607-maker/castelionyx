@@ -116,7 +116,13 @@ func run() -> void:
   adventure.queue.clear()
   adventure.tick(0.01)
  check(adventure.state=="finished" and adventure.completed==5 and adventure.terminal.victory,"adventure ends only after exactly five cleared waves")
- check(adventure.towers.size()==5 and not adventure.build(0,2),"adventure has five pads and blocks non-arrow/cannon structures")
+ check(adventure.towers.size()==5 and adventure.allies.is_empty() and not adventure.hero_allowed() and not adventure.build(0,2),"adventure has five pads, no heroes and blocks non-arrow/cannon structures")
+ var final_data=CxPersistence.defaults()
+ final_data.stats.adventure_wins=9
+ final_data.stats.adventure_extra=80
+ var tenth_run=CxBattle.new(0,"adventure",[],final_data)
+ var tenth_schedule=tenth_run.wave_schedule(10)
+ check(tenth_schedule.any(func(spec): return spec.get("final",false)) and tenth_schedule.size()>20,"tenth adventure has a final boss and extended reinforcements")
  var persistence=CxPersistence.new()
  var saved=persistence.data.duplicate(true)
  persistence.data=CxPersistence.defaults()
@@ -126,6 +132,13 @@ func run() -> void:
  var reward=persistence.record(adventure.terminal)
  check(reward==1000 and persistence.data.gems==1000,"complete adventure grants exactly 1000 gems")
  check(persistence.record(adventure.terminal)==0 and persistence.data.gems==1000,"reopening result cannot duplicate gems")
+ var second_result={"id":"adventure-second-"+str(Time.get_ticks_usec()),"mode":"adventure","map":0,"completed":5,"defeat_wave":0,"bosses":1,"time":200.0,"earned":100,"victory":true}
+ check(persistence.record(second_result)==500 and persistence.data.gems==1500,"second adventure victory grants 500 gems")
+ var tenth_persistence=CxPersistence.new()
+ tenth_persistence.data=CxPersistence.defaults()
+ tenth_persistence.data.stats.adventure_wins=9
+ var tenth_result={"id":"adventure-tenth-"+str(Time.get_ticks_usec()),"mode":"adventure","map":0,"completed":10,"defeat_wave":0,"bosses":6,"time":5000.0,"earned":200,"victory":true}
+ check(tenth_persistence.record(tenth_result)==6742 and tenth_persistence.data.gems==6742,"tenth adventure victory grants exactly 6742 gems without a time cap")
  var partial={"id":"test-partial-"+str(Time.get_ticks_usec()),"mode":"adventure","map":0,"completed":4,"defeat_wave":5,"bosses":0,"time":50.0,"earned":100,"victory":false}
  check(persistence.record(partial)==0,"partial adventure no full reward")
  var infinite={"id":"test-infinite-"+str(Time.get_ticks_usec()),"mode":"infinite","map":0,"completed":16,"defeat_wave":17,"bosses":1,"time":110.0,"earned":230,"victory":false}
