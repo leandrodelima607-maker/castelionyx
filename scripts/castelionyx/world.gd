@@ -184,7 +184,7 @@ func draw_map() -> void:
   for p in battle.pads:
    draw_colored_polygon(PackedVector2Array([p+Vector2(-48,22),p+Vector2(48,22),p+Vector2(22,65),p+Vector2(-20,61)]),Color("486779"))
    draw_rect(Rect2(p-Vector2(48,25),Vector2(96,48)),Color("6b805d"))
- for route in CxCatalog.MAPS[index].ground:
+ for route in battle.ground_routes:
   var points=PackedVector2Array(route)
   draw_polyline(points,Color("263c33") if index!=1 else Color("283c43"),47,false)
   draw_polyline(points,Color("a4a078") if index!=1 else Color("8d9990"),36,false)
@@ -205,7 +205,7 @@ func draw_map() -> void:
     draw_line(arrow_at-arrow_dir*9.0,arrow_at+arrow_dir*7.0,Color(0.98,0.86,0.5,0.38),2)
     draw_line(arrow_at+arrow_dir*7.0,arrow_at+arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
     draw_line(arrow_at+arrow_dir*7.0,arrow_at-arrow_side-arrow_dir*1.0,Color(0.98,0.86,0.5,0.38),2)
- var air_route=CxCatalog.MAPS[index].air
+ var air_route=battle.aerial_route
  for j in range(int(CxCatalog.path_length(air_route)/35)):
   var p=CxCatalog.path_position(air_route,j*35)
   draw_rect(Rect2(p,Vector2(7,2)),Color(0.69,0.87,0.94,0.4))
@@ -219,7 +219,7 @@ func draw_map() -> void:
  for i in range(26):
   var p=Vector2((i*157+48)%950,(i*111+20)%550)
   var near=false
-  for route in CxCatalog.MAPS[index].ground:
+  for route in battle.ground_routes:
    for segment in range(1,route.size()):
     if p.distance_to(Geometry2D.get_closest_point_to_segment(p,route[segment-1],route[segment]))<48: near=true
   for pad in battle.pads:

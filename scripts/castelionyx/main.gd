@@ -271,7 +271,10 @@ func show_collection(kind:String) -> void:
   info.size_flags_horizontal=Control.SIZE_EXPAND_FILL
   row.add_child(info)
   label(info,d.name,21)
-  label(info,"BLOQUEADO" if level==0 else "Nível %d%s" % [level," · SELECIONADO" if kind=="heroes" and persistence.data.selected==i else ""],15,Color("d9bb7e"))
+  var selected_mark=""
+  if kind=="heroes" and persistence.data.selected_heroes is Array:
+   selected_mark=" · ESPAÇO 1" if persistence.data.selected_heroes.size()>0 and persistence.data.selected_heroes[0]==i else " · ESPAÇO 2" if persistence.data.selected_heroes.size()>1 and persistence.data.selected_heroes[1]==i else ""
+  label(info,"BLOQUEADO" if level==0 else "Nível %d%s" % [level,selected_mark],15,Color("d9bb7e"))
   label(c,d.desc,16)
   if kind=="heroes":
    var h=CxCatalog.hero(i,maxi(level,1))
@@ -281,6 +284,12 @@ func show_collection(kind:String) -> void:
     else: notify("Herói bloqueado ou salvamento indisponível.")
    )
    select.disabled=level==0 or persistence.data.selected==i
+   if persistence.data.exclusive.get("second_hero_slot",false):
+    var extra=button(c,"Levar no espaço 2",func():
+     if persistence.select_second_hero(i): show_collection(kind)
+     else: notify("Escolha outro herói desbloqueado; o mesmo não pode ocupar os dois espaços.")
+    )
+    extra.disabled=level==0 or i==persistence.data.selected or (persistence.data.selected_heroes.size()>1 and persistence.data.selected_heroes[1]==i)
   elif kind=="towers":
    var t=CxCatalog.tower(i,1,level)
    label(c,"Construção: %d ouro · Vida %.0f · Dano %.0f\nAlcance %.0f · Ataque %.2fs · 3 níveis na partida\nA melhoria permanente aumenta o dano em 6%% por nível." % [t.cost,t.hp,t.damage,t.range,t.interval],14,Color("adc5be"))
@@ -308,7 +317,11 @@ func show_setup(mode:String) -> void:
  option.selected=selected_map
  option.item_selected.connect(func(index): selected_map=index)
  col.add_child(option)
- label(col,"Herói: "+CxCatalog.HEROES[persistence.data.selected].name,19)
+ var hero_names=[]
+ var selected_list=persistence.data.selected_heroes if persistence.data.selected_heroes is Array else [persistence.data.selected]
+ for hero_index in selected_list:
+  if int(hero_index)>=0: hero_names.append(CxCatalog.HEROES[int(hero_index)].name)
+ label(col,"Heróis: "+", ".join(hero_names),19)
  if mode=="adventure":
   var c=card(col)
   label(c,"Cinco ondas. Uma única recompensa integral.",20)
@@ -350,7 +363,7 @@ func launch(mode:String) -> void:
  var run_modifiers=modifiers.duplicate() if mode=="infinite" else []
  if mode=="boss": run_modifiers=["boss_challenge"]
  if mode=="extreme": run_modifiers=["reduced","economy","mutants","aerial","extreme"]
- battle=CxBattle.new(selected_map,"infinite",run_modifiers,persistence.data)
+ battle=CxBattle.new(selected_map,"adventure" if mode=="adventure" else "infinite",run_modifiers,persistence.data)
  battle_mode=mode
  world.battle=battle
  world.reduced=not persistence.data.settings.quality

@@ -41,6 +41,8 @@ var adventure_wins=0
 var adventure_extra=0
 var gem_earned=0
 var rng=RandomNumberGenerator.new()
+var ground_routes:Array=[]
+var aerial_route:Array=[]
 
 func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:Dictionary={}) -> void:
  map_index=clampi(which_map,0,3)
@@ -52,20 +54,53 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
  speed=int(progression.settings.speed)
  rng.seed=Time.get_ticks_usec()+map_index*137
  run_id="%s-%d-%d" % [str(Time.get_unix_time_from_system()),Time.get_ticks_usec(),rng.randi()]
- pads=CxCatalog.MAPS[map_index].pads.duplicate()
- pads.shuffle()
+ prepare_layout()
  var wanted=5 if mode=="adventure" else 10
  if modifiers.has("reduced") and mode!="adventure": wanted=maxi(5,int(ceil(float(wanted)/2.0)))
- while pads.size()<wanted:
-  var route=CxCatalog.MAPS[map_index].ground[pads.size()%CxCatalog.MAPS[map_index].ground.size()]
-  pads.append(CxCatalog.path_position(route,route.size()*38.0+pads.size()*24.0))
- pads=pads.slice(0,wanted)
+ pads=valid_pads(wanted)
  if modifiers.has("wall"): max_hp=150.0
  hp=max_hp
  if modifiers.has("economy"): gold=300
  if mode=="adventure": gold=540
  for i in range(pads.size()): towers.append(null)
  create_heroes()
+
+func prepare_layout() -> void:
+ ground_routes=[]
+ for route in CxCatalog.MAPS[map_index].ground:
+  var variant:Array=[]
+  for i in range(route.size()):
+   var point:Vector2=route[i]
+   if i>0 and i<route.size()-1:
+    point+=Vector2(rng.randf_range(-24.0,24.0),rng.randf_range(-22.0,22.0))
+    point=Vector2(clampf(point.x,40.0,900.0),clampf(point.y,70.0,500.0))
+   variant.append(point)
+  ground_routes.append(variant)
+ aerial_route=[]
+ for i in range(CxCatalog.MAPS[map_index].air.size()):
+  var air_point:Vector2=CxCatalog.MAPS[map_index].air[i]
+  if i>0 and i<CxCatalog.MAPS[map_index].air.size()-1:
+   air_point+=Vector2(rng.randf_range(-28.0,28.0),rng.randf_range(-18.0,18.0))
+  aerial_route.append(air_point)
+
+func valid_pads(wanted:int) -> Array:
+ var candidates=CxCatalog.MAPS[map_index].pads.duplicate()
+ candidates.shuffle()
+ var chosen:Array=[]
+ for candidate in candidates:
+  var clear=true
+  for route in ground_routes:
+   for i in range(1,route.size()):
+    if candidate.distance_to(Geometry2D.get_closest_point_to_segment(candidate,route[i-1],route[i]))<43.0: clear=false
+  for other in chosen:
+   if candidate.distance_to(other)<64.0: clear=false
+  if clear: chosen.append(candidate)
+  if chosen.size()>=wanted: break
+ if chosen.size()<wanted:
+  for candidate in candidates:
+   if not chosen.has(candidate): chosen.append(candidate)
+   if chosen.size()>=wanted: break
+ return chosen.slice(0,wanted)
 
 func new_id() -> int:
  var value=next_id
@@ -74,11 +109,14 @@ func new_id() -> int:
 
 func create_heroes() -> void:
  if modifiers.has("nohero"): return
- var index=int(progression.selected)
- var d=CxCatalog.hero(index,maxi(1,int(progression.heroes[index])))
- for twin in range(2 if index==2 else 1):
-  var p=hero_target+Vector2(0,twin*28)
-  allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0,"arcane_target":-1,"arcane_hits":0})
+ var selected=[int(progression.selected)]
+ if progression.exclusive.get("second_hero_slot",false) and progression.selected_heroes is Array and progression.selected_heroes.size()>1 and int(progression.selected_heroes[1])>=0:
+  selected.append(int(progression.selected_heroes[1]))
+ for index in selected:
+  var d=CxCatalog.hero(index,maxi(1,int(progression.heroes[index])))
+  for twin in range(2 if index==2 else 1):
+   var p=hero_target+Vector2(0,(selected.find(index)*42)+twin*28)
+   allies.append({"id":new_id(),"kind":"hero","hero":index,"sprite":d.sprite+twin,"pos":p,"hp":d.hp,"max_hp":d.hp,"shield":0.0,"damage":d.damage,"interval":d.interval,"range":d.range,"speed":d.speed,"armor":d.armor,"air":d.air,"attack":0.0,"anim":0.0,"hit":0.0,"life":-1.0,"respawn":0.0,"owner":-1,"combo":0.0,"arcane_target":-1,"arcane_hits":0})
 
 func hero_allowed() -> bool:
  return not modifiers.has("nohero") and mode!="adventure"
@@ -117,14 +155,14 @@ func wave_schedule(number:int) -> Array:
    if number==3: kind=3 if i%2==0 else 2
    if number==4: kind=5 if i%2==0 else 2
    if number==5: kind=[2,3,5,6][i%4]
-  result.append({"kind":kind,"boss":false,"route":i%CxCatalog.MAPS[map_index].ground.size()})
+  result.append({"kind":kind,"boss":false,"route":i%ground_routes.size()})
  if number%10==0 and mode=="infinite": result.insert(int(count/2.0),{"kind":int(number/10.0-1)%4,"boss":true,"route":0})
  if modifiers.has("boss_challenge") and number%5==0: result.insert(int(count/3.0),{"kind":int(number/5.0-1)%4,"boss":true,"route":0})
  if mode=="adventure" and adventure_wins<9 and number==5: result.append({"kind":3,"boss":true,"route":0,"final":true})
  if mode=="adventure" and adventure_wins>=9:
   result.insert(mini(result.size(),2),{"kind":(number-1)%4,"boss":true,"route":0,"final":number==10})
   if number==10:
-   for boss_kind in range(5): result.append({"kind":boss_kind%4,"boss":true,"route":boss_kind%CxCatalog.MAPS[map_index].ground.size(),"final":true})
+   for boss_kind in range(5): result.append({"kind":boss_kind%4,"boss":true,"route":boss_kind%ground_routes.size(),"final":true})
  return result
 
 func spawn_enemy(spec:Dictionary) -> Dictionary:
@@ -135,7 +173,7 @@ func spawn_enemy(spec:Dictionary) -> Dictionary:
  if spec.get("boss",false) and mode=="infinite": factor=1.0+0.3*maxi(0,int(wave/10.0)-1)
  if modifiers.has("extreme"): factor*=1.35
  if spec.get("final",false): d.hp=1900.0
- var route=CxCatalog.MAPS[map_index].air if d.air else CxCatalog.MAPS[map_index].ground[spec.get("route",0)]
+ var route=aerial_route if d.air else ground_routes[spec.get("route",0)%ground_routes.size()]
  if mode=="adventure" and adventure_wins>=9:
   factor*=1.1 if not spec.get("boss",false) else 1.19
  var enemy={"uid":new_id(),"kind":d.id,"name":d.name,"sprite":d.sprite,"hp":d.hp*factor,"max_hp":d.hp*factor,"damage":d.damage*(1.0+0.04*tier)*(1.39 if mode=="adventure" and adventure_wins>=9 and spec.get("boss",false) else 1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"speed":d.speed*minf(1.65,1.0+0.008*tier)*(1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"reward":d.reward,"armor":d.armor,"air":d.air,"boss":spec.get("boss",false),"final":spec.get("final",false),"phase":1,"path":route,"distance":0.0,"pos":route[0],"freeze":0.0,"immune":0.0,"slow":0.0,"hit":0.0,"anim":0.0,"attack":0.0,"special":7.0,"telegraph":0.0,"regen_block":0.0,"dead":false,"shell":42.0 if d.id=="mutant" else 0.0,"dash":0.0}
@@ -161,7 +199,7 @@ func tick(dt:float) -> void:
   special_defeat=true
   special_horde_clock=12.0
   events.append({"type":"special_defeat_start"})
-  for i in range(28): queue.append({"kind":i%7,"boss":false,"route":i%CxCatalog.MAPS[map_index].ground.size()})
+  for i in range(28): queue.append({"kind":i%7,"boss":false,"route":i%ground_routes.size()})
   state="combat"
  if special_defeat:
   special_horde_clock-=dt
@@ -225,6 +263,8 @@ func build(slot:int,kind:int) -> bool:
  var d=CxCatalog.tower(kind,1,progression.towers[kind])
  var cost=d.cost
  if d.get("economic",false): cost=13
+ if kind==7: cost=180
+ if kind==8: cost=250
  if gold<cost: return false
  gold-=cost
  towers[slot]={"id":new_id(),"kind":kind,"level":1,"pos":pads[slot],"hp":d.hp,"max_hp":d.hp,"attack":0.3,"anim":0.0,"hit":0.0,"buff":false,"prod":d.interval,"shots":0}
@@ -266,6 +306,7 @@ func support_for(t:Dictionary) -> bool:
 func update_towers(dt:float) -> void:
  for t in towers:
   if t==null: continue
+  if t.hp<=0.0: continue
   t.anim=maxf(0.0,t.anim-dt)
   t.hit=maxf(0.0,t.hit-dt)
   if t.kind==6:
@@ -468,7 +509,7 @@ func update_allies(dt:float) -> void:
    if a.hero==6:
     if target.uid==a.get("arcane_target",-1): a.arcane_hits=int(a.get("arcane_hits",0))+1
     else: a.arcane_target=target.uid; a.arcane_hits=1
-    if a.arcane_hits>=6:
+    if a.arcane_hits>=5:
      amount*=2.0; a.arcane_hits=0; burst(target.pos,"rune",28)
    fire(a.pos+Vector2(0,-15),target,amount,"ice" if a.hero==4 else "magic" if a.hero==5 or a.hero==6 or a.kind=="summon" else "arrow",true)
   else:
@@ -516,6 +557,11 @@ func skill() -> bool:
     if not e.dead and point.distance_to(e.pos)<180.0: freeze_enemy(e,4.0)
    burst(point,"ice",180)
   5: summon(point,3,18.0,-2,progression.heroes[5],true)
+  6:
+   var target=target_at(point,260.0,true)
+   if target!=null:
+    area_damage(target.pos,88.0,115.0,true)
+    burst(target.pos,"rune",88.0)
  events.append({"type":"ice" if index==4 else "summon" if index==5 else "skill"})
  return true
 
@@ -523,9 +569,13 @@ func cast(index:int,point:Vector2) -> bool:
  if index<0 or index>=spells.size() or index>=progression.spells.size() or progression.spells[index]<=0 or paused or state=="finished" or spells[index]>0.0: return false
  var level=progression.spells[index]
  spells[index]=CxCatalog.SPELLS[index].cooldown*maxf(0.65,1.0-0.035*(level-1))
+ if index==5:
+  if gold<120: spells[index]=0.0; return false
+  gold-=120
  match index:
   0:
-   effects.append({"type":"meteor","pos":point,"radius":105.0,"life":0.8,"max":0.8,"damage":175.0+30*(level-1)})
+   var improved=progression.exclusive.get("meteor_plus",false)
+   effects.append({"type":"meteor","pos":point,"radius":105.0*(1.15 if improved else 1.0),"life":0.8,"max":0.8,"damage":(175.0+30*(level-1))*(1.25 if improved else 1.0)})
    events.append({"type":"cannon"})
   1:
    for e in enemies:

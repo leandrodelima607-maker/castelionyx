@@ -35,7 +35,10 @@ func run() -> void:
  var damage=CxCatalog.tower(0,1).damage
  check(m.upgrade(0) and CxCatalog.tower(0,2).damage>damage,"upgrade changes real attack")
  var air=m.spawn_enemy({"kind":3,"boss":false,"route":0})
- check(air.path==CxCatalog.MAPS[0].air,"flying units use actual aerial route")
+ check(air.path==m.aerial_route and air.path.size()==CxCatalog.MAPS[0].air.size(),"flying units use actual aerial route")
+ var layout_b=CxBattle.new(0,"infinite",[],d)
+ check(m.ground_routes!=layout_b.ground_routes and m.pads!=layout_b.pads,"routes and spaces change between partidas")
+ check(m.pads.size()==10 and CxBattle.new(0,"adventure",[],d).pads.size()==5,"mode construction-space counts remain exact")
  check(m.target_at(air.pos,1,false)==null,"ground attacks cannot target air")
  check(m.target_at(air.pos,1,true)!=null,"anti-air can target flyers")
  var at=air.pos
@@ -132,6 +135,36 @@ func run() -> void:
  check(persistence.buy("heroes",1) and persistence.data.heroes[1]==1,"progressive hero purchase costs 3600 gems")
  check(persistence.select_hero(1),"unlocked hero can be selected")
  check(not persistence.select_hero(5),"locked hero cannot be selected")
+ persistence.data.exclusive.second_hero_slot=true
+ persistence.data.heroes[2]=1
+ check(persistence.select_second_hero(2) and persistence.data.selected_heroes[1]==2,"second hero slot selects a distinct hero")
+ var duo=CxBattle.new(0,"infinite",[],persistence.data)
+ check(duo.allies.size()==3,"two selected heroes appear in combat, including twins")
+ var economy=CxBattle.new(0,"infinite",[],persistence.data)
+ economy.gold=20
+ economy.progression.exclusive.coin_generator=true
+ economy.progression.towers[6]=1
+ economy.start_wave()
+ check(economy.build(0,6) and economy.gold==7,"coin generator costs exactly 13 coins")
+ var generator=economy.towers[0]
+ economy.update_towers(4.0)
+ check(economy.gold==8,"coin generator produces one coin per four seconds")
+ economy.damage_tower(generator,9999)
+ economy.update_towers(4.0)
+ check(economy.gold==8,"destroyed coin generator stops production")
+ var exclusive=CxBattle.new(0,"infinite",[],persistence.data)
+ exclusive.gold=120
+ exclusive.start_wave()
+ exclusive.progression.spells[5]=1
+ check(exclusive.cast(5,Vector2(945,285)) and exclusive.gold==0,"realm barrier costs 120 coins")
+ var event_data=CxPersistence.defaults()
+ event_data.gems=10000
+ event_data.heroes[6]=1
+ var event_save=CxPersistence.new()
+ event_save.data=event_data
+ var event_result={"id":"event-test-"+str(Time.get_ticks_usec()),"mode":"infinite","completed":50,"defeat_wave":51,"bosses":5,"time":400.0,"earned":0,"victory":false,"modifiers":["reduced","nohero"]}
+ event_save.record(event_result)
+ check(event_save.data.exclusive.arcane_sentinel and event_save.data.events.survivor_no_army.reward_claimed,"event reward is persistent and real")
  persistence.data=saved
  persistence.commit()
  check(CxCatalog.MAPS[0].ground!=CxCatalog.MAPS[1].ground and CxCatalog.MAPS[3].ground.size()==2,"different maps have different actual routes")
