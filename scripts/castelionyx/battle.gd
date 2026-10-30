@@ -43,6 +43,9 @@ var gem_earned=0
 var rng=RandomNumberGenerator.new()
 var ground_routes:Array=[]
 var aerial_route:Array=[]
+var thorn_walls:Array=[]
+var build_locked=false
+var allowed_spells:Array=[]
 
 func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:Dictionary={}) -> void:
  map_index=clampi(which_map,0,3)
@@ -58,10 +61,17 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
  var wanted=5 if mode=="adventure" else 10
  if modifiers.has("reduced") and mode!="adventure": wanted=maxi(5,int(ceil(float(wanted)/2.0)))
  pads=valid_pads(wanted)
+ if mode=="boss67": max_hp=1.0
+ if mode=="swarm12": max_hp=600.0
  if modifiers.has("wall"): max_hp=150.0
  hp=max_hp
  if modifiers.has("economy"): gold=300
  if mode=="adventure": gold=540
+ if mode=="buildout":
+  gold=1000
+  prep=999999.0
+  allowed_spells=[]
+ if mode=="swarm12": allowed_spells=[0,1,2]
  for i in range(pads.size()): towers.append(null)
  create_heroes()
 
@@ -108,7 +118,7 @@ func new_id() -> int:
  return value
 
 func create_heroes() -> void:
- if modifiers.has("nohero") or mode=="adventure": return
+ if modifiers.has("nohero") or mode in ["adventure","buildout"]: return
  var selected=[int(progression.selected)]
  if progression.exclusive.get("second_hero_slot",false) and progression.selected_heroes is Array and progression.selected_heroes.size()>1 and int(progression.selected_heroes[1])>=0:
   selected.append(int(progression.selected_heroes[1]))
@@ -124,6 +134,7 @@ func hero_allowed() -> bool:
 func start_wave() -> bool:
  if state!="preparation" or hp<=0.0: return false
  wave+=1
+ if mode=="buildout": build_locked=true
  spawn_clock=0.0
  queue=wave_schedule(wave)
  state="combat"
@@ -132,6 +143,13 @@ func start_wave() -> bool:
 
 func wave_schedule(number:int) -> Array:
  var result:Array=[]
+ if mode=="boss67":
+  return [{"kind":(number-1)%CxCatalog.BOSSES.size(),"boss":true,"route":0,"final":number==67}]
+ if mode=="swarm12":
+  var swarm_count=mini(4096,10*int(pow(2.0,number-1)))
+  for i in range(swarm_count): result.append({"kind":0,"boss":false,"route":i%ground_routes.size()})
+  return result
+ if mode=="buildout" and number>101: return []
  var count=6+number*2
  if map_index==1: count=int(ceil(count*1.25))
  if modifiers.has("reduced"): count=int(ceil(count*1.25))
@@ -157,7 +175,7 @@ func wave_schedule(number:int) -> Array:
    if number==5: kind=[2,3,5,6][i%4]
   result.append({"kind":kind,"boss":false,"route":i%ground_routes.size()})
  if number%10==0 and mode=="infinite": result.insert(int(count/2.0),{"kind":int(number/10.0-1)%4,"boss":true,"route":0})
- if modifiers.has("boss_challenge") and number%5==0: result.insert(int(count/3.0),{"kind":int(number/5.0-1)%4,"boss":true,"route":0})
+ if modifiers.has("boss_challenge") and number%5==0: result.insert(int(count/3.0),{"kind":int(number/5.0-1)%CxCatalog.BOSSES.size(),"boss":true,"route":0})
  if mode=="adventure" and adventure_wins<9 and number==5: result.append({"kind":3,"boss":true,"route":0,"final":true})
  if mode=="adventure" and adventure_wins>=9:
   result.insert(mini(result.size(),2),{"kind":(number-1)%4,"boss":true,"route":0,"final":number==10})
@@ -223,6 +241,8 @@ func tick(dt:float) -> void:
  update_projectiles(dt)
  enemies=enemies.filter(func(e): return not e.dead)
  allies=allies.filter(func(a): return a.kind=="hero" or (a.hp>0.0 and a.life>0.0))
+ for wall in thorn_walls: wall.life-=dt
+ thorn_walls=thorn_walls.filter(func(w): return w.life>0.0 and w.hp>0.0)
  if hp<=0.0:
   finish(false)
   return
@@ -230,7 +250,7 @@ func tick(dt:float) -> void:
   completed=wave
   gold+=35+wave*2
   earned+=35+wave*2
-  if mode=="adventure" and ((adventure_wins<9 and wave==5) or (adventure_wins>=9 and wave==10)):
+  if (mode=="adventure" and ((adventure_wins<9 and wave==5) or (adventure_wins>=9 and wave==10))) or (mode=="boss67" and wave==67) or (mode=="buildout" and wave==101) or (mode=="swarm12" and wave==12):
    finish(true)
   else:
    state="preparation"
@@ -255,12 +275,14 @@ func target_at(point:Vector2,radius:float,air:bool) -> Variant:
 
 func build(slot:int,kind:int) -> bool:
  if state=="finished" or paused or slot<0 or slot>=towers.size() or towers[slot]!=null or kind<0 or kind>=CxCatalog.TOWERS.size(): return false
+ if mode in ["boss67","swarm12"] or (mode=="buildout" and build_locked): return false
  if mode=="adventure" and kind not in [0,1]: return false
  if kind>=progression.towers.size() or progression.towers[kind]<=0: return false
  if kind==6 and not progression.exclusive.get("coin_generator",false): return false
  if kind==7 and not progression.exclusive.get("sky_ballista",false): return false
  if kind==8 and not progression.exclusive.get("gem_mine",false): return false
  var d=CxCatalog.tower(kind,1,progression.towers[kind])
+ if mode=="buildout": d.range*=1.25
  var cost=d.cost
  if d.get("economic",false): cost=13
  if kind==7: cost=180
@@ -281,6 +303,7 @@ func upgrade(slot:int) -> bool:
  gold-=cost
  t.level+=1
  var d=CxCatalog.tower(t.kind,t.level,progression.towers[t.kind])
+ if mode=="buildout": d.range*=1.25
  t.hp+=d.hp-t.max_hp
  t.max_hp=d.hp
  burst(t.pos,"upgrade",45)
@@ -307,6 +330,7 @@ func update_towers(dt:float) -> void:
  for t in towers:
   if t==null: continue
   if t.hp<=0.0: continue
+  t.fury=maxf(0.0,t.get("fury",0.0)-dt)
   t.anim=maxf(0.0,t.anim-dt)
   t.hit=maxf(0.0,t.hit-dt)
   if t.kind==6:
@@ -320,10 +344,11 @@ func update_towers(dt:float) -> void:
     gem_earned+=1; t.prod=60.0; events.append({"type":"gem"})
    continue
   t.buff=support_for(t)
+  if t.kind==9: continue
   t.attack-=dt*(1.25 if t.buff else 1.0)
   if t.attack>0.0: continue
   var d=CxCatalog.tower(t.kind,t.level,progression.towers[t.kind])
-  if t.kind==5: continue
+  if t.kind in [5,9]: continue
   if t.kind==4:
    var count=0
    for a in allies:
@@ -333,7 +358,7 @@ func update_towers(dt:float) -> void:
     t.attack=d.interval
    continue
   var target=null
-  if t.kind==7:
+  if t.kind in [7,10]:
    for candidate in enemies:
     if not candidate.dead and candidate.air and t.pos.distance_to(candidate.pos)<=d.range:
      target=candidate
@@ -344,7 +369,7 @@ func update_towers(dt:float) -> void:
   t.anim=0.25
   if t.kind==3:
    chain(t.pos,target.pos,d.damage,1+t.level,85.0)
-  elif t.kind==7:
+  elif t.kind in [7,10]:
    t.shots=int(t.get("shots",0))+1
    if t.shots%4==0:
     var hits=0
@@ -356,7 +381,9 @@ func update_towers(dt:float) -> void:
    else:
     fire(t.pos+Vector2(0,-24),target,d.damage,"arrow",true)
   else:
-   fire(t.pos+Vector2(0,-24),target,d.damage,["arrow","cannon","ice"][t.kind],d.air)
+   var shot_kind="arrow" if t.kind in [0,10] else "cannon" if t.kind==1 else "ice"
+   var shot_damage=d.damage*(2.0 if t.get("fury",0.0)>0.0 else 1.0)
+   fire(t.pos+Vector2(0,-24),target,shot_damage,shot_kind,d.air)
 
 func fire(point:Vector2,target:Dictionary,damage:float,kind:String,air:bool=true) -> void:
  if projectiles.size()>=256: return
@@ -511,7 +538,11 @@ func update_allies(dt:float) -> void:
     else: a.arcane_target=target.uid; a.arcane_hits=1
     if a.arcane_hits>=5:
      amount*=2.0; a.arcane_hits=0; burst(target.pos,"rune",28)
-   fire(a.pos+Vector2(0,-15),target,amount,"ice" if a.hero==4 else "magic" if a.hero==5 or a.hero==6 or a.kind=="summon" else "arrow",true)
+   var weapon_kind="ice" if a.hero==4 else "magic" if a.hero==5 or a.hero==6 or a.kind=="summon" else "arrow"
+   fire(a.pos+Vector2(-8,-15),target,amount*(2.0 if a.hero==12 and target.air else 1.0),weapon_kind,true)
+   if a.hero==12:
+    var second=target_at(a.pos+Vector2(20,0),a.range,true)
+    if second!=null and second.uid!=target.uid: fire(a.pos+Vector2(8,-15),second,amount*(2.0 if second.air else 1.0),"arrow",true)
   else:
    damage_enemy(target,amount)
    burst(target.pos,"slash",20)
@@ -562,11 +593,17 @@ func skill() -> bool:
    if target!=null:
     area_damage(target.pos,88.0,115.0,true)
     burst(target.pos,"rune",88.0)
+  12:
+   living[0].pos=CxCatalog.nearest_ground(map_index,point+Vector2(120,0))
+   hero_target=living[0].pos
+   area_damage(living[0].pos,125.0,420.0,true)
+   burst(living[0].pos,"shock",125.0)
  events.append({"type":"ice" if index==4 else "summon" if index==5 else "skill"})
  return true
 
 func cast(index:int,point:Vector2) -> bool:
  if index<0 or index>=spells.size() or index>=progression.spells.size() or progression.spells[index]<=0 or paused or state=="finished" or spells[index]>0.0: return false
+ if mode=="buildout" or (mode=="swarm12" and not allowed_spells.has(index)): return false
  var level=progression.spells[index]
  spells[index]=CxCatalog.SPELLS[index].cooldown*maxf(0.65,1.0-0.035*(level-1))
  if index==5:
@@ -596,6 +633,24 @@ func cast(index:int,point:Vector2) -> bool:
    barrier_reduction=0.4
    burst(Vector2(945,285),"barrier",100)
    events.append({"type":"barrier"})
+  6:
+   summon(point,3,26.0,-4,level,true)
+   for a in allies:
+    if a.owner==-4 and a.life>0.0: a.damage=42.0+8.0*(level-1); a.range=190.0; a.interval=1.0
+   events.append({"type":"summon"})
+  7:
+   summon(point,1,54.0,-5,level,false)
+   for a in allies:
+    if a.owner==-5 and a.life>0.0:
+     a.hp=720.0+80.0*(level-1); a.max_hp=a.hp; a.damage=18.0+4.0*(level-1); a.range=48.0; a.speed=42.0; a.air=false
+   events.append({"type":"summon"})
+  8:
+   for t in towers:
+    if t!=null and t.pos.distance_to(point)<=170.0: t.fury=12.0
+   burst(point,"rage",170)
+  9:
+   thorn_walls.append({"pos":CxCatalog.nearest_ground(map_index,point),"hp":520.0+80.0*(level-1),"life":18.0+2.0*(level-1)})
+   burst(point,"summon",70)
  return true
 
 func update_enemies(dt:float) -> void:
@@ -614,6 +669,17 @@ func update_enemies(dt:float) -> void:
   if e.boss:
    boss_update(e,dt)
   if e.freeze>0.0: continue
+  if not e.air:
+   var living_wall=null
+   for wall in thorn_walls:
+    if wall.life>0.0 and wall.hp>0.0 and e.pos.distance_to(wall.pos)<38.0:
+     living_wall=wall
+     break
+   if living_wall!=null:
+    if e.attack<=0.0:
+     living_wall.hp-=e.damage
+     e.attack=1.0
+    continue
   var block=null
   if not e.air:
    for a in allies:

@@ -37,9 +37,10 @@ var toast_time=0.0
 var song_boss=false
 var photo_callback:Variant=null
 var pointer_touch=false
+var swarm_spell_choices:Array=[0,1,2]
 var returning_from_settings="menu"
 var font=preload("res://assets/template/fonts/ui_regular.tres")
-const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png")]
+const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_guards.png")]
 
 func _ready() -> void:
  name="Castelionyx"
@@ -238,7 +239,7 @@ func show_menu() -> void:
  button(grid,"Modo Aventura",func(): show_setup("adventure"))
  button(grid,"Perfil",func(): show_profile(true))
  button(grid,"Estatísticas",show_stats)
- button(grid,"Eventos",show_events)
+ button(grid,"Desafios",show_events)
  button(grid,"Modos",show_modes)
  button(grid,"Configurações",func(): show_settings("menu"))
  label(col,"Defenda as rotas. Toque nos espaços de pedra para construir. Use o herói e os feitiços quando o cerco apertar.",16,Color("abc0b3"))
@@ -309,7 +310,7 @@ func show_collection(kind:String) -> void:
 
 func show_setup(mode:String) -> void:
  battle_mode=mode
- var setup_title="Modo Aventura" if mode=="adventure" else "Desafio dos Chefes" if mode=="boss" else "Sobrevivência Extrema" if mode=="extreme" else "Defesa infinita"
+ var setup_title="Modo Aventura" if mode=="adventure" else "Castelo de Um HP" if mode=="boss67" else "Construção até a Onda 101" if mode=="buildout" else "Enxame Duplicado" if mode=="swarm12" else "Desafio dos Chefes" if mode=="boss" else "Sobrevivência Extrema" if mode=="extreme" else "Defesa infinita"
  var col=begin_page("setup",setup_title,"Prepare as defesas antes de abrir os portões.")
  var option=OptionButton.new()
  option.custom_minimum_size.y=58
@@ -329,6 +330,24 @@ func show_setup(mode:String) -> void:
   var adventure_wins=int(persistence.data.stats.adventure_wins)
   var adventure_reward="1.000 gemas" if adventure_wins==0 else "6.742 gemas na próxima vitória (décima)" if adventure_wins==9 else "500 gemas nesta vitória"
   label(c,"Recompensa desta tentativa: "+adventure_reward+". A vitória exige derrotar o chefe e todos os reforços.",16,Color("e8c67f"))
+ elif mode=="boss67":
+  label(card(col),"Castelo com 1 HP. Apenas um chefe aparece por onda, em rotação. Sobreviva a 67 ondas para ganhar 6.700 gemas.",17,Color("e8c67f"))
+ elif mode=="buildout":
+  label(card(col),"Você recebe 1.000 moedas, sem herói e sem feitiços. Construa durante a preparação; depois de iniciar, só assistir, pausar ou 2x. Sobreviva a 101 ondas para ganhar 10.101 gemas. Estruturas têm +25% de alcance.",17,Color("e8c67f"))
+ elif mode=="swarm12":
+  label(card(col),"Use apenas o herói e três feitiços escolhidos. Só vêm Goblins, começando com 10 e dobrando a cada onda. Castelo com o dobro de HP; sobreviva a 12 ondas para ganhar 2.400 gemas.",17,Color("e8c67f"))
+  label(col,"Escolha exatamente três feitiços desbloqueados:",16)
+  for i in range(CxCatalog.SPELLS.size()):
+   var spell_check=CheckButton.new()
+   spell_check.text=CxCatalog.SPELLS[i].name
+   spell_check.button_pressed=swarm_spell_choices.has(i)
+   spell_check.disabled=persistence.data.spells[i]<=0 and not swarm_spell_choices.has(i)
+   spell_check.toggled.connect(func(pressed):
+    if pressed and swarm_spell_choices.size()<3: swarm_spell_choices.append(i)
+    elif not pressed: swarm_spell_choices.erase(i)
+    else: spell_check.button_pressed=false
+   )
+   col.add_child(spell_check)
  else:
   label(col,"Gemas da partida = ondas completas ÷ 10, arredondado para baixo. Chefes a cada dez ondas.",16)
   for d in CxCatalog.MODIFIERS:
@@ -358,6 +377,18 @@ func show_modes() -> void:
  var extreme_button=button(extreme,"JOGAR SOBREVIVÊNCIA EXTREMA",func(): show_setup("extreme"),true)
  extreme_button.disabled=persistence.data.player_level<24
  label(col,"Nível atual: %d · Os modos ficam bloqueados até a progressão real." % persistence.data.player_level,14,Color("b7c8bd"))
+ var one_hp=card(col)
+ label(one_hp,"Castelo de Um HP",22,Color("e8c67f"))
+ label(one_hp,"67 ondas, 1 HP, um chefe por onda e rotação de chefes novos. Recompensa: 6.700 gemas.",16)
+ button(one_hp,"JOGAR CASTELO DE UM HP",func(): show_setup("boss67"),true)
+ var buildout=card(col)
+ label(buildout,"Construção até a Onda 101",22,Color("e8c67f"))
+ label(buildout,"1.000 moedas antes do ataque, sem herói/feitiços, alcance das estruturas +25%. Depois do início, somente assistir, pausar e 2x. Recompensa: 10.101 gemas.",16)
+ button(buildout,"JOGAR CONSTRUÇÃO 101",func(): show_setup("buildout"),true)
+ var swarm=card(col)
+ label(swarm,"Enxame Duplicado",22,Color("e8c67f"))
+ label(swarm,"Um herói, três feitiços escolhidos, apenas Goblins, 10 inimigos iniciais dobrando por onda, HP do castelo em dobro e 12 ondas.",16)
+ button(swarm,"JOGAR ENXAME DUPLICADO",func(): show_setup("swarm12"),true)
  back(col)
 
 func launch(mode:String) -> void:
@@ -365,7 +396,9 @@ func launch(mode:String) -> void:
  var run_modifiers=modifiers.duplicate() if mode=="infinite" else []
  if mode=="boss": run_modifiers=["boss_challenge"]
  if mode=="extreme": run_modifiers=["reduced","economy","mutants","aerial","extreme"]
- battle=CxBattle.new(selected_map,"adventure" if mode=="adventure" else "infinite",run_modifiers,persistence.data)
+ var battle_kind="adventure" if mode=="adventure" else mode if mode in ["boss67","buildout","swarm12"] else "infinite"
+ battle=CxBattle.new(selected_map,battle_kind,run_modifiers,persistence.data)
+ if mode=="swarm12": battle.allowed_spells=swarm_spell_choices.duplicate()
  battle_mode=mode
  world.battle=battle
  world.reduced=not persistence.data.settings.quality
@@ -423,6 +456,7 @@ func show_battle_ui() -> void:
   b.expand_icon=true
   b.add_theme_font_size_override("font_size",14)
   b.custom_minimum_size.y=54
+  b.visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and i>2))
   spell_buttons.append(b)
  var action_row=GridContainer.new()
  action_row.columns=2
@@ -433,6 +467,7 @@ func show_battle_ui() -> void:
   else: notify("Habilidade indisponível.")
  )
  skill_button.add_theme_font_size_override("font_size",16)
+ skill_button.visible=battle.mode!="buildout"
  next_button=button(action_row,"Iniciar onda",func(): battle.start_wave())
  next_button.add_theme_font_size_override("font_size",16)
  layout_world()
@@ -479,15 +514,18 @@ func refresh_hud() -> void:
  boss_label.text="%s · FASE %d · VIDA %.0f/%.0f" % [boss.name,boss.phase,boss.hp,boss.max_hp] if boss!=null else "Sem herói nesta onda" if not battle.hero_allowed() else "Toque na rota para comandar seu herói"
  next_button.disabled=battle.state!="preparation"
  next_button.text="Iniciar onda %d" % [battle.wave+1] if battle.state=="preparation" else "Onda em combate"
+ if battle.mode=="buildout": next_button.visible=battle.state=="preparation"
  var living=battle.allies.filter(func(a): return a.kind=="hero" and a.hp>0)
  skill_button.disabled=battle.special_cd>0 or not battle.hero_allowed() or living.is_empty()
  skill_button.text="Habilidade · %ds" % int(ceil(battle.special_cd)) if battle.special_cd>0 else "Habilidade"
  for i in range(CxCatalog.SPELLS.size()):
+  spell_buttons[i].visible=not (battle.mode=="buildout" or (battle.mode=="swarm12" and i>2))
   spell_buttons[i].disabled=battle.spells[i]>0 or persistence.data.spells[i]<=0
   spell_buttons[i].text=CxCatalog.SPELLS[i].short+("\n%ds" % int(ceil(battle.spells[i])) if battle.spells[i]>0 else "")
 
 func choose_spell(index:int) -> void:
  if battle==null: return
+ if battle.mode=="buildout" or (battle.mode=="swarm12" and index>2): return
  if index in [2,5]:
   if battle.cast(index,Vector2(945,285)): notify(CxCatalog.SPELLS[index].name+" ativa por %.0fs" % battle.barrier)
   return

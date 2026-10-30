@@ -9,7 +9,7 @@ func _init() -> void:
  load_data()
 
 static func defaults() -> Dictionary:
- return {"version":4,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0],"spells":[1,0,0,0,0,0],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
+ return {"version":5,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0,0,0],"spells":[1,0,0,0,0,0,0,0,0,0],"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
 
 static func clean_number(value:Variant,fallback:float,minimum:float,maximum:float) -> float:
  if not (value is int or value is float): return fallback
@@ -26,7 +26,7 @@ static func validate(candidate:Variant) -> Dictionary:
  var result=defaults()
  if not candidate is Dictionary: return result
  var c:Dictionary=candidate
- if int(clean_number(c.get("version",1),1,0,100))>4: return result
+ if int(clean_number(c.get("version",1),1,0,100))>5: return result
  var profile=c.get("profile",{})
  if profile is Dictionary and not str(profile.get("name","")).strip_edges().is_empty():
   var saved_email=str(profile.get("email",profile.get("country",""))).strip_edges().left(120)
@@ -150,6 +150,9 @@ func record(result:Dictionary) -> int:
  if data.claimed.has(result.id): return 0
  var before=data.duplicate(true)
  var gems=int(result.completed/10) if result.mode=="infinite" else 0
+ if result.mode=="boss67" and result.victory: gems=6700
+ if result.mode=="buildout" and result.victory: gems=10101
+ if result.mode=="swarm12" and result.victory: gems=2400
  var adventure_attempt=int(data.stats.adventure_wins)
  if result.mode=="adventure" and result.victory:
   gems=1000 if adventure_attempt==0 else 6742 if adventure_attempt==9 else 500

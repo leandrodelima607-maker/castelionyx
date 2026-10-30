@@ -8,7 +8,10 @@ const HEROES = [
  {"id":"iron","name":"Cavaleiro de Ferro","sprite":4,"hp":450.0,"damage":28.0,"interval":1.45,"range":55.0,"speed":86.0,"air":false,"armor":0.55,"cost":6,"cooldown":18.0,"skill":"Golpe Sísmico","desc":"Muito resistente. Atrai terrestres próximos e os empurra com um golpe pesado."},
  {"id":"ice","name":"Mago Glacial","sprite":5,"hp":150.0,"damage":18.0,"interval":1.05,"range":165.0,"speed":105.0,"air":true,"armor":0.0,"cost":8,"cooldown":20.0,"skill":"Inverno Absoluto","desc":"Projéteis aplicam lentidão. O especial congela um grupo por tempo limitado."},
  {"id":"summoner","name":"Invocador","sprite":6,"hp":160.0,"damage":22.0,"interval":1.1,"range":165.0,"speed":100.0,"air":true,"armor":0.0,"cost":10,"cooldown":24.0,"skill":"Pacto Violeta","desc":"Invoca três aliados mágicos com vida própria e duração de 18 segundos."},
- {"id":"arcane_sentinel","name":"Sentinela Arcana","sprite":7,"hp":125.0,"damage":21.0,"interval":1.5,"range":220.0,"speed":92.0,"air":true,"armor":0.0,"cost":0,"cooldown":20.0,"skill":"Explosão Rúnica","desc":"Herói exclusivo: alcance longo, atinge terra e ar; a cada cinco ataques seguidos no mesmo alvo, duplica o próximo disparo. A Explosão Rúnica causa dano em área a cada 20 segundos."}
+ {"id":"arcane_sentinel","name":"Sentinela Arcana","sprite":7,"hp":125.0,"damage":21.0,"interval":1.5,"range":220.0,"speed":92.0,"air":true,"armor":0.0,"cost":0,"cooldown":20.0,"skill":"Explosão Rúnica","desc":"Herói exclusivo: alcance longo, atinge terra e ar; a cada cinco ataques seguidos no mesmo alvo, duplica o próximo disparo. A Explosão Rúnica causa dano em área a cada 20 segundos."},
+ {"id":"axe_reaver","name":"Ceifador dos Dois Machados","sprite":12,"hp":95.0,"damage":650.0,"interval":1.25,"range":190.0,"speed":165.0,"air":true,"armor":0.0,"cost":14,"cooldown":22.0,"skill":"Salto da Ruína","desc":"Rápido e frágil: lança dois machados que atingem terrestres e aéreos na ida e na volta, causando dano dobrado aos voadores. O especial salta e causa dano em área ao pousar."},
+ {"id":"beastmaster","name":"Mestre das Feras","sprite":3,"hp":210.0,"damage":36.0,"interval":1.0,"range":135.0,"speed":125.0,"air":false,"armor":0.18,"cost":16,"cooldown":19.0,"skill":"Lobo de Guerra","desc":"Luta junto de um lobo temporário que intercepta inimigos terrestres e retorna ao lado do mestre."},
+ {"id":"sun_oracle","name":"Oráculo Solar","sprite":6,"hp":135.0,"damage":44.0,"interval":1.3,"range":205.0,"speed":98.0,"air":true,"armor":0.0,"cost":18,"cooldown":25.0,"skill":"Raio Solar","desc":"Magia solar que marca o alvo mais perigoso e aumenta o dano recebido por alguns segundos."}
 ]
 const TOWERS = [
  {"id":"arrow","name":"Torre de Arqueiros","sprite":0,"cost":100,"hp":220.0,"damage":28.0,"interval":0.72,"range":155.0,"air":true,"desc":"Flechas rápidas; acerta terrestres e aéreos."},
@@ -19,7 +22,9 @@ const TOWERS = [
  {"id":"support","name":"Santuário de Suporte","sprite":5,"cost":160,"hp":230.0,"damage":0.0,"interval":1.0,"range":170.0,"air":false,"desc":"+25% de cadência e +15% de alcance nas defesas próximas. Não acumula."},
  {"id":"coin_generator","name":"Gerador de Moedas","sprite":5,"cost":13,"hp":180.0,"damage":0.0,"interval":4.0,"range":0.0,"air":false,"economic":true,"desc":"Estrutura econômica exclusiva: produz 1 moeda a cada 4 segundos."},
  {"id":"sky_ballista","name":"Balista Celeste","sprite":6,"cost":180,"hp":245.0,"damage":78.0,"interval":2.5,"range":235.0,"air":true,"exclusive":true,"desc":"Custa 180 moedas. Prioriza voadores; dano moderado em terra. Longo alcance, 2,5 s por disparo e perfuração de até três alvos alinhados a cada quatro disparos."},
- {"id":"gem_mine","name":"Mina de Gemas","sprite":7,"cost":250,"hp":210.0,"damage":0.0,"interval":60.0,"range":0.0,"air":false,"economic":true,"exclusive":true,"desc":"Estrutura exclusiva: produz 1 gema permanente a cada 60 segundos ativa."}
+ {"id":"gem_mine","name":"Mina de Gemas","sprite":7,"cost":250,"hp":210.0,"damage":0.0,"interval":60.0,"range":0.0,"air":false,"economic":true,"exclusive":true,"desc":"Estrutura exclusiva: produz 1 gema permanente a cada 60 segundos ativa."},
+ {"id":"thorn_wall","name":"Muralha de Espinhos","sprite":8,"cost":220,"hp":620.0,"damage":0.0,"interval":1.0,"range":0.0,"air":false,"desc":"Parede viva: não ataca, mas força inimigos terrestres a destruí-la antes de seguir."},
+ {"id":"longbow","name":"Torre do Arco Longo","sprite":9,"cost":240,"hp":240.0,"damage":92.0,"interval":2.2,"range":285.0,"air":true,"desc":"Alcance extremo e flechas perfurantes contra alvos aéreos e terrestres."}
 ]
 const SPELLS = [
  {"id":"meteor","name":"Meteoros","short":"Meteoro","cooldown":30.0,"duration":1.0,"desc":"Marque uma área: 3 meteoros causam dano em área após 0,8s."},
@@ -27,7 +32,11 @@ const SPELLS = [
  {"id":"barrier","name":"Barreira Real","short":"Barreira","cooldown":35.0,"duration":9.0,"desc":"Reduz 80% do dano ao castelo durante 9s."},
  {"id":"chain","name":"Corrente Elétrica","short":"Raio","cooldown":22.0,"duration":0.5,"desc":"Atinge até 5–7 alvos conectados, com dano real por salto."},
  {"id":"guards","name":"Invocação Emergencial","short":"Guardas","cooldown":32.0,"duration":20.0,"desc":"Três guardas com escudo quebrável, vida própria e duração de 20s."},
- {"id":"barrier_realm","name":"Barreira do Reino","short":"Reino","cooldown":45.0,"duration":6.0,"cost":120,"exclusive":true,"desc":"Feitiço exclusivo: reduz em 60% o dano ao castelo por 6 segundos."}
+ {"id":"barrier_realm","name":"Barreira do Reino","short":"Reino","cooldown":45.0,"duration":6.0,"cost":120,"exclusive":true,"desc":"Feitiço exclusivo: reduz em 60% o dano ao castelo por 6 segundos."},
+ {"id":"archer_call","name":"Companhia de Arqueiros","short":"Arqueiros","cooldown":28.0,"duration":26.0,"cost":350,"desc":"Invoca três arqueiros temporários que disparam contra terra e ar."},
+ {"id":"stone_golem","name":"Golem de Pedra","short":"Golem","cooldown":34.0,"duration":54.0,"cost":850,"desc":"Invoca um golem terrestre de muito HP, pouco dano e duração máxima de 54 segundos."},
+ {"id":"battle_fury","name":"Fúria de Batalha","short":"Fúria","cooldown":38.0,"duration":12.0,"cost":620,"desc":"Dobra temporariamente o dano das construções na área marcada."},
+ {"id":"thorn_growth","name":"Parede de Mato","short":"Mato","cooldown":42.0,"duration":18.0,"cost":780,"desc":"Cria uma barreira viva temporária que inimigos terrestres precisam destruir."}
 ]
 const ENEMIES = [
  {"id":"common","name":"Goblin","sprite":0,"hp":46.0,"speed":48.0,"damage":9.0,"reward":12,"armor":0.0,"air":false},
@@ -43,7 +52,10 @@ const BOSSES = [
  {"id":"barbarian","name":"Rei Bárbaro","sprite":8,"hp":1100.0,"speed":24.0,"damage":65.0,"reward":180,"armor":0.18,"air":false},
  {"id":"dragon","name":"Dragão Cinzento","sprite":9,"hp":1200.0,"speed":31.0,"damage":70.0,"reward":210,"armor":0.12,"air":true},
  {"id":"titan","name":"Titã de Ferro","sprite":10,"hp":1650.0,"speed":18.0,"damage":100.0,"reward":250,"armor":0.38,"air":false},
- {"id":"necro","name":"Necromante","sprite":11,"hp":1300.0,"speed":22.0,"damage":65.0,"reward":260,"armor":0.1,"air":false}
+ {"id":"necro","name":"Necromante","sprite":11,"hp":1300.0,"speed":22.0,"damage":65.0,"reward":260,"armor":0.1,"air":false},
+ {"id":"storm_queen","name":"Rainha da Tempestade","sprite":12,"hp":1450.0,"speed":27.0,"damage":82.0,"reward":300,"armor":0.08,"air":true},
+ {"id":"crystal_colossus","name":"Colosso de Cristal","sprite":13,"hp":2200.0,"speed":15.0,"damage":125.0,"reward":340,"armor":0.42,"air":false},
+ {"id":"sky_wyrm","name":"Serpe do Firmamento","sprite":14,"hp":1800.0,"speed":38.0,"damage":95.0,"reward":380,"armor":0.18,"air":true}
 ]
 const MAPS = [
  {"id":"serpent","name":"Caminho da Serpente","tag":"ROTAS SINUOSAS","desc":"Curvas longas e muitos pontos de defesa. Equilibrado para começar.","ground":[[Vector2(-35,160),Vector2(160,160),Vector2(160,325),Vector2(375,325),Vector2(375,155),Vector2(595,155),Vector2(595,405),Vector2(815,405),Vector2(815,285),Vector2(945,285)]],"air":[Vector2(-35,70),Vector2(340,240),Vector2(660,80),Vector2(945,285)],"pads":[Vector2(95,235),Vector2(230,230),Vector2(280,405),Vector2(305,135),Vector2(470,235),Vector2(535,350),Vector2(685,230),Vector2(735,475),Vector2(760,305),Vector2(890,385)]},
@@ -80,7 +92,7 @@ static func upgrade_cost(tower_index:int,level:int) -> int:
  return int(TOWERS[tower_index].cost*(0.75+0.4*level))
 
 static func purchase_cost(kind:String,index:int,level:int=0) -> int:
- if kind=="spells": return mini(500,[300,350,400,450,475,500][clampi(index,0,5)] + level*50)
+ if kind=="spells": return mini(1200,[300,350,400,450,475,500,350,850,620,780][clampi(index,0,9)] + level*50)
  return clampi(int(round(3600.0*pow(1.17,level)*pow(1.22,index))),3600,88000)
 
 static func path_length(points:Array) -> float:

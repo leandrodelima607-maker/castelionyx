@@ -40,10 +40,12 @@ func atlas(kind:String,index:int) -> AtlasTexture:
  if sprite_cache.has(key): return sprite_cache[key]
  var texture=HERO_TEXTURE if kind=="hero" else ENEMY_TEXTURE if kind=="enemy" else BUILDING_TEXTURE
  var rows=3 if kind=="enemy" else 2
+ var columns=4
+ var safe_index=index% (columns*rows)
  var cell=Vector2(float(texture.get_width())/4.0,float(texture.get_height())/rows)
  var item=AtlasTexture.new()
  item.atlas=texture
- item.region=Rect2(Vector2(index%4,int(index/4.0))*cell,cell)
+ item.region=Rect2(Vector2(safe_index%columns,int(safe_index/columns))*cell,cell)
  sprite_cache[key]=item
  return item
 
