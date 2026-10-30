@@ -8,7 +8,7 @@ const HEROES = [
  {"id":"iron","name":"Cavaleiro de Ferro","sprite":4,"hp":450.0,"damage":28.0,"interval":1.45,"range":55.0,"speed":86.0,"air":false,"armor":0.55,"cost":6,"cooldown":18.0,"skill":"Golpe Sísmico","desc":"Muito resistente. Atrai terrestres próximos e os empurra com um golpe pesado."},
  {"id":"ice","name":"Mago Glacial","sprite":5,"hp":150.0,"damage":18.0,"interval":1.05,"range":165.0,"speed":105.0,"air":true,"armor":0.0,"cost":8,"cooldown":20.0,"skill":"Inverno Absoluto","desc":"Projéteis aplicam lentidão. O especial congela um grupo por tempo limitado."},
  {"id":"summoner","name":"Invocador","sprite":6,"hp":160.0,"damage":22.0,"interval":1.1,"range":165.0,"speed":100.0,"air":true,"armor":0.0,"cost":10,"cooldown":24.0,"skill":"Pacto Violeta","desc":"Invoca três aliados mágicos com vida própria e duração de 18 segundos."},
- {"id":"arcane_sentinel","name":"Sentinela Arcana","sprite":7,"hp":125.0,"damage":21.0,"interval":1.5,"range":220.0,"speed":92.0,"air":true,"armor":0.0,"cost":0,"cooldown":20.0,"skill":"Explosão Rúnica","desc":"Herói exclusivo: atinge terra e ar; a cada cinco ataques no mesmo alvo, duplica o próximo disparo."}
+ {"id":"arcane_sentinel","name":"Sentinela Arcana","sprite":7,"hp":125.0,"damage":21.0,"interval":1.5,"range":220.0,"speed":92.0,"air":true,"armor":0.0,"cost":0,"cooldown":20.0,"skill":"Explosão Rúnica","desc":"Herói exclusivo: alcance longo, atinge terra e ar; a cada cinco ataques seguidos no mesmo alvo, duplica o próximo disparo. A Explosão Rúnica causa dano em área a cada 20 segundos."}
 ]
 const TOWERS = [
  {"id":"arrow","name":"Torre de Arqueiros","sprite":0,"cost":100,"hp":220.0,"damage":28.0,"interval":0.72,"range":155.0,"air":true,"desc":"Flechas rápidas; acerta terrestres e aéreos."},
@@ -18,7 +18,7 @@ const TOWERS = [
  {"id":"barracks","name":"Quartel","sprite":4,"cost":120,"hp":300.0,"damage":13.0,"interval":7.0,"range":145.0,"air":false,"desc":"Produz até 2–4 cavaleiros vivos que interceptam terrestres."},
  {"id":"support","name":"Santuário de Suporte","sprite":5,"cost":160,"hp":230.0,"damage":0.0,"interval":1.0,"range":170.0,"air":false,"desc":"+25% de cadência e +15% de alcance nas defesas próximas. Não acumula."},
  {"id":"coin_generator","name":"Gerador de Moedas","sprite":5,"cost":13,"hp":180.0,"damage":0.0,"interval":4.0,"range":0.0,"air":false,"economic":true,"desc":"Estrutura econômica exclusiva: produz 1 moeda a cada 4 segundos."},
- {"id":"sky_ballista","name":"Balista Celeste","sprite":6,"cost":180,"hp":245.0,"damage":78.0,"interval":2.5,"range":235.0,"air":true,"exclusive":true,"desc":"Estrutura exclusiva: prioriza voadores e perfura até três alvos a cada quatro disparos."},
+ {"id":"sky_ballista","name":"Balista Celeste","sprite":6,"cost":180,"hp":245.0,"damage":78.0,"interval":2.5,"range":235.0,"air":true,"exclusive":true,"desc":"Custa 180 moedas. Prioriza voadores; dano moderado em terra. Longo alcance, 2,5 s por disparo e perfuração de até três alvos alinhados a cada quatro disparos."},
  {"id":"gem_mine","name":"Mina de Gemas","sprite":7,"cost":250,"hp":210.0,"damage":0.0,"interval":60.0,"range":0.0,"air":false,"economic":true,"exclusive":true,"desc":"Estrutura exclusiva: produz 1 gema permanente a cada 60 segundos ativa."}
 ]
 const SPELLS = [
@@ -73,14 +73,14 @@ static func tower(index:int,level:int=1,persistent:int=1) -> Dictionary:
  d.hp *= 1.0+0.25*(level-1)
  d.damage *= (1.0+0.48*(level-1))*(1.0+0.06*(persistent-1))
  d.range += 10.0*(level-1)
- d.interval *= maxf(0.7,1.0-0.1*(level-1))
+ if index!=7: d.interval *= maxf(0.7,1.0-0.1*(level-1))
  return d
 
 static func upgrade_cost(tower_index:int,level:int) -> int:
  return int(TOWERS[tower_index].cost*(0.75+0.4*level))
 
 static func purchase_cost(kind:String,index:int,level:int=0) -> int:
- if kind=="spells": return [300,350,400,450,500,500][clampi(index,0,5)] + level*80
+ if kind=="spells": return mini(500,[300,350,400,450,475,500][clampi(index,0,5)] + level*50)
  return clampi(int(round(3600.0*pow(1.17,level)*pow(1.22,index))),3600,88000)
 
 static func path_length(points:Array) -> float:
