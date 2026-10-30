@@ -42,6 +42,7 @@ static func validate(candidate:Variant) -> Dictionary:
    for i in range(mini(values.size(),result[key].size())):
     result[key][i]=int(clean_number(values[i],result[key][i],0 if key=="heroes" or (key=="towers" and i==6) else 1,10))
  result.heroes[0]=maxi(1,result.heroes[0])
+ if int(c.get("version",1))<5 and result.spells.size()>4: result.spells[4]=1
  result.selected=int(clean_number(c.get("selected",0),0,0,result.heroes.size()-1))
  if result.heroes[result.selected]<1: result.selected=0
  var selected_heroes=c.get("selected_heroes",[result.selected,-1])
