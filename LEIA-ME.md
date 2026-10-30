@@ -49,6 +49,12 @@ O **Enxame Duplicado** agora tem um seletor de herói próprio, aplica a escolha
 
 O **Ninho do Falcão** custa 1.700 moedas e libera um falcão a cada cinco segundos. Os falcões são aliados aéreos permanentes, atacam inimigos terrestres e aéreos e não desaparecem pelo tempo de vida. A **Torre do Arco Longo** tem alcance extremo, ataque muito rápido e dano baixo. O Ceifador, o Mestre das Feras e o Oráculo Solar possuem silhuetas pixel-art distintas no campo: machados duplos, lobo de guerra e halo/bastão solar, sem depender do mesmo recorte visual do atlas.
 
+## Auditoria visual da versão atual
+
+O renderer não usa mais o recorte modular do atlas para representar heróis, inimigos, chefes e estruturas em campo. Cada categoria tem um desenhista pixel-art próprio com silhueta, paleta e acessórios por identidade: escudos e capas para o Guardião, arco luminoso para o Arqueiro, dois corpos cromáticos para os Gêmeos, placas e ombreiras para o Cavaleiro de Ferro, cristal e cajado para o Mago, foco violeta para o Invocador, runas para a Sentinela, machados para o Ceifador, lobo para o Mestre e halo para o Oráculo. Inimigos comuns, corredores, brutos, voadores, artilheiros, regeneradores, mutantes e esqueletos também têm marcas distintas; os sete chefes usam coroas, asas, placas, grimórios, raios, cristais ou carapaças próprios.
+
+As doze estruturas receberam leitura visual separada: flechas, impacto, cristal, arco elétrico, torres do quartel, foco de suporte, moedas, balista, gema, espinhos, arco longo e ninho. O castelo também tem uma silhueta independente. Os dez ícones de feitiços foram substituídos por símbolos pixel-art próprios de meteoro, gelo, barreira, corrente, guardas, reino, arqueiros, golem, fúria e mato. A coleção e o HUD usam os mesmos princípios visuais para não apresentar uma identidade no menu e outra no campo.
+
 ## Economia e modos
 
 Heróis, estruturas e feitiços não começam todos desbloqueados. O Guardião, as duas primeiras estruturas e o Meteoro são a base; os demais itens compráveis usam custos progressivos de 3.600 a 88.000 gemas para heróis/estruturas e 300 a 500 gemas para feitiços. Recompensas de eventos são separadas das compras e não podem ser compradas por engano. O menu **Modos** inclui Desafio dos Chefes (chefes adicionais a cada cinco ondas) e Sobrevivência Extrema (economia limitada, mutantes, cerco aéreo, espaços reduzidos e inimigos reforçados), com níveis mínimos aplicados de verdade.

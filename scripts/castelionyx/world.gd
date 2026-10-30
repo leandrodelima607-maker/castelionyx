@@ -161,9 +161,19 @@ func _draw() -> void:
  draw_set_transform(Vector2.ZERO)
 
 func draw_atlas_in_world(kind:String,index:int,point:Vector2,height:float,tint:Color,s:float,offset:Vector2,turn:float=0.0) -> void:
- if kind=="hero" and index>=7:
+ if kind=="hero":
   draw_set_transform(offset+point*s,turn,Vector2(s,s))
-  draw_unique_hero(index,height,tint)
+  draw_hero_art(index,height,tint)
+  draw_set_transform(offset,0,Vector2(s,s))
+  return
+ if kind=="enemy":
+  draw_set_transform(offset+point*s,turn,Vector2(s,s))
+  draw_enemy_art(index,height,tint)
+  draw_set_transform(offset,0,Vector2(s,s))
+  return
+ if kind=="building":
+  draw_set_transform(offset+point*s,turn,Vector2(s,s))
+  draw_building_art(index,height,tint)
   draw_set_transform(offset,0,Vector2(s,s))
   return
  var texture=atlas(kind,index)
@@ -172,17 +182,41 @@ func draw_atlas_in_world(kind:String,index:int,point:Vector2,height:float,tint:C
  draw_texture_rect(texture,Rect2(Vector2(-width/2,-height),Vector2(width,height)),false,tint)
  draw_set_transform(offset,0,Vector2(s,s))
 
-func draw_unique_hero(index:int,height:float,tint:Color) -> void:
+func draw_hero_art(index:int,height:float,tint:Color) -> void:
  var scale_value=height/50.0
- var body=Color("b94e45") if index==7 else Color("4f8f67") if index==8 else Color("d29b4e")
- var accent=Color("f0b34f") if index==7 else Color("b9d978") if index==8 else Color("f6df86")
+ var bodies=[Color("315c73"),Color("2f7b76"),Color("b74d3f"),Color("c66b35"),Color("59616a"),Color("435a88"),Color("6a3d86"),Color("a84543"),Color("4f8f67"),Color("d29b4e")]
+ var accents=[Color("b9e3ee"),Color("9de9d0"),Color("f1a15c"),Color("f3c46c"),Color("c3ccd3"),Color("a7c8ff"),Color("d8a8f0"),Color("f0b34f"),Color("b9d978"),Color("f6df86")]
+ var body=bodies[clampi(index,0,bodies.size()-1)]
+ var accent=accents[clampi(index,0,accents.size()-1)]
+ if tint!=Color.WHITE: body=body.lightened(0.25)
  draw_rect(Rect2(Vector2(-10,-30)*scale_value,Vector2(20,24)*scale_value),body)
  draw_rect(Rect2(Vector2(-8,-42)*scale_value,Vector2(16,12)*scale_value),Color("d7b18a"))
  draw_rect(Rect2(Vector2(-6,-39)*scale_value,Vector2(3,3)*scale_value),Color("19272b"))
  draw_rect(Rect2(Vector2(3,-39)*scale_value,Vector2(3,3)*scale_value),Color("19272b"))
  draw_rect(Rect2(Vector2(-14,-27)*scale_value,Vector2(4,17)*scale_value),accent)
  draw_rect(Rect2(Vector2(10,-27)*scale_value,Vector2(4,17)*scale_value),accent)
- if index==7:
+ if index==0:
+  draw_rect(Rect2(Vector2(-15,-30)*scale_value,Vector2(30,5)*scale_value),Color("d6e0e5"))
+  draw_rect(Rect2(Vector2(-4,-50)*scale_value,Vector2(8,9)*scale_value),accent)
+ elif index==1:
+  draw_rect(Rect2(Vector2(-3,-54)*scale_value,Vector2(6,21)*scale_value),accent)
+  draw_colored_polygon(PackedVector2Array([Vector2(0,-54),Vector2(-7,-44),Vector2(7,-44)]),accent)
+ elif index==2:
+  draw_rect(Rect2(Vector2(-18,-24)*scale_value,Vector2(7,16)*scale_value),Color("d94f4c"))
+  draw_rect(Rect2(Vector2(11,-24)*scale_value,Vector2(7,16)*scale_value),Color("f08b38"))
+ elif index==3:
+  draw_rect(Rect2(Vector2(-15,-28)*scale_value,Vector2(30,5)*scale_value),Color("dbe1e0"))
+  draw_rect(Rect2(Vector2(13,-39)*scale_value,Vector2(4,28)*scale_value),accent)
+ elif index==4:
+  draw_rect(Rect2(Vector2(-15,-27)*scale_value,Vector2(30,7)*scale_value),Color("c8d0d6"))
+  draw_rect(Rect2(Vector2(-4,-50)*scale_value,Vector2(8,10)*scale_value),Color("8bd2e8"))
+ elif index==5:
+  draw_rect(Rect2(Vector2(13,-41)*scale_value,Vector2(3,34)*scale_value),accent)
+  draw_circle(Vector2(14,-45)*scale_value,7*scale_value,Color("c7ddff"))
+ elif index==6:
+  draw_rect(Rect2(Vector2(12,-42)*scale_value,Vector2(4,35)*scale_value),accent)
+  draw_circle(Vector2(14,-46)*scale_value,6*scale_value,Color("c987e3"))
+ elif index==7:
   draw_rect(Rect2(Vector2(-22,-30)*scale_value,Vector2(8,3)*scale_value),accent)
   draw_rect(Rect2(Vector2(14,-30)*scale_value,Vector2(8,3)*scale_value),accent)
   draw_rect(Rect2(Vector2(-20,-34)*scale_value,Vector2(3,9)*scale_value),Color("7f352f"))
@@ -195,6 +229,80 @@ func draw_unique_hero(index:int,height:float,tint:Color) -> void:
   draw_rect(Rect2(Vector2(13,-38)*scale_value,Vector2(3,30)*scale_value),accent)
  draw_rect(Rect2(Vector2(-9,-6)*scale_value,Vector2(7,8)*scale_value),Color("263943"))
  draw_rect(Rect2(Vector2(2,-6)*scale_value,Vector2(7,8)*scale_value),Color("263943"))
+
+func draw_enemy_art(index:int,height:float,tint:Color) -> void:
+ var k=height/44.0
+ var colors=[Color("8c453e"),Color("d4a137"),Color("6d7379"),Color("7897ae"),Color("875b45"),Color("6e9c58"),Color("8d4e9a"),Color("c8d4d8"),Color("8f3f36"),Color("8799a8"),Color("59636e"),Color("583d75"),Color("8b5db8"),Color("69b7c3"),Color("a9d5e0")]
+ var accent=[Color("f1b95b"),Color("f3e39a"),Color("aab4bb"),Color("d9f4ff"),Color("e5a46b"),Color("b9e37b"),Color("d590e5"),Color("edf5f2"),Color("f07d5d"),Color("d7edff"),Color("bbc8d3"),Color("c18be9"),Color("e1b5ff"),Color("a9f5f0"),Color("e7fbff")]
+ var body=colors[clampi(index,0,colors.size()-1)]
+ var trim=accent[clampi(index,0,accent.size()-1)]
+ if tint!=Color.WHITE: body=body.lightened(0.25)
+ var boss=index>=8
+ draw_rect(Rect2(Vector2(-11,-28)*k,Vector2(22,22)*k),body)
+ draw_rect(Rect2(Vector2(-8,-39)*k,Vector2(16,11)*k),Color("b77c5c") if not boss else body.darkened(0.18))
+ draw_rect(Rect2(Vector2(-5,-36)*k,Vector2(3,3)*k),Color("241c27"))
+ draw_rect(Rect2(Vector2(3,-36)*k,Vector2(3,3)*k),Color("241c27"))
+ if index==0: draw_rect(Rect2(Vector2(-16,-25)*k,Vector2(5,10)*k),trim)
+ elif index==1: draw_rect(Rect2(Vector2(-15,-15)*k,Vector2(30,4)*k),trim)
+ elif index==2: draw_rect(Rect2(Vector2(-16,-33)*k,Vector2(32,5)*k),trim)
+ elif index==3:
+  draw_colored_polygon(PackedVector2Array([Vector2(-25,-25),Vector2(-9,-15),Vector2(-18,-5)]),trim)
+  draw_colored_polygon(PackedVector2Array([Vector2(25,-25),Vector2(9,-15),Vector2(18,-5)]),trim)
+ elif index==4: draw_rect(Rect2(Vector2(12,-32)*k,Vector2(4,21)*k),trim)
+ elif index==5: draw_rect(Rect2(Vector2(14,-33)*k,Vector2(4,15)*k),trim)
+ elif index==6:
+  draw_rect(Rect2(Vector2(-15,-30)*k,Vector2(5,17)*k),trim); draw_rect(Rect2(Vector2(10,-30)*k,Vector2(5,17)*k),trim)
+ elif index==7:
+  draw_rect(Rect2(Vector2(-9,-42)*k,Vector2(18,4)*k),trim); draw_rect(Rect2(Vector2(-4,-46)*k,Vector2(8,4)*k),trim)
+ elif index==8:
+  draw_colored_polygon(PackedVector2Array([Vector2(-11,-39),Vector2(-22,-55),Vector2(-5,-47)]),trim); draw_colored_polygon(PackedVector2Array([Vector2(11,-39),Vector2(22,-55),Vector2(5,-47)]),trim)
+ elif index==9: draw_arc(Vector2(0,-32)*k,18*k,PI,TAU,10,trim,4*k)
+ elif index==10: draw_rect(Rect2(Vector2(-16,-20)*k,Vector2(32,7)*k),trim)
+ elif index==11: draw_circle(Vector2(0,-46)*k,8*k,trim); draw_rect(Rect2(Vector2(-3,-40)*k,Vector2(6,20)*k),trim)
+ elif index==12: draw_rect(Rect2(Vector2(-18,-27)*k,Vector2(36,4)*k),trim); draw_rect(Rect2(Vector2(-4,-48)*k,Vector2(8,9)*k),trim)
+ elif index==13: draw_colored_polygon(PackedVector2Array([Vector2(-14,-39),Vector2(-4,-55),Vector2(0,-39)]),trim); draw_colored_polygon(PackedVector2Array([Vector2(14,-39),Vector2(4,-55),Vector2(0,-39)]),trim)
+ elif index==14: draw_arc(Vector2(0,-43)*k,12*k,0,TAU,12,trim,3*k)
+ if boss: draw_rect(Rect2(Vector2(-5,-5)*k,Vector2(10,8)*k),Color("252d38"))
+
+func draw_building_art(index:int,height:float,tint:Color) -> void:
+ var k=height/75.0
+ var stone=Color("596b68") if tint==Color.WHITE else Color("a9beb0")
+ var roof=[Color("c96d55"),Color("7b8794"),Color("82c1d1"),Color("a58bd0"),Color("b9a46c"),Color("78a878"),Color("c69a55"),Color("83b8d1"),Color("9d664d"),Color("cc9a54"),Color("7d9b67"),Color("7c9eae")][clampi(index,0,11)]
+ if height>120.0:
+  draw_rect(Rect2(Vector2(-42,-56)*k,Vector2(84,56)*k),Color("546168"))
+  draw_rect(Rect2(Vector2(-55,-82)*k,Vector2(25,82)*k),Color("68777b"))
+  draw_rect(Rect2(Vector2(30,-82)*k,Vector2(25,82)*k),Color("68777b"))
+  draw_rect(Rect2(Vector2(-63,-91)*k,Vector2(41,10)*k),Color("c98b52"))
+  draw_rect(Rect2(Vector2(22,-91)*k,Vector2(41,10)*k),Color("c98b52"))
+  draw_rect(Rect2(Vector2(-8,-48)*k,Vector2(16,48)*k),Color("2a3b42"))
+  draw_rect(Rect2(Vector2(-4,-75)*k,Vector2(8,8)*k),Color("e7c76e"))
+  return
+ draw_rect(Rect2(Vector2(-24,-29)*k,Vector2(48,29)*k),stone)
+ draw_rect(Rect2(Vector2(-20,-36)*k,Vector2(40,9)*k),roof)
+ if index==0:
+  draw_rect(Rect2(Vector2(-4,-58)*k,Vector2(8,23)*k),roof); draw_colored_polygon(PackedVector2Array([Vector2(0,-65),Vector2(-12,-52),Vector2(12,-52)]),roof)
+ elif index==1:
+  draw_circle(Vector2(0,-48)*k,13*k,Color("d99a63")); draw_rect(Rect2(Vector2(-6,-58)*k,Vector2(12,20)*k),Color("4c3b3b"))
+ elif index==2:
+  draw_rect(Rect2(Vector2(-5,-60)*k,Vector2(10,24)*k),Color("a5e5f2")); draw_rect(Rect2(Vector2(-15,-50)*k,Vector2(30,5)*k),roof)
+ elif index==3:
+  draw_arc(Vector2(0,-47)*k,17*k,0,TAU,10,Color("d8c7ff"),5*k); draw_rect(Rect2(Vector2(-3,-67)*k,Vector2(6,22)*k),roof)
+ elif index==4:
+  draw_rect(Rect2(Vector2(-18,-55)*k,Vector2(8,28)*k),roof); draw_rect(Rect2(Vector2(10,-55)*k,Vector2(8,28)*k),roof); draw_line(Vector2(-14,-55)*k,Vector2(14,-55)*k,Color("d7d9c6"),4*k)
+ elif index==5:
+  draw_rect(Rect2(Vector2(-3,-66)*k,Vector2(6,38)*k),roof); draw_circle(Vector2(0,-67)*k,10*k,Color("f1d783"))
+ elif index==6:
+  draw_rect(Rect2(Vector2(-6,-62)*k,Vector2(12,31)*k),roof); draw_rect(Rect2(Vector2(-14,-52)*k,Vector2(28,5)*k),Color("f3d280"))
+ elif index==7:
+  draw_rect(Rect2(Vector2(-4,-74)*k,Vector2(8,44)*k),roof); draw_colored_polygon(PackedVector2Array([Vector2(0,-79),Vector2(-16,-65),Vector2(16,-65)]),roof)
+ elif index==8:
+  draw_rect(Rect2(Vector2(-19,-48)*k,Vector2(38,9)*k),roof); draw_rect(Rect2(Vector2(-12,-62)*k,Vector2(7,24)*k),roof); draw_rect(Rect2(Vector2(5,-62)*k,Vector2(7,24)*k),roof)
+ elif index==9:
+  draw_rect(Rect2(Vector2(-2,-76)*k,Vector2(4,50)*k),roof); draw_rect(Rect2(Vector2(-15,-55)*k,Vector2(30,4)*k),roof)
+ elif index==10:
+  draw_rect(Rect2(Vector2(-15,-52)*k,Vector2(30,8)*k),roof); draw_colored_polygon(PackedVector2Array([Vector2(0,-69),Vector2(-13,-53),Vector2(13,-53)]),roof)
+ elif index==11:
+  draw_rect(Rect2(Vector2(-18,-60)*k,Vector2(36,5)*k),roof); draw_rect(Rect2(Vector2(-6,-73)*k,Vector2(12,22)*k),roof); draw_circle(Vector2(0,-78)*k,8*k,Color("e8d48a"))
 
 func draw_map() -> void:
  var index=battle.map_index

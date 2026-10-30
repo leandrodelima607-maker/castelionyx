@@ -43,6 +43,8 @@ var tutorial_step=0
 var returning_from_settings="menu"
 var font=preload("res://assets/template/fonts/ui_regular.tres")
 const SPELL_ICONS=[preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_ice.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_lightning.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_guards.png"),preload("res://assets/combat/spell_barrier.png"),preload("res://assets/combat/spell_meteor.png"),preload("res://assets/combat/spell_guards.png")]
+const SPELL_ICON_SCENE=preload("res://scripts/castelionyx/spell_icon.gd")
+const ENTITY_ICON_SCENE=preload("res://scripts/castelionyx/entity_icon.gd")
 
 func _ready() -> void:
  name="Castelionyx"
@@ -171,24 +173,18 @@ func card(parent:Node) -> VBoxContainer:
  panel.add_child(content)
  return content
 
-func art(parent:Node,kind:String,index:int,height:float=90.0) -> TextureRect:
- var image=TextureRect.new()
- image.texture=world.atlas(kind,index)
+func art(parent:Node,kind:String,index:int,height:float=90.0) -> Control:
+ var image=ENTITY_ICON_SCENE.new()
+ image.setup(kind,index,height)
  image.custom_minimum_size=Vector2(height,height)
- image.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
- image.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
- image.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
  image.mouse_filter=Control.MOUSE_FILTER_IGNORE
  parent.add_child(image)
  return image
 
-func spell_art(parent:Node,index:int,height:float=64.0) -> TextureRect:
- var image=TextureRect.new()
- image.texture=SPELL_ICONS[clampi(index,0,SPELL_ICONS.size()-1)]
+func spell_art(parent:Node,index:int,height:float=64.0) -> Control:
+ var image=SPELL_ICON_SCENE.new()
+ image.setup(index)
  image.custom_minimum_size=Vector2(height,height)
- image.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
- image.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
- image.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
  image.mouse_filter=Control.MOUSE_FILTER_IGNORE
  parent.add_child(image)
  return image
@@ -224,7 +220,14 @@ func show_menu() -> void:
   var image=Image.new()
   var loaded=image.load_png_from_buffer(bytes) if photo.begins_with("data:image/png") else image.load_jpg_from_buffer(bytes)
   if loaded==OK and image.get_width()<=512 and image.get_height()<=512:
-   avatar_view.texture=ImageTexture.create_from_image(image)
+   avatar_view.visible=false
+   var photo_view=TextureRect.new()
+   photo_view.texture=ImageTexture.create_from_image(image)
+   photo_view.custom_minimum_size=Vector2(64,64)
+   photo_view.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+   photo_view.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+   photo_view.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
+   header.add_child(photo_view)
  var texts=VBoxContainer.new()
  texts.size_flags_horizontal=Control.SIZE_EXPAND_FILL
  header.add_child(texts)
