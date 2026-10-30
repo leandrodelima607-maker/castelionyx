@@ -12,7 +12,7 @@
 - [x] Evoluções permanentes 0–4; feitiços de 300–500 gemas e heróis/estruturas a partir de 3.600; nível do jogador apenas por ondas do Infinito; modos dos níveis 5/24 com estatísticas separadas.
 - [x] Aventura com ondas e chefe final mais difíceis, cinco espaços e apenas Torre de Arqueiros/Canhão; eventos e regras dos outros modos permanecem separados.
 - [x] Campo de país substituído por e-mail com validação. Perfil/progresso seguem locais; não existe sincronização nem recuperação remota sem autenticação/backend.
-- [x] A faixa de derrota especial já contém “É inútil, você deve desistir” com uma pausa de aproximadamente 0,5 s após “inútil”. As demais linhas foram preservadas; nenhum áudio novo nem palavras extras foram adicionados.
+- [x] A faixa de derrota especial contém a troca “é inútil...você deve desistir” com uma pausa curta após “inútil”. O restante da música foi preservado; não foram acrescentadas palavras a esse trecho.
 - [x] Economia Limitada começa com 70% do saldo padrão arredondado para a moeda inteira mais próxima (425 × 70% = 297,5, arredondados para 298); o bônus de onda aplica o fator 70% e o pagamento de abate continua fixo em 50.
 - [x] `tools/castelionyx/check.gd`: **242 passaram, 0 falharam** no projeto temporário isolado. Cena de UI real carregou por três frames sem erro de parser/runtime. `git diff --check` sem erros.
 
