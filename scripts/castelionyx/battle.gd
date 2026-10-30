@@ -194,7 +194,7 @@ func spawn_enemy(spec:Dictionary) -> Dictionary:
  var route=aerial_route if d.air else ground_routes[spec.get("route",0)%ground_routes.size()]
  if mode=="adventure" and adventure_wins>=9:
   factor*=1.1 if not spec.get("boss",false) else 1.19
- var enemy={"uid":new_id(),"kind":d.id,"name":d.name,"sprite":d.sprite,"hp":d.hp*factor,"max_hp":d.hp*factor,"damage":d.damage*(1.0+0.04*tier)*(1.39 if mode=="adventure" and adventure_wins>=9 and spec.get("boss",false) else 1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"speed":d.speed*minf(1.65,1.0+0.008*tier)*(1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"reward":d.reward,"armor":d.armor,"air":d.air,"boss":spec.get("boss",false),"final":spec.get("final",false),"phase":1,"path":route,"distance":0.0,"pos":route[0],"freeze":0.0,"immune":0.0,"slow":0.0,"hit":0.0,"anim":0.0,"attack":0.0,"special":7.0,"telegraph":0.0,"regen_block":0.0,"dead":false,"shell":42.0 if d.id=="mutant" else 0.0,"dash":0.0}
+ var enemy={"uid":new_id(),"kind":d.id,"name":d.name,"sprite":d.sprite,"hp":d.hp*factor,"max_hp":d.hp*factor,"damage":d.damage*(1.0+0.04*tier)*(1.39 if mode=="adventure" and adventure_wins>=9 and spec.get("boss",false) else 1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"speed":d.speed*minf(1.65,1.0+0.008*tier)*(1.1 if mode=="adventure" and adventure_wins>=9 else 1.0),"reward":d.reward,"armor":d.armor,"air":d.air,"boss":spec.get("boss",false),"final":spec.get("final",false),"phase":1,"path":route,"distance":0.0,"pos":route[0],"freeze":0.0,"immune":0.0,"slow":0.0,"expose":0.0,"hit":0.0,"anim":0.0,"attack":0.0,"special":7.0,"telegraph":0.0,"regen_block":0.0,"dead":false,"shell":42.0 if d.id=="mutant" else 0.0,"dash":0.0}
  enemies.append(enemy)
  if enemy.boss:
   events.append({"type":"boss","name":enemy.name})
@@ -422,7 +422,7 @@ func damage_enemy(e:Dictionary,amount:float,kind:String="physical") -> void:
    e.dash=2.0
    burst(e.pos,"shell",28)
  var reduction=e.armor if kind in ["physical","arrow"] else e.armor*0.35
- e.hp-=amount*(1.0-reduction)
+ e.hp-=amount*(1.35 if e.get("expose",0.0)>0.0 else 1.0)*(1.0-reduction)
  e.hit=0.16
  e.regen_block=3.0
  if e.hp<=0.0:
@@ -593,6 +593,18 @@ func skill() -> bool:
    if target!=null:
     area_damage(target.pos,88.0,115.0,true)
     burst(target.pos,"rune",88.0)
+  7:
+   summon(point,1,18.0,-6,progression.heroes[7],false)
+   for a in allies:
+    if a.owner==-6 and a.life>0.0:
+     a.hp=260.0; a.max_hp=260.0; a.damage=32.0; a.range=46.0; a.speed=105.0; a.shield=20.0
+   events.append({"type":"summon"})
+  8:
+   var marked=target_at(point,240.0,true)
+   if marked!=null:
+    marked.expose=6.0
+    burst(marked.pos,"rune",30.0)
+    events.append({"type":"mark"})
   12:
    living[0].pos=CxCatalog.nearest_ground(map_index,point+Vector2(120,0))
    hero_target=living[0].pos
@@ -659,6 +671,7 @@ func update_enemies(dt:float) -> void:
   e.freeze=maxf(0.0,e.freeze-dt)
   e.immune=maxf(0.0,e.immune-dt)
   e.slow=maxf(0.0,e.slow-dt)
+  e.expose=maxf(0.0,e.get("expose",0.0)-dt)
   e.hit=maxf(0.0,e.hit-dt)
   e.anim=maxf(0.0,e.anim-dt)
   e.dash=maxf(0.0,e.dash-dt)
