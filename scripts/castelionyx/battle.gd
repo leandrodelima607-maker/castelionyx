@@ -72,7 +72,7 @@ func _init(which_map:int=0,which_mode:String="infinite",mods:Array=[],progress:D
   gold=9999
   prep=999999.0
   allowed_spells=[]
- if mode=="swarm12": allowed_spells=[0,1,2]
+ if mode=="swarm12": allowed_spells=[]
  for i in range(pads.size()): towers.append(null)
  create_heroes()
 
@@ -133,6 +133,18 @@ func set_hero_override(index:int) -> void:
  selected_hero_override=index
  allies.clear()
  create_heroes()
+
+func set_swarm_loadout(hero_index:int,spell_indices:Array) -> bool:
+ if mode!="swarm12" or spell_indices.size()!=3: return false
+ var unique:Array=[]
+ for spell_index in spell_indices:
+  var value=int(spell_index)
+  if value<0 or value>=progression.spells.size() or progression.spells[value]<=0 or unique.has(value): return false
+  unique.append(value)
+ if hero_index<0 or hero_index>=progression.heroes.size() or progression.heroes[hero_index]<=0: return false
+ allowed_spells=unique
+ set_hero_override(hero_index)
+ return true
 
 func hero_allowed() -> bool:
  return not modifiers.has("nohero") and mode!="adventure"
@@ -565,7 +577,7 @@ func update_allies(dt:float) -> void:
 
 func skill() -> bool:
  if special_cd>0.0 or not hero_allowed() or paused or state=="finished": return false
- var index=int(progression.selected)
+ var index=selected_hero_override if selected_hero_override>=0 else int(progression.selected)
  var living=allies.filter(func(a): return a.kind=="hero" and a.hp>0.0)
  if living.is_empty(): return false
  var d=CxCatalog.hero(index,progression.heroes[index])

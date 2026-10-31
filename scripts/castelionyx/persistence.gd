@@ -9,7 +9,7 @@ func _init() -> void:
  load_data()
 
 static func defaults() -> Dictionary:
- return {"version":6,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0,0,0,0],"spells":[1,0,0,0,1,0,0,0,0,0],"tutorial_seen":false,"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
+ return {"version":6,"profile":{},"gems":0,"selected":0,"selected_heroes":[0,-1],"heroes":[1,0,0,0,0,0,0,0,0,0],"towers":[1,1,0,0,0,0,0,0,0,0,0,0],"spells":[1,0,0,0,0,0,0,0,0,0],"tutorial_seen":false,"settings":{"music":0.32,"sfx":0.45,"ui":0.35,"speed":1,"quality":true},"stats":{"total":0,"waves":0,"bosses":0,"time":0.0,"best":0,"worst":-1,"last":{},"adventure_best":0,"adventure_attempts":0,"adventure_claimed":false,"adventure_wins":0,"adventure_extra":0},"player_level":0,"exclusive":{"coin_generator":false,"sky_ballista":false,"barrier_realm":false,"meteor_plus":false,"gem_mine":false,"second_hero_slot":false,"giant_hunter_cosmetic":false,"arcane_sentinel":false},"events":{"survivor_no_army":{"progress":0,"goal":50,"complete":false,"reward_claimed":false},"sky_falls":{"progress":0,"goal":35,"complete":false,"reward_claimed":false},"last_hope":{"progress":0,"goal":25,"complete":false,"reward_claimed":false},"mutant_plague":{"progress":0,"goal":40,"complete":false,"reward_claimed":false},"scarcity_master":{"progress":0,"goal":30,"complete":false,"reward_claimed":false},"extra_hero":{"progress":0,"goal":50,"complete":false,"reward_claimed":false}},"claimed":[]}
 
 static func clean_number(value:Variant,fallback:float,minimum:float,maximum:float) -> float:
  if not (value is int or value is float): return fallback
@@ -41,7 +41,7 @@ static func validate(candidate:Variant) -> Dictionary:
   var values=c.get(key,[])
   if values is Array:
    for i in range(mini(values.size(),result[key].size())):
-    result[key][i]=int(clean_number(values[i],result[key][i],0 if key=="heroes" or (key=="towers" and i==6) else 1,10))
+    result[key][i]=int(clean_number(values[i],result[key][i],0 if key in ["heroes","spells"] or (key=="towers" and i==6) else 1,10))
  result.heroes[0]=maxi(1,result.heroes[0])
  if int(c.get("version",1))<5 and result.spells.size()>4: result.spells[4]=1
  result.selected=int(clean_number(c.get("selected",0),0,0,result.heroes.size()-1))

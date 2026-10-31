@@ -327,7 +327,12 @@ func show_setup(mode:String) -> void:
  var selected_list=persistence.data.selected_heroes if persistence.data.selected_heroes is Array else [persistence.data.selected]
  for hero_index in selected_list:
   if int(hero_index)>=0: hero_names.append(CxCatalog.HEROES[int(hero_index)].name)
- label(col,"Heróis: "+", ".join(hero_names),19)
+ if mode in ["adventure","buildout"]:
+  label(col,"Heróis: não utilizados neste modo.",19,Color("d8866f"))
+ elif mode=="swarm12":
+  label(col,"Herói desta partida: escolha um abaixo.",19)
+ else:
+  label(col,"Heróis: "+", ".join(hero_names),19)
  if mode=="adventure":
   var c=card(col)
   label(c,"Cinco ondas. Uma única recompensa integral.",20)
@@ -359,9 +364,10 @@ func show_setup(mode:String) -> void:
    spell_check.text=CxCatalog.SPELLS[i].name
    spell_check.button_pressed=swarm_spell_choices.has(i)
    spell_check.disabled=persistence.data.spells[i]<=0 and not swarm_spell_choices.has(i)
+   var spell_index=i
    spell_check.toggled.connect(func(pressed):
-    if pressed and swarm_spell_choices.size()<3: swarm_spell_choices.append(i)
-    elif not pressed: swarm_spell_choices.erase(i)
+    if pressed and swarm_spell_choices.size()<3: swarm_spell_choices.append(spell_index)
+    elif not pressed: swarm_spell_choices.erase(spell_index)
     else: spell_check.button_pressed=false
    )
    col.add_child(spell_check)
@@ -400,13 +406,21 @@ func show_modes() -> void:
  button(one_hp,"JOGAR CASTELO DE UM HP",func(): show_setup("boss67"),true)
  var buildout=card(col)
  label(buildout,"Construção até a Onda 101",22,Color("e8c67f"))
- label(buildout,"1.000 moedas antes do ataque, sem herói/feitiços, alcance das estruturas +25%. Depois do início, somente assistir, pausar e 2x. Recompensa: 10.101 gemas.",16)
+ label(buildout,"9.999 moedas antes do ataque, sem herói/feitiços, alcance das estruturas +25%. Depois do início, somente assistir, pausar e 2x. Recompensa: 10.101 gemas.",16)
  button(buildout,"JOGAR CONSTRUÇÃO 101",func(): show_setup("buildout"),true)
  var swarm=card(col)
  label(swarm,"Enxame Duplicado",22,Color("e8c67f"))
  label(swarm,"Um herói, três feitiços escolhidos, apenas Goblins, 10 inimigos iniciais dobrando por onda, HP do castelo em dobro e 12 ondas.",16)
- button(swarm,"JOGAR ENXAME DUPLICADO",func(): show_setup("swarm12"),true)
+ var swarm_button=button(swarm,"JOGAR ENXAME DUPLICADO",func(): show_setup("swarm12"),true)
+ swarm_button.disabled=unlocked_spell_count()<3
+ if swarm_button.disabled: label(swarm,"Bloqueado: compre pelo menos 3 feitiços para escolher os 3 desta partida.",14,Color("d8866f"))
  back(col)
+
+func unlocked_spell_count() -> int:
+ var total=0
+ for level in persistence.data.spells:
+  if int(level)>0: total+=1
+ return total
 
 func launch(mode:String) -> void:
  if mode=="swarm12" and swarm_spell_choices.size()!=3:
@@ -419,8 +433,10 @@ func launch(mode:String) -> void:
  var battle_kind="adventure" if mode=="adventure" else mode if mode in ["boss67","buildout","swarm12"] else "infinite"
  battle=CxBattle.new(selected_map,battle_kind,run_modifiers,persistence.data)
  if mode=="swarm12":
-  battle.allowed_spells=swarm_spell_choices.duplicate()
-  battle.set_hero_override(swarm_hero_choice)
+  if not battle.set_swarm_loadout(swarm_hero_choice,swarm_spell_choices):
+   battle=null
+   notify("O Enxame exige um herói desbloqueado e exatamente três feitiços desbloqueados.")
+   return
  battle_mode=mode
  world.battle=battle
  world.reduced=not persistence.data.settings.quality
@@ -466,7 +482,9 @@ func show_battle_ui() -> void:
  bottom.offset_bottom=-12
  battle_bottom=bottom
  ui.add_child(bottom)
- hint=label(bottom,"Toque num espaço de pedra para construir. Toque na rota para mover o herói.",15,Color("c8d1bd"))
+ var initial_hint="Toque num espaço de pedra para construir. Toque na rota para mover o herói." if battle.hero_allowed() else "Toque num espaço de pedra para construir. Este modo não usa herói."
+ if battle.mode=="buildout": initial_hint="Construa durante a preparação; depois de iniciar, o modo é automático."
+ hint=label(bottom,initial_hint,15,Color("c8d1bd"))
  var spells_row=GridContainer.new()
  spells_row.columns=3
  spell_grid=spells_row
@@ -531,6 +549,9 @@ func refresh_hud() -> void:
  if battle==null or page!="battle" or hud==null: return
  hud.text="CASTELO %.0f/%.0f\n%d OURO · ONDA %d" % [maxf(0,battle.hp),battle.max_hp,battle.gold,maxi(1,battle.wave)]
  status_label.text="Preparação · %ds · %d ondas completas" % [int(ceil(battle.prep)),battle.completed] if battle.state=="preparation" else "Combate · %d vivos · %d por vir" % [battle.alive_count(),battle.pending_count()]
+ if battle.mode=="buildout": hint.text="Construa durante a preparação; depois de iniciar, apenas pausa e 2x." if battle.state=="preparation" else "Modo automático: apenas pausa e 2x."
+ elif not battle.hero_allowed(): hint.text="Toque num espaço de pedra para construir. Este modo não usa herói."
+ else: hint.text="Toque num espaço de pedra para construir. Toque na rota para mover o herói."
  if battle.mode=="adventure": status_label.text+=" · "+CxCatalog.ADVENTURE_NAMES[clampi(battle.wave-1,0,4)]
  var boss=battle.boss_alive()
  boss_label.text="%s · FASE %d · VIDA %.0f/%.0f" % [boss.name,boss.phase,boss.hp,boss.max_hp] if boss!=null else "Sem herói nesta onda" if not battle.hero_allowed() else "Toque na rota para comandar seu herói"
@@ -569,7 +590,8 @@ func _unhandled_input(event:InputEvent) -> void:
   if page=="battle":
    if event.keycode==KEY_SPACE: battle.start_wave()
    if event.keycode==KEY_H: battle.skill()
-   if event.keycode in [KEY_1,KEY_2,KEY_3,KEY_4,KEY_5]: choose_spell(event.keycode-KEY_1)
+   if event.keycode in [KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9]: choose_spell(event.keycode-KEY_1)
+   if event.keycode==KEY_0: choose_spell(9)
  if event is InputEventScreenTouch and event.pressed:
   pointer_touch=true
   handle_field(event.position)

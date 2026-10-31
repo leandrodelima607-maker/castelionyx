@@ -15,6 +15,7 @@ func _initialize() -> void:
 
 func run() -> void:
  var d=CxPersistence.defaults()
+ d.spells[1]=1; d.spells[2]=1; d.spells[3]=1; d.spells[4]=1
  check(CxPersistence.validate({"gems":"bad","heroes":[0,9],"selected":99}).heroes[0]==1,"corrupt save safe and initial hero preserved")
  check(CxPersistence.validate({"gems":-99}).gems==0,"negative currency rejected")
  var m=CxBattle.new(0,"infinite",[],d)
@@ -202,8 +203,13 @@ func run() -> void:
  var swarm=CxBattle.new(0,"swarm12",[],d)
  check(swarm.max_hp==600.0 and swarm.wave_schedule(1).size()==10 and swarm.wave_schedule(2).size()==20,"swarm mode doubles ten weak enemies")
  check(swarm.wave_schedule(12).size()==mini(4096,10*int(pow(2.0,11))),"swarm mode reaches exactly twelve escalating waves")
- swarm.set_hero_override(0)
- check(swarm.allies.size()==1 and swarm.allies[0].hero==0,"swarm mode applies the chosen single hero")
+ var new_profile_swarm=CxBattle.new(0,"swarm12",[],CxPersistence.defaults())
+ check(not new_profile_swarm.set_swarm_loadout(0,[0,1,2]),"swarm rejects locked or incomplete spell loadouts")
+ var swarm_ready_data=CxPersistence.defaults()
+ swarm_ready_data.spells[1]=1; swarm_ready_data.spells[2]=1; swarm_ready_data.heroes[1]=1
+ var swarm_ready=CxBattle.new(0,"swarm12",[],swarm_ready_data)
+ check(swarm_ready.set_swarm_loadout(1,[0,1,2]) and swarm_ready.allies.size()==1 and swarm_ready.allies[0].hero==1,"swarm applies the chosen single hero and exactly three unlocked spells")
+ check(swarm_ready.allowed_spells==[0,1,2],"swarm exposes only the three selected spells to the authoritative battle")
  check(swarm.spells.size()==10,"battle has all ten spell cooldown slots")
  var falcon_data=CxPersistence.defaults()
  falcon_data.towers[11]=1
@@ -214,7 +220,7 @@ func run() -> void:
  check(falcon_battle.allies.size()>1 and falcon_battle.allies[-1].life>1000.0 and falcon_battle.allies[-1].air,"falcon nest releases permanent aerial helpers")
  var gift=CxPersistence.new()
  gift.data=CxPersistence.defaults()
- check(gift.data.spells.count(1)==2 and gift.data.spells[0]==1 and gift.data.spells[4]==1,"new profile starts with exactly meteors and guards")
+ check(gift.data.spells.count(1)==1 and gift.data.spells[0]==1,"new profile starts with exactly meteors")
  check(gift.profile("Teste","teste@reino.com",0) and gift.data.gems==100,"new profile receives 100 gem gift")
  check(gift.profile("Teste 2","teste2@reino.com",1) and gift.data.gems==100,"profile edit does not duplicate gift")
  check(CxCatalog.HEROES.size()>=10 and CxCatalog.TOWERS.size()>=12 and CxCatalog.SPELLS.size()>=10 and CxCatalog.BOSSES.size()>=7,"new hero towers spells and bosses exist in catalog")
